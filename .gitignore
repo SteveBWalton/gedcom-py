@@ -1,0 +1,14 @@
+# The following files will be ignored by git
+
+# Subfolders to ignore
+_build/
+doxygen/
+Styles/
+walton/
+docs/
+
+# File Types to ignore
+*pyc
+
+# Files to ignore
+

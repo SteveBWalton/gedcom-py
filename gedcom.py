@@ -10,11 +10,14 @@ import sys
 import os
 import argparse
 import platform
+import subprocess
 from enum import Enum
 
 # Application libraries.
 import walton.install
 import walton.ansi
+from application import Application
+import main_window
 
 class GedComObjects(Enum):
     INDIVIDUAL = 1
@@ -83,6 +86,18 @@ class GedCom:
 
 
 
+def isGraphicsAvailable():
+    ''' Returns true if the graphical display is available. '''
+    if platform.system() == 'Windows':
+        # Graphics are always available under Windows.
+        return True
+    with subprocess.Popen(["xset", "-q"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        process.communicate()
+        return process.returncode == 0
+    return False
+
+
+
 def main():
     ''' Entry point for the gedcom viewer. '''
     # Process the command line arguments.
@@ -106,6 +121,19 @@ def main():
 
     gedCom = GedCom()
     gedCom.open(args.gedcom)
+
+    application = Application(args, gedCom)
+
+    if isGraphicsAvailable():
+        # Run via wxPython main window.
+        wxApp = main_window.WxApp(application)
+        application.postRenderPage = wxApp.frame.displayCurrentPage
+        # application.actions = wxApp.frame.actions
+        # wxPython loop.
+        wxApp.runMainLoop()
+    else:
+        print('Error - Graphics are not available.')
+
 
 
 

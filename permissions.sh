@@ -12,9 +12,9 @@ if [ ! -e "walton/__init__.py" ] ; then
 fi
 
 # Check that the library modules exist.
-#if [ ! -e "walton/xml.py" ] ; then
-#    ln -s ../../Library/py3/modXml.py walton/xml.py
-#fi
+if [ ! -e "walton/xml.py" ] ; then
+    ln -s ../../../Library/py3/modXml.py walton/xml.py
+fi
 if [ ! -e "walton/html.py" ] ; then
     ln -s ../../../Library/py3/modHtml.py walton/html.py
 fi
