@@ -120,7 +120,10 @@ def main():
     print(f'File to view is {walton.ansi.LIGHT_YELLOW}{args.gedcom}{walton.ansi.RESET_ALL}.')
 
     gedCom = GedCom()
-    gedCom.open(args.gedcom)
+    if os.path.exists(args.gedcom):
+        gedCom.open(args.gedcom)
+    else:
+        print(f"'{args.gedcom}' is missing.")
 
     application = Application(args, gedCom)
 
