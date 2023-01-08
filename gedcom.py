@@ -18,6 +18,7 @@ import walton.install
 import walton.ansi
 from application import Application
 import main_window
+from gedcom_date import GedComDate
 
 class GedComObjects(Enum):
     INDIVIDUAL = 1

@@ -234,8 +234,12 @@ class Render(walton.toolbar.IToolbar):
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
         self.html.addLine("<h1>Home</h1>")
         self.html.addLine("<p>Hello World</p>")
-        self.html.addLine(f'<svg width="{800}" height="{400}" style="vertical-align: top; border: 1px solid black;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+        self.html.addLine('<div style="border: 1px solid black; width: 500px; height: 300px;">')
+        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: 400px; height: 200px;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+        self.html.addLine('<line x1="0" y1="0" x2="100" y2="100" stroke="red"  stroke-width="3" />')
         self.html.addLine('</svg>')
+        self.html.addLine('</div>')
+        self.html.addLine("<p>More Hello World</p>")
 
 
 
