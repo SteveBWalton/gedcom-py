@@ -53,23 +53,9 @@ class GedComDate:
 
         # If FROM .. TO or BET ... AND then deal with each half separately.
 
+        # Default status.
         self.status = GedComDateStatus.ON
-
-        #before = dateString.find('BEF')
-        #if before >= 0:
-        #    self.status = GedComDateStatus.BEFORE
-        #    dateString = f'{dateString[:before]}{dateString[before+3:]}'
-        #    print(f'\t\'{dateString}\'')
-        #after = dateString.find('AFT')
-        #if after >= 0:
-        #    self.status = GedComDateStatus.AFTER
-        #    dateString = f'{dateString[:after]}{dateString[after+3:]}'
-        #    print(f'\t\'{dateString}\'')
-        #about = dateString.find('ABT')
-        #if about >= 0:
-        #    self.isAbout = True
-        #    dateString = f'{dateString[:about]}{dateString[about+3:]}'
-        #    print(f'\t\'{dateString}\'')
+        months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 
         month = None
         numberOne = None
@@ -94,8 +80,8 @@ class GedComDate:
                 self.status = GedComDateStatus.AFTER
             elif block == 'ABT':
                 self.isAbout = True
-            elif block == 'JAN':
-                month = 1
+            elif block in months:
+                month = months.index(block) + 1
                 if isGuess:
                     self.monthStatus = GedComDateStatus.GUESS
                 else:

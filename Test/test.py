@@ -40,6 +40,7 @@ def test():
     testGedComDate('YES')
     testGedComDate('1 JAN 2023')
     testGedComDate('2012')
+    testGedComDate('10 MAR 2022')
     testGedComDate('BEF 1 JAN 2023')
     testGedComDate('AFT 1 JAN 2023')
     testGedComDate('ABT 1 JAN 2023')
