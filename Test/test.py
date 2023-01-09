@@ -32,7 +32,7 @@ def testGedComDate(dateString):
 
 
 
-def test():
+def testDates():
     ''' Run some tests on the GedComDate object. '''
     testGedComDate('')
     testGedComDate('UNKNOWN')
@@ -59,7 +59,7 @@ def main():
     argParse.add_argument('gedcom', nargs='?', help='The gedcom file to view.')
     args = argParse.parse_args()
 
-    test()
+    testDates()
 
 
 
