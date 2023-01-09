@@ -39,12 +39,14 @@ def test():
     testGedComDate('DEAD')
     testGedComDate('YES')
     testGedComDate('1 JAN 2023')
+    testGedComDate('2012')
     testGedComDate('BEF 1 JAN 2023')
     testGedComDate('AFT 1 JAN 2023')
     testGedComDate('ABT 1 JAN 2023')
     testGedComDate('BEF ABT 1 JAN 2023')
     testGedComDate('AFT ABT 1 JAN 2023')
     testGedComDate('<1> JAN 2023')
+    testGedComDate('ABT <JAN> 2023')
 
 
 
