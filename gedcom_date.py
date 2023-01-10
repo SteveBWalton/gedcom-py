@@ -64,7 +64,7 @@ class GedComDate:
         numberTwoGuess = False
         blocks = dateString.split()
         for block in blocks:
-            # print(f'\t\'{block}\'')
+            #print(f'\t\'{block}\'')
             isGuess = False
             if block[:1] == '<':
                 # Guess.
@@ -73,7 +73,7 @@ class GedComDate:
             if block[-1:] == '>':
                 # Guess close.
                 block = block[:-1]
-                # print(f'\t\'{block}\'')
+                #print(f'\t\'{block}\'')
             if block == 'BEF':
                 self.status = GedComDateStatus.BEFORE
             elif block == 'AFT':
@@ -108,6 +108,7 @@ class GedComDate:
 
         else:
             year = numberOne
+            # print(f'year is {year}')
             if numberOneGuess:
                 self.yearStatus = GedComDateStatus.GUESS
             else:
@@ -127,7 +128,9 @@ class GedComDate:
             else:
                 self.dayStatus = GedComDateStatus.KNOWN
 
+        #print(f'date({year}, {month}, {day})')
         self.theDate = datetime.date(year, month, day)
+        #print(f'theDate = {self.theDate}')
 
 
 
@@ -157,9 +160,8 @@ class GedComDate:
             result = f'{result}<{self.theDate.strftime("%B")}> '
         if self.yearStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%Y")}'
-        elif self.yearStatus == GedComDateStatus.KNOWN:
+        elif self.yearStatus == GedComDateStatus.GUESS:
             result = f'{result}<{self.theDate.strftime("%Y")}>'
-
 
         # Return the calculated value.
         return result.strip()
@@ -192,7 +194,7 @@ class GedComDate:
             result = f'{result}<{self.theDate.strftime("%b")}> '
         if self.yearStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%y")}'
-        elif self.yearStatus == GedComDateStatus.KNOWN:
+        elif self.yearStatus == GedComDateStatus.GUESS:
             result = f'{result}<{self.theDate.strftime("%y")}>'
 
         # Return the calculated value.
@@ -227,7 +229,7 @@ class GedComDate:
             result = f'{result}<{self.theDate.strftime("%b").upper()}> '
         if self.yearStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%Y")}'
-        elif self.yearStatus == GedComDateStatus.KNOWN:
+        elif self.yearStatus == GedComDateStatus.GUESS:
             result = f'{result}<{self.theDate.strftime("%Y")}>'
 
         # Return the calculated value.

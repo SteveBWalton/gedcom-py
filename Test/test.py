@@ -48,6 +48,8 @@ def testDates():
     testGedComDate('AFT ABT 1 JAN 2023')
     testGedComDate('<1> JAN 2023')
     testGedComDate('ABT <JAN> 2023')
+    testGedComDate('ABT 2023')
+    testGedComDate('ABT <2023>')
 
 
 
@@ -57,6 +59,7 @@ def main():
     # This might end the program (--help).
     argParse = argparse.ArgumentParser(prog='test', description='Test the python gedcom library.')
     argParse.add_argument('gedcom', nargs='?', help='The gedcom file to view.')
+    argParse.add_argument('-d', '--date', help='Test the gedcom date class.', action='store_true')
     args = argParse.parse_args()
 
     testDates()
