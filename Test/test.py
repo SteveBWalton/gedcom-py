@@ -23,12 +23,8 @@ import gedcom_date
 
 def testGedComDate(dateString):
     ''' Test the GedComDate object with the specified value. '''
-    print(f'\'{dateString}\'')
-    gedComDate = gedcom_date.GedComDate()
-    gedComDate.parse(dateString)
-    print(f'\t{gedComDate.toLongString()}')
-    print(f'\t{gedComDate.toShortString()}')
-    print(f'\t\'{gedComDate.toGedComDate()}\'')
+    gedComDate = gedcom_date.GedComDate(dateString)
+    print(f'\'{dateString}\' => [\'{gedComDate.toLongString()}\', \'{gedComDate.toShortString()}\', \'{gedComDate.toGedComDate()}\']')
 
 
 
@@ -50,6 +46,8 @@ def testDates():
     testGedComDate('ABT <JAN> 2023')
     testGedComDate('ABT 2023')
     testGedComDate('ABT <2023>')
+    testGedComDate('EST 10 APR 2022')
+    testGedComDate('CAL BEF MAY 2021')
 
 
 

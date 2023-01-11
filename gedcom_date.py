@@ -20,38 +20,49 @@ class GedComDateStatus(Enum):
     GUESS = 102
     UNKNOWN = 103
 
-
+class GedComDateAccuracy(Enum):
+    KNOWN = 1
+    ABOUT = 2
+    ESTIMATED = 3
+    CALCULATED = 4
 
 
 class GedComDate:
     '''
     Class to represent a date in the gedcom python library.
+
+    :ivar GedComDateStatus status: The status of the date, EMPTY, ON, BEFORE, AFTER.
+    :ivar GedComDateAccuracy accuracy: The accuracy of the date, KNOWN, ABOUT, ESTIMATED, CALCULATED
     '''
 
 
-    def __init__(self):
+    def __init__(self, dateString = None):
         '''
         Class constructor for the :py:class:`GedComDate` class.
         '''
-        self.status = GedComDateStatus.EMPTY
-        self.isAbout = False
-        self.dayStatus = GedComDateStatus.UNKNOWN
-        self.monthStatus = GedComDateStatus.UNKNOWN
-        self.yearStatus = GedComDateStatus.UNKNOWN
-        # pub is_month_quarter: bool,
-        self.theDate = datetime.date.today()
+        self.parse(dateString)
+        #self.status = GedComDateStatus.EMPTY
+        #self.isAbout = False
+        #self.dayStatus = GedComDateStatus.UNKNOWN
+        #self.monthStatus = GedComDateStatus.UNKNOWN
+        #self.yearStatus = GedComDateStatus.UNKNOWN
+        ## pub is_month_quarter: bool,
+        #self.theDate = datetime.date.today()
 
 
 
-    def parse(self, dateString):
+    def parse(self, dateString = None):
         '''
         Update the object to the date specified in the string.
         '''
-        if dateString == '' or dateString.upper() == 'UNKNOWN':
+        if dateString is None or dateString == '' or dateString.upper() == 'UNKNOWN':
             self.status = GedComDateStatus.EMPTY
             return
 
         # If FROM .. TO or BET ... AND then deal with each half separately.
+
+        # Default accuracy.
+        self.accuracy = GedComDateAccuracy.KNOWN
 
         # Default status.
         self.status = GedComDateStatus.ON
@@ -79,7 +90,11 @@ class GedComDate:
             elif block == 'AFT':
                 self.status = GedComDateStatus.AFTER
             elif block == 'ABT':
-                self.isAbout = True
+                self.accuracy = GedComDateAccuracy.ABOUT
+            elif block == 'EST':
+                self.accuracy = GedComDateAccuracy.ESTIMATED
+            elif block == 'CAL':
+                self.accuracy = GedComDateAccuracy.CALCULATED
             elif block in months:
                 month = months.index(block) + 1
                 if isGuess:
@@ -138,7 +153,7 @@ class GedComDate:
     def toLongString(self):
         ''' Returns the GedCom date as a long string. '''
         if self.status == GedComDateStatus.EMPTY:
-            return 'Unknown'
+            return 'unknown'
         elif self.status == GedComDateStatus.BEFORE:
             result = 'before '
         elif self.status == GedComDateStatus.AFTER:
@@ -147,21 +162,25 @@ class GedComDate:
             result = 'on '
         # Between is another possibility for later.
 
-        if self.isAbout:
+        if self.accuracy == GedComDateAccuracy.ABOUT:
             result = f'{result}about '
+        elif self.accuracy == GedComDateAccuracy.ESTIMATED:
+            result = f'{result}estimated '
+        elif self.accuracy == GedComDateAccuracy.CALCULATED:
+            result = f'{result}calculated '
 
         if self.dayStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%-d").strip()} '
         elif self.dayStatus == GedComDateStatus.GUESS:
-            result = f'{result}<{self.theDate.strftime("%-d").strip()}> '
+            result = f'{result}({self.theDate.strftime("%-d").strip()}) '
         if self.monthStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%B")} '
         elif self.monthStatus == GedComDateStatus.GUESS:
-            result = f'{result}<{self.theDate.strftime("%B")}> '
+            result = f'{result}({self.theDate.strftime("%B")}) '
         if self.yearStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%Y")}'
         elif self.yearStatus == GedComDateStatus.GUESS:
-            result = f'{result}<{self.theDate.strftime("%Y")}>'
+            result = f'{result}({self.theDate.strftime("%Y")})'
 
         # Return the calculated value.
         return result.strip()
@@ -172,7 +191,7 @@ class GedComDate:
     def toShortString(self):
         ''' Returns the GedCom date as a short string. '''
         if self.status == GedComDateStatus.EMPTY:
-            return 'Unknown'
+            return 'unknown'
         elif self.status == GedComDateStatus.BEFORE:
             result = 'before '
         elif self.status == GedComDateStatus.AFTER:
@@ -181,21 +200,25 @@ class GedComDate:
             result = 'on '
         # Between is another possibility for later.
 
-        if self.isAbout:
+        if self.accuracy == GedComDateAccuracy.ABOUT:
             result = f'{result}about '
+        elif self.accuracy == GedComDateAccuracy.ESTIMATED:
+            result = f'{result}estimated '
+        elif self.accuracy == GedComDateAccuracy.CALCULATED:
+            result = f'{result}calculated '
 
         if self.dayStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%-d").strip()} '
         elif self.dayStatus == GedComDateStatus.GUESS:
-            result = f'{result}<{self.theDate.strftime("%-d").strip()}> '
+            result = f'{result}({self.theDate.strftime("%-d").strip()}) '
         if self.monthStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%b")} '
         elif self.monthStatus == GedComDateStatus.GUESS:
-            result = f'{result}<{self.theDate.strftime("%b")}> '
+            result = f'{result}({self.theDate.strftime("%b")}) '
         if self.yearStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%y")}'
         elif self.yearStatus == GedComDateStatus.GUESS:
-            result = f'{result}<{self.theDate.strftime("%y")}>'
+            result = f'{result}({self.theDate.strftime("%y")})'
 
         # Return the calculated value.
         return result.strip()
@@ -216,8 +239,12 @@ class GedComDate:
             result = ''
         # Between is another possibility for later.
 
-        if self.isAbout:
+        if self.accuracy == GedComDateAccuracy.ABOUT:
             result = f'{result}ABT '
+        elif self.accuracy == GedComDateAccuracy.ESTIMATED:
+            result = f'{result}EST '
+        elif self.accuracy == GedComDateAccuracy.CALCULATED:
+            result = f'{result}CAL '
 
         if self.dayStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%-d").strip()} '
