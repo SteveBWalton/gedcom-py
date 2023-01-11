@@ -56,6 +56,7 @@ class Render(walton.toolbar.IToolbar):
             'home'              : self.showHome,
             'index'             : self.showIndex,
             'about'             : self.showAbout,
+            'individual'        : self.showIndividual
         }
 
 
@@ -240,8 +241,57 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('</svg>')
         self.html.addLine('</div>')
         self.html.addLine("<p>More Hello World</p>")
+        individual = self.application.gedcom.individuals[self.application.gedcom.defaultIdentity]
+        self.html.addLine('<p>')
+        self.html.addLine(f'<a href="app:individual?person={individual.identity}">{individual.getName()}</a> was born {individual.birthDate.toLongString()}')
+        self.html.addLine('</p>')
 
 
+
+    def showIndividual(self, parameters):
+        ''' Show an individual. '''
+        identity = parameters['person'] if 'person' in parameters else None
+
+        individual = self.application.gedcom.individuals[identity]
+
+        parentFamily = None
+        if individual.parentFamilyIdentity is not None:
+            parentFamily = self.application.gedcom.families[individual.parentFamilyIdentity]
+
+        self.html.clear()
+        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.html.addLine(f"<h1>{individual.getName()}</h1>")
+        self.html.addLine('<p>')
+        self.html.addLine(f'<a href="app:individual?person={individual.identity}">{individual.getName()}</a> was born {individual.birthDate.toLongString()}')
+
+        for familyIdentity in individual.familyIdentities:
+            partner = None
+            family = self.application.gedcom.families[familyIdentity]
+            if family.wifeIdentity is not None:
+                partner = self.application.gedcom.individuals[family.wifeIdentity]
+            if partner is not None:
+                self.html.addLine(f'He married <a href="app:individual?person={partner.identity}">{partner.getName()}</a>.')
+
+            if len(family.childrenIdentities) == 0:
+                self.html.addLine(f'They had no children.')
+            else:
+                self.html.add(f'They had ')
+                for childIdentity in family.childrenIdentities:
+                    child = self.application.gedcom.individuals[childIdentity]
+                    self.html.add(f'<a href="app:individual?person={child.identity}">{child.getName()}</a> ')
+
+        if parentFamily is not None:
+            father = None
+            if parentFamily.husbandIdentity is not None:
+                father = self.application.gedcom.individuals[parentFamily.husbandIdentity]
+            mother = None
+            if parentFamily.wifeIdentity is not None:
+                mother = self.application.gedcom.individuals[parentFamily.wifeIdentity]
+
+            if father is not None and mother is not None:
+                self.html.addLine(f'His parents were <a href="app:individual?person={father.identity}">{father.getName()}</a> and <a href="app:individual?person={mother.identity}">{mother.getName()}</a>.')
+
+        self.html.addLine('</p>')
 
     def showIndex(self, _parameters):
         ''' Render the index page. '''

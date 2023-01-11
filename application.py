@@ -39,7 +39,7 @@ class Application(walton.application.IApplication):
 
 
 
-    def __init__(self, args, gedCom):
+    def __init__(self, args, gedcom):
         '''
         :param object args: The program arguments.
 
@@ -63,7 +63,7 @@ class Application(walton.application.IApplication):
         self.configuration = configuration.Configuration()
 
         # The gedcom object for the gedcom application.
-        self.gedCom = gedCom
+        self.gedcom = gedcom
 
         # The Render object for the application.
         # This is the object that renders the application results to html pages for display.

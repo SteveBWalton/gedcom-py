@@ -24,25 +24,27 @@ class GedComIndividual:
     Class to represent an individual in the gedcom python library.
 
     :ivar string identity: The identity of the individual in the gedcom file.
+    :ivar GedCom gedcom: The gedcom object that contains this individual.
     :ivar string givenName: The given name of the individual.
     :ivar string surname: The surname of the individual.
     '''
 
 
 
-    def __init__(self, gedcom = None):
+    def __init__(self, gedcom, gedcomFile = None):
         ''' Class constructor for an individual in a gedcom file. '''
+        self.gedcom = gedcom
         self.identity = ''
         self.givenName = ''
         self.surname = ''
         self.sex = IndividualSex.MALE
         self.birthDate = GedComDate()
-        # Family of own marrage.
-        self.familyIdentity = None
+        # Families of own marrage.
+        self.familyIdentities = []
         # Family of parents marrage.
         self.parentFamilyIdentity = None
-        if gedcom != None:
-            self.parse(gedcom)
+        if gedcomFile != None:
+            self.parse(gedcomFile)
 
 
 
@@ -115,14 +117,14 @@ class GedComIndividual:
 
 
 
-    def parse(self, gedcom):
-        ''' Build the individual from the specified gedcom settings. '''
+    def parse(self, gedcomFile):
+        ''' Build the individual from the specified gedcomFile settings. '''
         # Add an extra line to flush the final tag.
-        gedcom.append('1 EXIT')
+        gedcomFile.append('1 EXIT')
 
         # Loop through the tags looking for level 1 tags.
         objectLines = []
-        for line in gedcom:
+        for line in gedcomFile:
             if line[:1] == '1':
                 # Deal with the old objectLines.
                 tags = objectLines[0].split()
@@ -138,7 +140,7 @@ class GedComIndividual:
                     pass
                 elif tags[1] == 'FAMS':
                     # Family spouse.
-                    self.familyIdentity = tags[2][1:-1]
+                    self.familyIdentities.append(tags[2][1:-1])
                 elif tags[1] == 'FAMC':
                     # Family child.  Must add this person as a child of the family.
                     self.parentFamilyIdentity = tags[2][1:-1]
@@ -161,4 +163,10 @@ class GedComIndividual:
             objectLines.append(line)
 
         # Debug output.
-        print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\', \'{self.birthDate.toLongString()}\', \'{ self.familyIdentity}\', \'{ self.parentFamilyIdentity}\'')
+        print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\', \'{self.birthDate.toLongString()}\', \'{ self.familyIdentities}\', \'{ self.parentFamilyIdentity}\'')
+
+
+
+    def getName(self):
+        ''' Returns the full name of the individual. '''
+        return self.givenName + ' ' + self.surname

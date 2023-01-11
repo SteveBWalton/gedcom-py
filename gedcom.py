@@ -20,6 +20,7 @@ from application import Application
 import main_window
 from gedcom_date import GedComDate
 from gedcom_individual import GedComIndividual
+from gedcom_family import GedComFamily
 
 
 
@@ -34,7 +35,13 @@ class GedComObjects(Enum):
 
 
 class GedCom:
-    ''' Class to represent a GedCom file. '''
+    '''
+    Class to represent a gedcom file.
+
+    :ivar dict(GedComIndividual) individuals: Collection of individuals in this gedcom.
+    :ivar dict(GedComFamily) family: Collection of families in this gedcom.
+    :ivar string defaultIdentity: The identity of the default individual.
+    '''
 
 
 
@@ -43,8 +50,9 @@ class GedCom:
         file = open(fileName, 'r')
         objectType = GedComObjects.UNKNOWN
         objectLines = []
+        self.defaultIdentity = None
         self.individuals = {}
-        self.families = []
+        self.families = {}
         self.media = []
         self.sources = []
         line = file.readline().rstrip('\n')
@@ -52,11 +60,13 @@ class GedCom:
             if line[:1] == '0':
                 if objectType == GedComObjects.INDIVIDUAL:
                     # Add a new individual.
-                    individual = GedComIndividual(objectLines)
-                    # self.individuals.append(individual)
+                    individual = GedComIndividual(self, objectLines)
+                    if len(self.individuals) == 0:
+                        self.defaultIdentity = individual.identity
                     self.individuals[individual.identity] = individual
                 elif objectType == GedComObjects.FAMILY:
-                    self.families.append(1)
+                    family = GedComFamily(self, objectLines)
+                    self.families[family.identity] = family
                 elif objectType == GedComObjects.MEDIA:
                     self.media.append(1)
                 elif objectType == GedComObjects.SOURCE:
