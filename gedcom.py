@@ -19,6 +19,7 @@ import walton.ansi
 from application import Application
 import main_window
 from gedcom_date import GedComDate
+from gedcom_individual import GedComIndividual
 
 
 
@@ -34,6 +35,9 @@ class GedComObjects(Enum):
 
 class GedCom:
     ''' Class to represent a GedCom file. '''
+
+
+
     def open(self, fileName):
         ''' Open the specified gedcom file. '''
         file = open(fileName, 'r')
@@ -48,7 +52,8 @@ class GedCom:
             if line[:1] == '0':
                 if objectType == GedComObjects.INDIVIDUAL:
                     # Add a new individual.
-                    self.individuals.append(1)
+                    individual = GedComIndividual(objectLines)
+                    self.individuals.append(individual)
                 elif objectType == GedComObjects.FAMILY:
                     self.families.append(1)
                 elif objectType == GedComObjects.MEDIA:
@@ -74,12 +79,9 @@ class GedCom:
                     print(line[-4:])
                     objectType = GedComObjects.UNKNOWN
                 objectLines = []
-                objectLines.append(line)
-            else:
-                # Add line to current group.
-                objectLines.append(line)
 
-
+            # Add line to current group.
+            objectLines.append(line)
 
             # Read the next line.
             line = file.readline().rstrip('\n')
