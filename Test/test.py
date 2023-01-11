@@ -48,6 +48,10 @@ def testDates():
     testGedComDate('ABT <2023>')
     testGedComDate('EST 10 APR 2022')
     testGedComDate('CAL BEF MAY 2021')
+    testGedComDate('BET APR 1967 AND JUN 1967')
+    testGedComDate('ABT BET APR 1967 AND JUN 1967')
+    testGedComDate('FROM APR 1967 TO JUN 1967')
+    testGedComDate('ABT FROM APR 1967 TO JUN 1967')
 
 
 

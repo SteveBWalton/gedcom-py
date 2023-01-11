@@ -43,7 +43,7 @@ class GedCom:
         file = open(fileName, 'r')
         objectType = GedComObjects.UNKNOWN
         objectLines = []
-        self.individuals = []
+        self.individuals = {}
         self.families = []
         self.media = []
         self.sources = []
@@ -53,7 +53,8 @@ class GedCom:
                 if objectType == GedComObjects.INDIVIDUAL:
                     # Add a new individual.
                     individual = GedComIndividual(objectLines)
-                    self.individuals.append(individual)
+                    # self.individuals.append(individual)
+                    self.individuals[individual.identity] = individual
                 elif objectType == GedComObjects.FAMILY:
                     self.families.append(1)
                 elif objectType == GedComObjects.MEDIA:

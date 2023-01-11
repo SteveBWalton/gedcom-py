@@ -15,6 +15,9 @@ class GedComDateStatus(Enum):
     ON = 2
     BEFORE = 3
     AFTER = 4
+    BETWEEN = 5
+    FROM = 6
+    NOT_ON = 9
 
     KNOWN = 101
     GUESS = 102
@@ -55,11 +58,26 @@ class GedComDate:
         '''
         Update the object to the date specified in the string.
         '''
+        self.the2ndDate = None
         if dateString is None or dateString == '' or dateString.upper() == 'UNKNOWN':
             self.status = GedComDateStatus.EMPTY
             return
 
         # If FROM .. TO or BET ... AND then deal with each half separately.
+        if 'BET' in dateString:
+            index = dateString.index('AND')
+            afterString = dateString[index+4:]
+            beforeString = dateString[:index-1]
+            self.the2ndDate = GedComDate(afterString)
+            self.the2ndDate.status = GedComDateStatus.NOT_ON
+            dateString = beforeString
+        if 'FROM' in dateString:
+            index = dateString.index('TO')
+            afterString = dateString[index+3:]
+            beforeString = dateString[:index-1]
+            self.the2ndDate = GedComDate(afterString)
+            self.the2ndDate.status = GedComDateStatus.NOT_ON
+            dateString = beforeString
 
         # Default accuracy.
         self.accuracy = GedComDateAccuracy.KNOWN
@@ -89,14 +107,18 @@ class GedComDate:
                 self.status = GedComDateStatus.BEFORE
             elif block == 'AFT':
                 self.status = GedComDateStatus.AFTER
+            elif block == 'BET':
+                self.status = GedComDateStatus.BETWEEN
+            elif block == 'FROM':
+                self.status = GedComDateStatus.FROM
             elif block == 'ABT':
                 self.accuracy = GedComDateAccuracy.ABOUT
             elif block == 'EST':
                 self.accuracy = GedComDateAccuracy.ESTIMATED
             elif block == 'CAL':
                 self.accuracy = GedComDateAccuracy.CALCULATED
-            elif block in months:
-                month = months.index(block) + 1
+            elif block.upper() in months:
+                month = months.index(block.upper()) + 1
                 if isGuess:
                     self.monthStatus = GedComDateStatus.GUESS
                 else:
@@ -158,6 +180,12 @@ class GedComDate:
             result = 'before '
         elif self.status == GedComDateStatus.AFTER:
             result = 'after '
+        elif self.status == GedComDateStatus.BETWEEN:
+            result = 'between '
+        elif self.status == GedComDateStatus.FROM:
+            result = 'from '
+        elif self.status == GedComDateStatus.NOT_ON:
+            result = ''
         else:
             result = 'on '
         # Between is another possibility for later.
@@ -182,6 +210,11 @@ class GedComDate:
         elif self.yearStatus == GedComDateStatus.GUESS:
             result = f'{result}({self.theDate.strftime("%Y")})'
 
+        if self.status == GedComDateStatus.BETWEEN:
+            result = f'{result.strip()} and {self.the2ndDate.toLongString()}'
+        if self.status == GedComDateStatus.FROM:
+            result = f'{result.strip()} to {self.the2ndDate.toLongString()}'
+
         # Return the calculated value.
         return result.strip()
 
@@ -196,6 +229,12 @@ class GedComDate:
             result = 'before '
         elif self.status == GedComDateStatus.AFTER:
             result = 'after '
+        elif self.status == GedComDateStatus.BETWEEN:
+            result = 'between '
+        elif self.status == GedComDateStatus.FROM:
+            result = 'from '
+        elif self.status == GedComDateStatus.NOT_ON:
+            result = ''
         else:
             result = 'on '
         # Between is another possibility for later.
@@ -220,6 +259,11 @@ class GedComDate:
         elif self.yearStatus == GedComDateStatus.GUESS:
             result = f'{result}({self.theDate.strftime("%y")})'
 
+        if self.status == GedComDateStatus.BETWEEN:
+            result = f'{result.strip()} and {self.the2ndDate.toShortString()}'
+        if self.status == GedComDateStatus.FROM:
+            result = f'{result.strip()} to {self.the2ndDate.toShortString()}'
+
         # Return the calculated value.
         return result.strip()
 
@@ -235,6 +279,12 @@ class GedComDate:
             result = 'BEF '
         elif self.status == GedComDateStatus.AFTER:
             result = 'AFT '
+        elif self.status == GedComDateStatus.BETWEEN:
+            result = 'BET '
+        elif self.status == GedComDateStatus.FROM:
+            result = 'FROM '
+        elif self.status == GedComDateStatus.NOT_ON:
+            result = ''
         else:
             result = ''
         # Between is another possibility for later.
@@ -258,6 +308,11 @@ class GedComDate:
             result = f'{result}{self.theDate.strftime("%Y")}'
         elif self.yearStatus == GedComDateStatus.GUESS:
             result = f'{result}<{self.theDate.strftime("%Y")}>'
+
+        if self.status == GedComDateStatus.BETWEEN:
+            result = f'{result.strip()} AND {self.the2ndDate.toGedComDate()}'
+        if self.status == GedComDateStatus.FROM:
+            result = f'{result.strip()} TO {self.the2ndDate.toGedComDate()}'
 
         # Return the calculated value.
         return result.strip()
