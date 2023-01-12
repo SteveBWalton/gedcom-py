@@ -10,7 +10,7 @@ from enum import Enum
 
 # Application libraries.
 from gedcom_date import GedComDate
-
+from gedcom_place import GedComPlace
 
 
 class IndividualSex(Enum):
@@ -60,7 +60,9 @@ class GedComIndividual:
             if tags[1] == 'DATE':
                 self.deathDate = GedComDate(block[0][7:])
             elif tags[1] == 'PLAC':
-                self.deathPlace = self.gedcom.parsePlace(block)
+                self.deathPlace = GedComPlace(block)
+            elif tags[1] == 'SOUR':
+                pass
             else:
                 # Unknown.
                 print(f'Individual DEATH unrecogised tag \'{tags[1]}\'')
@@ -79,7 +81,9 @@ class GedComIndividual:
             if tags[1] == 'DATE':
                 self.birthDate = GedComDate(block[0][7:])
             elif tags[1] == 'PLAC':
-                self.birthPlace = self.gedcom.parsePlace(block)
+                self.birthPlace = GedComPlace(block)
+            elif tags[1] == 'SOUR':
+                pass
             else:
                 # Unknown.
                 print(f'Individual BIRTH unrecogised tag \'{tags[1]}\'')
@@ -124,8 +128,7 @@ class GedComIndividual:
                     self.givenName = tags[2]
                     for index in range(3, len(tags)):
                         self.givenName += ' ' + tags[index]
-            elif tags[1] == 'OCCU':
-                # Not sure about this.
+            elif tags[1] == 'SOUR':
                 pass
             else:
                 # Unknown.
@@ -161,6 +164,10 @@ class GedComIndividual:
             elif tags[1] == 'FAMC':
                 # Family child.
                 self.parentFamilyIdentity = tags[2][1:-1]
+            elif tags[1] == 'OCCU':
+                pass
+            elif tags[1] == 'EDUC':
+                pass
             elif tags[1] == 'SOUR':
                 pass
             elif tags[1] == 'OBJE':

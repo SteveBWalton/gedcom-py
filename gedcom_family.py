@@ -10,6 +10,7 @@ from enum import Enum
 
 # Application libraries.
 from gedcom_date import GedComDate
+from gedcom_place import GedComPlace
 
 
 
@@ -32,13 +33,7 @@ class GedComFamily:
     def __init__(self, gedcom, gedcomFile = None):
         ''' Class constructor for a family in a gedcom file. '''
         self.gedcom = gedcom
-        self.identity = ''
-        self.husbandIdentity = None
-        self.wifeIdentity = None
-        self.childrenIdentities = []
-        self.startDate = None
-        if gedcomFile != None:
-            self.parse(gedcomFile)
+        self.parse(gedcomFile)
 
 
 
@@ -51,10 +46,10 @@ class GedComFamily:
             if tags[1] == 'DATE':
                 self.startDate = GedComDate(block[0][7:])
             elif tags[1] == 'PLAC':
-                self.startPlace = self.gedcom.parsePlace(block)
+                self.startPlace = GedComPlace(block)
             else:
                 # Unknown.
-                print(f'Individual MARR unrecogised tag \'{tags[1]}\'')
+                print(f'Individual MARR unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
 
             # Fetch next block.
             block, start = self.gedcom.getNextBlock(gedcomFile, start)
@@ -63,6 +58,16 @@ class GedComFamily:
 
     def parse(self, gedcomFile):
         ''' Build the family from the specified gedcom settings. '''
+        # The default empty settings.
+        self.identity = ''
+        self.husbandIdentity = None
+        self.wifeIdentity = None
+        self.childrenIdentities = []
+        self.startDate = None
+        self.startPlace = None
+        if gedcomFile is None:
+            return
+
         # The identity is on the first line.
         tags = gedcomFile[0].split()
         if tags[1][:1] == '@':

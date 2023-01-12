@@ -45,14 +45,6 @@ class GedCom:
 
 
 
-    def parsePlace(self, gedcomFile):
-        ''' Returns the place from the gedcom block. '''
-        #for line in gedcomFile:
-        #    print(f'\t{line}')
-        return None
-
-
-
     def getNextBlock(self, gedcom, start):
         ''' Returns the next block and next position in the gedcom lines or empty list at the end. '''
         block = []
