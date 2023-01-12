@@ -45,6 +45,35 @@ class GedCom:
 
 
 
+    def parsePlace(self, gedcomFile):
+        ''' Returns the place from the gedcom block. '''
+        #for line in gedcomFile:
+        #    print(f'\t{line}')
+        return None
+
+
+
+    def getNextBlock(self, gedcom, start):
+        ''' Returns the next block and next position in the gedcom lines or empty list at the end. '''
+        block = []
+        if start >= len(gedcom):
+            return block, start
+
+        level = gedcom[start][:1]
+        # print(f'level = {level}')
+        block.append(gedcom[start])
+        # print(f'\t{gedcom[start]}')
+        start += 1
+        while start < len(gedcom) and gedcom[start][:1] > level:
+            # print(f'\t{gedcom[start]}')
+            block.append(gedcom[start])
+            start += 1
+
+        # Return the block and the next start position.
+        return block, start
+
+
+
     def open(self, fileName):
         ''' Open the specified gedcom file. '''
         file = open(fileName, 'r')

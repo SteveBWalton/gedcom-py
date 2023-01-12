@@ -39,6 +39,9 @@ class GedComIndividual:
         self.surname = ''
         self.sex = IndividualSex.MALE
         self.birthDate = GedComDate()
+        self.birthPlace = None
+        self.deathDate = None
+        self.deathPlace = None
         # Families of own marrage.
         self.familyIdentities = []
         # Family of parents marrage.
@@ -48,28 +51,41 @@ class GedComIndividual:
 
 
 
-    def parseBirth(self, gedcom):
-        ''' Build the birth from the specified gedcom settings. '''
-        for line in gedcom:
-            # print(line)
-            # Split into tags.
-            tags = line.split()
-            if tags[1] == 'BIRT':
-                pass
-            elif tags[1] == 'DATE':
-                # print(line[7:])
-                self.birthDate = GedComDate(line[7:])
+    def parseDeath(self, gedcomFile):
+        ''' Build the death from the specified gedcom settings. '''
+        # Fetch the first block.
+        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
+        while len(block) > 0:
+            tags = block[0].split()
+            if tags[1] == 'DATE':
+                self.deathDate = GedComDate(block[0][7:])
             elif tags[1] == 'PLAC':
-                pass
-            elif tags[1] == 'MAP':
-                pass
-            elif tags[1] == 'LATI':
-                pass
-            elif tags[1] == 'LONG':
-                pass
+                self.deathPlace = self.gedcom.parsePlace(block)
+            else:
+                # Unknown.
+                print(f'Individual DEATH unrecogised tag \'{tags[1]}\'')
+
+            # Fetch next block.
+            block, start = self.gedcom.getNextBlock(gedcomFile, start)
+
+
+
+    def parseBirth(self, gedcomFile):
+        ''' Build the birth from the specified gedcom settings. '''
+        # Fetch the first block.
+        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
+        while len(block) > 0:
+            tags = block[0].split()
+            if tags[1] == 'DATE':
+                self.birthDate = GedComDate(block[0][7:])
+            elif tags[1] == 'PLAC':
+                self.birthPlace = self.gedcom.parsePlace(block)
             else:
                 # Unknown.
                 print(f'Individual BIRTH unrecogised tag \'{tags[1]}\'')
+
+            # Fetch next block.
+            block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
 
 
@@ -119,48 +135,46 @@ class GedComIndividual:
 
     def parse(self, gedcomFile):
         ''' Build the individual from the specified gedcomFile settings. '''
-        # Add an extra line to flush the final tag.
-        gedcomFile.append('1 EXIT')
+        # The identity is on the first line.
+        tags = gedcomFile[0].split()
+        if tags[1][:1] == '@':
+            self.identity = tags[1][1:-1]
 
-        # Loop through the tags looking for level 1 tags.
-        objectLines = []
-        for line in gedcomFile:
-            if line[:1] == '1':
-                # Deal with the old objectLines.
-                tags = objectLines[0].split()
-                if tags[1][:1] == '@':
-                    self.identity = tags[1][1:-1]
-                elif tags[1] == 'NAME':
-                    self.parseName(objectLines)
-                elif tags[1] == 'SEX':
-                    self.parseSex(objectLines)
-                elif tags[1] == 'BIRT':
-                    self.parseBirth(objectLines)
-                elif tags[1] == 'DEAT':
-                    pass
-                elif tags[1] == 'FAMS':
-                    # Family spouse.
-                    self.familyIdentities.append(tags[2][1:-1])
-                elif tags[1] == 'FAMC':
-                    # Family child.  Must add this person as a child of the family.
-                    self.parentFamilyIdentity = tags[2][1:-1]
-                elif tags[1] == 'SOUR':
-                    pass
-                elif tags[1] == 'OBJE':
-                    pass
-                elif tags[1] == 'CENS':
-                    pass
-                elif tags[1] == 'CHAN':
-                    pass
-                else:
-                    # Unknown.
-                    print(f'Individual unrecogised tag \'{tags[1]}\'')
+        # Fetch the first block.
+        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
+        while len(block) > 0:
+            #for line in block:
+            #    print(line)
+            #print('<--')
+            tags = block[0].split()
+            if tags[1] == 'NAME':
+                self.parseName(block)
+            elif tags[1] == 'SEX':
+                self.parseSex(block)
+            elif tags[1] == 'BIRT':
+                self.parseBirth(block)
+            elif tags[1] == 'DEAT':
+                self.parseDeath(block)
+            elif tags[1] == 'FAMS':
+                # Family spouse.
+                self.familyIdentities.append(tags[2][1:-1])
+            elif tags[1] == 'FAMC':
+                # Family child.
+                self.parentFamilyIdentity = tags[2][1:-1]
+            elif tags[1] == 'SOUR':
+                pass
+            elif tags[1] == 'OBJE':
+                pass
+            elif tags[1] == 'CENS':
+                pass
+            elif tags[1] == 'CHAN':
+                pass
+            else:
+                # Unknown.
+                print(f'Individual unrecogised tag \'{tags[1]}\'')
 
-                # Start a new object lines.
-                objectLines = []
-
-            # Add line to current group.
-            objectLines.append(line)
+            # Fetch the next block.
+            block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
         print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\', \'{self.birthDate.toLongString()}\', \'{ self.familyIdentities}\', \'{ self.parentFamilyIdentity}\'')
@@ -170,3 +184,19 @@ class GedComIndividual:
     def getName(self):
         ''' Returns the full name of the individual. '''
         return self.givenName + ' ' + self.surname
+
+
+
+    def heShe(self):
+        ''' Returns he or she. '''
+        if self.sex == IndividualSex.FEMALE:
+            return 'she'
+        return 'he'
+
+
+
+    def hisHer(self):
+        ''' Returns he or she. '''
+        if self.sex == IndividualSex.FEMALE:
+            return 'her'
+        return 'his'

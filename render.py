@@ -16,6 +16,12 @@ import walton.toolbar
 
 
 
+def firstCap(text):
+    ''' Returns the text with the first character capitalised. '''
+    return text[:1].upper() + text[1:]
+
+
+
 class Render(walton.toolbar.IToolbar):
     ''' Class to render the output from the Formula One results database.
     :ivar Dictionary action: The requests and coresponding fuctions that this class can handle.
@@ -262,23 +268,38 @@ class Render(walton.toolbar.IToolbar):
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
         self.html.addLine(f"<h1>{individual.getName()}</h1>")
         self.html.addLine('<p>')
-        self.html.addLine(f'<a href="app:individual?person={individual.identity}">{individual.getName()}</a> was born {individual.birthDate.toLongString()}')
+        self.html.addLine(f'<a href="app:individual?person={individual.identity}">{individual.getName()}</a> was born {individual.birthDate.toLongString()}.')
+
+        if individual.deathDate is not None:
+            self.html.addLine(f'{firstCap(individual.heShe())} died {individual.deathDate.toLongString()}</a>.')
 
         for familyIdentity in individual.familyIdentities:
             partner = None
             family = self.application.gedcom.families[familyIdentity]
             if family.wifeIdentity is not None:
-                partner = self.application.gedcom.individuals[family.wifeIdentity]
+                if family.wifeIdentity != identity:
+                    partner = self.application.gedcom.individuals[family.wifeIdentity]
+            if family.husbandIdentity is not None:
+                if family.husbandIdentity != identity:
+                    partner = self.application.gedcom.individuals[family.husbandIdentity]
             if partner is not None:
-                self.html.addLine(f'He married <a href="app:individual?person={partner.identity}">{partner.getName()}</a>.')
+                if family.startDate is not None:
+                    self.html.add(f'{firstCap(family.startDate.toLongString())} {individual.heShe()}')
+                else:
+                    self.html.add(f'{firstCap(individual.heShe())}')
+                self.html.addLine(f' married <a href="app:individual?person={partner.identity}">{partner.getName()}</a>.')
 
             if len(family.childrenIdentities) == 0:
                 self.html.addLine(f'They had no children.')
             else:
-                self.html.add(f'They had ')
+                if len(family.childrenIdentities) == 1:
+                    self.html.add(f'They had 1 child')
+                else:
+                    self.html.add(f'They had {len(family.childrenIdentities)} children')
                 for childIdentity in family.childrenIdentities:
                     child = self.application.gedcom.individuals[childIdentity]
-                    self.html.add(f'<a href="app:individual?person={child.identity}">{child.getName()}</a> ')
+                    self.html.add(f', <a href="app:individual?person={child.identity}">{child.getName()}</a>')
+                self.html.addLine('.')
 
         if parentFamily is not None:
             father = None
@@ -289,9 +310,11 @@ class Render(walton.toolbar.IToolbar):
                 mother = self.application.gedcom.individuals[parentFamily.wifeIdentity]
 
             if father is not None and mother is not None:
-                self.html.addLine(f'His parents were <a href="app:individual?person={father.identity}">{father.getName()}</a> and <a href="app:individual?person={mother.identity}">{mother.getName()}</a>.')
+                self.html.addLine(f'{firstCap(individual.hisHer())} parents were <a href="app:individual?person={father.identity}">{father.getName()}</a> and <a href="app:individual?person={mother.identity}">{mother.getName()}</a>.')
 
         self.html.addLine('</p>')
+
+
 
     def showIndex(self, _parameters):
         ''' Render the index page. '''

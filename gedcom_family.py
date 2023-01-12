@@ -36,50 +36,72 @@ class GedComFamily:
         self.husbandIdentity = None
         self.wifeIdentity = None
         self.childrenIdentities = []
+        self.startDate = None
         if gedcomFile != None:
             self.parse(gedcomFile)
 
 
 
-    def parse(self, gedcom):
+    def parseMarriage(self, gedcomFile):
+        ''' Parse the marriage tags which might not be a marriage. '''
+        # Fetch the first block.
+        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
+        while len(block) > 0:
+            tags = block[0].split()
+            if tags[1] == 'DATE':
+                self.startDate = GedComDate(block[0][7:])
+            elif tags[1] == 'PLAC':
+                self.startPlace = self.gedcom.parsePlace(block)
+            else:
+                # Unknown.
+                print(f'Individual MARR unrecogised tag \'{tags[1]}\'')
+
+            # Fetch next block.
+            block, start = self.gedcom.getNextBlock(gedcomFile, start)
+
+
+
+    def parse(self, gedcomFile):
         ''' Build the family from the specified gedcom settings. '''
-        # Add an extra line to flush the final tag.
-        gedcom.append('1 EXIT')
+        # The identity is on the first line.
+        tags = gedcomFile[0].split()
+        if tags[1][:1] == '@':
+            self.identity = tags[1][1:-1]
 
-        # Loop through the tags looking for level 1 tags.
-        objectLines = []
-        for line in gedcom:
-            if line[:1] == '1':
-                # Deal with the old objectLines.
-                tags = objectLines[0].split()
-                if tags[1][:1] == '@':
-                    self.identity = tags[1][1:-1]
-                elif tags[1] == 'MARR':
-                    # This gives the type, date and place.
-                    pass
-                elif tags[1] == 'HUSB':
-                    self.husbandIdentity = tags[2][1:-1]
-                elif tags[1] == 'WIFE':
-                    self.wifeIdentity = tags[2][1:-1]
-                elif tags[1] == 'CHIL':
-                    self.childrenIdentities.append(tags[2][1:-1])
-                elif tags[1] == 'SOUR':
-                    pass
-                elif tags[1] == 'OBJE':
-                    pass
-                elif tags[1] == 'CHAN':
-                    pass
-                else:
-                    # Unknown.
-                    print(f'Family unrecogised tag \'{tags[1]}\'')
+        # Fetch the first block.
+        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
+        while len(block) > 0:
+            #for line in block:
+            #    print(line)
+            #print('<--')
+            tags = block[0].split()
+            if tags[1] == 'MARR':
+                # This gives the type, date and place.
+                self.parseMarriage(block)
+            elif tags[1] == 'HUSB':
+                self.husbandIdentity = tags[2][1:-1]
+            elif tags[1] == 'WIFE':
+                self.wifeIdentity = tags[2][1:-1]
+            elif tags[1] == 'CHIL':
+                self.childrenIdentities.append(tags[2][1:-1])
+            elif tags[1] == 'SOUR':
+                pass
+            elif tags[1] == 'OBJE':
+                pass
+            elif tags[1] == 'CHAN':
+                pass
+            else:
+                # Unknown.
+                print(f'Family unrecogised tag \'{tags[1]}\'')
 
-                # Start a new object lines.
-                objectLines = []
-
-            # Add line to current group.
-            objectLines.append(line)
+            # Fetch next block.
+            block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
+        startDate = None
+        if self.startDate is not None:
+            startDate = self.startDate.toGedComDate()
+
         husbandName = None
         if self.husbandIdentity is not None:
             husband = self.gedcom.individuals[self.husbandIdentity]
@@ -95,4 +117,4 @@ class GedComFamily:
             child = self.gedcom.individuals[childIdentity]
             childrenName += f', \'{child.givenName}\'';
 
-        print(f'\'{self.identity}\', \'{husbandName}\', \'{wifeName}\'{childrenName}')
+        print(f'\'{self.identity}\', \'{startDate}\', \'{husbandName}\', \'{wifeName}\'{childrenName}')
