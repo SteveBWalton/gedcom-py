@@ -49,7 +49,7 @@ class GedComFamily:
                 self.startPlace = GedComPlace(block)
             else:
                 # Unknown.
-                print(f'Individual MARR unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
+                print(f'Family MARR unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')
 
             # Fetch next block.
             block, start = self.gedcom.getNextBlock(gedcomFile, start)

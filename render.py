@@ -62,7 +62,8 @@ class Render(walton.toolbar.IToolbar):
             'home'              : self.showHome,
             'index'             : self.showIndex,
             'about'             : self.showAbout,
-            'individual'        : self.showIndividual
+            'individual'        : self.showIndividual,
+            'source'            : self.showSource
         }
 
 
@@ -241,6 +242,17 @@ class Render(walton.toolbar.IToolbar):
 
 
 
+    def showIndex(self, _parameters):
+        ''' Render the index page. '''
+        self.html.clear()
+        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+
+        self.html.addLine("<h1>Index</h1>")
+        self.html.addLine("<ul>")
+        self.html.addLine("</ul>")
+
+
+
     def addLocalSource(self, localSources, source):
         ''' Add the specified source to the local sources. '''
         if not source in localSources:
@@ -256,9 +268,10 @@ class Render(walton.toolbar.IToolbar):
 
         self.html.addLine('<table>')
         index = 1
-        for source in localSources:
+        for sourceIdentity in localSources:
             self.html.add(f'<tr><td>{index}</td><td>')
-            self.html.add(f'{source}')
+            source = self.application.gedcom.sources[sourceIdentity]
+            self.html.add(f'<a href="app:source?id={sourceIdentity}">{source.title}</a>')
             self.html.addLine('</td></tr>')
             index += 1
         self.html.addLine('</table>')
@@ -297,7 +310,7 @@ class Render(walton.toolbar.IToolbar):
         rows = [ [], [], [], [] ]
 
         # Add this person to the second row.
-        rows[1].append(identity)
+        rows[2].append(identity)
 
         # Family details.
         individual = self.application.gedcom.individuals[identity]
@@ -305,21 +318,35 @@ class Render(walton.toolbar.IToolbar):
             family = self.application.gedcom.families[familyIdentity]
             if family.wifeIdentity is not None:
                 if family.wifeIdentity != identity:
-                    rows[1].append(family.wifeIdentity)
+                    rows[2].append(family.wifeIdentity)
             if family.husbandIdentity is not None:
                 if family.husbandIdentity != identity:
-                    rows[1].insert(0, family.husbandIdentity)
+                    rows[2].insert(0, family.husbandIdentity)
 
             for childIdentity in family.childrenIdentities:
-                rows[2].append(childIdentity)
+                rows[3].append(childIdentity)
 
         # Parents family.
         if individual.parentFamilyIdentity is not None:
             parentFamily = self.application.gedcom.families[individual.parentFamilyIdentity]
             if parentFamily.husbandIdentity is not None:
-                rows[0].append(parentFamily.husbandIdentity)
+                rows[1].append(parentFamily.husbandIdentity)
+                father = self.application.gedcom.individuals[parentFamily.husbandIdentity]
+                if father.parentFamilyIdentity is not None:
+                    fatherFamily = self.application.gedcom.families[father.parentFamilyIdentity]
+                    if fatherFamily.husbandIdentity is not None:
+                        rows[0].append(fatherFamily.husbandIdentity)
+                    if fatherFamily.wifeIdentity is not None:
+                        rows[0].append(fatherFamily.wifeIdentity)
             if parentFamily.wifeIdentity is not None:
-                rows[0].append(parentFamily.wifeIdentity)
+                rows[1].append(parentFamily.wifeIdentity)
+                mother = self.application.gedcom.individuals[parentFamily.wifeIdentity]
+                if mother.parentFamilyIdentity is not None:
+                    motherFamily = self.application.gedcom.families[mother.parentFamilyIdentity]
+                    if motherFamily.husbandIdentity is not None:
+                        rows[0].append(motherFamily.husbandIdentity)
+                    if motherFamily.wifeIdentity is not None:
+                        rows[0].append(motherFamily.wifeIdentity)
         width = 0
         # Decide the required width.
         for columns in rows:
@@ -328,7 +355,7 @@ class Render(walton.toolbar.IToolbar):
                 width = requiredWidth
 
         # Draw the people.
-        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 200px;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 270px;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
         y = 5
         for columns in rows:
             x = 5
@@ -343,6 +370,7 @@ class Render(walton.toolbar.IToolbar):
     def showIndividual(self, parameters):
         ''' Show an individual. '''
         identity = parameters['person'] if 'person' in parameters else None
+        identity = parameters['id'] if 'id' in parameters else identity
 
         individual = self.application.gedcom.individuals[identity]
         localSources = []
@@ -444,12 +472,52 @@ class Render(walton.toolbar.IToolbar):
 
 
 
-    def showIndex(self, _parameters):
-        ''' Render the index page. '''
+    def showSource(self, parameters):
+        ''' Show an individual. '''
+        identity = parameters['id'] if 'id' in parameters else None
+
+        source = self.application.gedcom.sources[identity]
+
         self.html.clear()
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.html.addLine(f"<h1>{source.title}</h1>")
 
-        self.html.addLine("<h1>Index</h1>")
-        self.html.addLine("<ul>")
-        self.html.addLine("</ul>")
+        # Show the people that reference this source.
+        self.html.addLine('<p>Individuals</p>')
+        self.html.addLine('<table>')
+        for individual in self.application.gedcom.individuals.values():
+            facts = ''
+            # print(f'{individual.identity} {individual.getName()}')
+            if identity in individual.nameSources:
+                facts += 'Name, '
+            if individual.birthDate is not None:
+                if identity in individual.birthDate.sources:
+                    facts += 'Birth Date, '
+            if individual.birthPlace is not None:
+                if identity in individual.birthPlace.sources:
+                    facts += 'Birth Place, '
+            if individual.deathDate is not None:
+                if identity in individual.deathDate.sources:
+                    facts += 'Death Date, '
+            if individual.deathPlace is not None:
+                if identity in individual.deathPlace.sources:
+                    facts += 'Death Place, '
+            if facts != '':
+                self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{facts[:-2]}</td></tr>')
+        self.html.addLine('</table>')
 
+        # Show the families that reference this source.
+        self.html.addLine('<p>Families</p>')
+        self.html.addLine('<table>')
+        for family in self.application.gedcom.families.values():
+            facts = ''
+            if family.startDate is not None:
+                if identity in family.startDate.sources:
+                    facts += 'Marriage Date, '
+            if family.startPlace is not None:
+                if identity in family.startPlace.sources:
+                    facts += 'Marriage Place, '
+
+            if facts != '':
+                self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.identity}</a></td><td>{facts[:-2]}</td></tr>')
+        self.html.addLine('</table>')

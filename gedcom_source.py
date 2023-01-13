@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to support places in the gedcom python library.
-This module implements the :py:class:`GedComPlace` class.
+Module to support sources in the gedcom python library.
+This module implements the :py:class:`GedComSource` class.
 '''
 # System Libraries.
 from enum import Enum
+
+# Application Librariess.
+from gedcom_date import GedComDate
 
 
 
@@ -16,19 +19,21 @@ class GedComPlaceAccuracy(Enum):
     CALCULATED = 4
 
 
-class GedComPlace:
+
+class GedComSource:
     '''
-    Class to represent a place in the gedcom python library.
+    Class to represent a source in the gedcom python library.
 
     :ivar GedComDateStatus status: The status of the date, EMPTY, ON, BEFORE, AFTER.
     :ivar GedComDateAccuracy accuracy: The accuracy of the date, KNOWN, ABOUT, ESTIMATED, CALCULATED
     '''
 
 
-    def __init__(self, gedcomFile = None):
+    def __init__(self, gedcom, gedcomFile = None):
         '''
-        Class constructor for the :py:class:`GedComPlace` class.
+        Class constructor for the :py:class:`GedComSource` class.
         '''
+        self.gedcom = gedcom
         self.parse(gedcomFile)
 
 
@@ -37,42 +42,44 @@ class GedComPlace:
         '''
         Update the object to the date specified in the string.
         '''
-        self.place = None
-        self.address = None
-        self.country = None
-        self.latitude = None
-        self.longitude = None
-        self.sources = []
+        self.identity = None
+        self.title = ''
+        self.date = None
         if gedcomFile is None:
             return
         if len(gedcomFile) == 0:
             return
 
-        for line in gedcomFile:
-            # print(f'\t{line}')
-            tags = line.split()
-            if tags[1] == 'PLAC':
-                self.place = line[7:]
-            elif tags[1] == 'ADDR':
-                self.address = line[7:]
-            elif tags[1] == 'CTRY':
-                self.country = line[7:]
-            elif tags[1] == 'MAP':
-                pass
-            elif tags[1] == 'LATI':
-                self.latitude = line[7:]
-            elif tags[1] == 'LONG':
-                self.longitude = line[7:]
-            elif tags[1] == 'SOUR':
-                self.sources.append(tags[2][1:-1])
+        # The identity is on the first line.
+        tags = gedcomFile[0].split()
+        if tags[1][:1] == '@':
+            self.identity = tags[1][1:-1]
+
+        # Fetch the first block.
+        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
+        while len(block) > 0:
+            #for line in block:
+            #    print(line)
+            #print('<--')
+            tags = block[0].split()
+            if tags[1] == 'TITL':
+                self.title = block[0][7:]
+            elif tags[2] == 'DATE':
+                self.date = GedComDate(block)
             else:
                 # Unknown.
-                print(f'Place unrecogised tag \'{tags[1]}\'')
+                print(f'Source unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')
+
+            # Fetch the next block.
+            block, start = self.gedcom.getNextBlock(gedcomFile, start)
+
+        # Debug output.
+        print(f'\'{self.identity}\'')
 
 
 
     def toLongString(self):
-        ''' Returns the GedCom date as a long string. '''
+        ''' Returns the GedCom source as a long string. '''
         result = ''
 
         if self.place is not None:
@@ -92,7 +99,7 @@ class GedComPlace:
 
 
     def toShortString(self):
-        ''' Returns the GedCom date as a short string. '''
+        ''' Returns the GedCom source as a short string. '''
         result = ''
 
         if self.place is not None:
@@ -106,7 +113,7 @@ class GedComPlace:
 
 
 
-    def toGedComPlace(self, level):
+    def toGedCom(self, level):
         '''
         Return the object in GedCom format.
         '''

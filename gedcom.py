@@ -21,6 +21,7 @@ import main_window
 from gedcom_date import GedComDate
 from gedcom_individual import GedComIndividual
 from gedcom_family import GedComFamily
+from gedcom_source import GedComSource
 
 
 
@@ -75,7 +76,7 @@ class GedCom:
         self.individuals = {}
         self.families = {}
         self.media = []
-        self.sources = []
+        self.sources = {}
         line = file.readline().rstrip('\n')
         while line != '':
             if line[:1] == '0':
@@ -88,10 +89,11 @@ class GedCom:
                 elif objectType == GedComObjects.FAMILY:
                     family = GedComFamily(self, objectLines)
                     self.families[family.identity] = family
+                elif objectType == GedComObjects.SOURCE:
+                    source = GedComSource(self, objectLines)
+                    self.sources[source.identity] = source
                 elif objectType == GedComObjects.MEDIA:
                     self.media.append(1)
-                elif objectType == GedComObjects.SOURCE:
-                    self.sources.append(1)
                 else:
                     pass
                     # print('Unknown Gedcom object.')
