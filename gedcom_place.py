@@ -30,13 +30,6 @@ class GedComPlace:
         Class constructor for the :py:class:`GedComPlace` class.
         '''
         self.parse(gedcomFile)
-        #self.status = GedComDateStatus.EMPTY
-        #self.isAbout = False
-        #self.dayStatus = GedComDateStatus.UNKNOWN
-        #self.monthStatus = GedComDateStatus.UNKNOWN
-        #self.yearStatus = GedComDateStatus.UNKNOWN
-        ## pub is_month_quarter: bool,
-        #self.theDate = datetime.date.today()
 
 
 
@@ -49,6 +42,7 @@ class GedComPlace:
         self.country = None
         self.latitude = None
         self.longitude = None
+        self.sources = []
         if gedcomFile is None:
             return
         if len(gedcomFile) == 0:
@@ -69,10 +63,14 @@ class GedComPlace:
                 self.latitude = line[7:]
             elif tags[1] == 'LONG':
                 self.longitude = line[7:]
+            elif tags[1] == 'SOUR':
+                self.sources.append(tags[2][1:-1])
             else:
                 # Unknown.
                 print(f'Place unrecogised tag \'{tags[1]}\'')
 
+        # Debug Output.
+        print(f'\'{self.toLongString()}\'')
 
 
     def toLongString(self):
@@ -98,6 +96,12 @@ class GedComPlace:
     def toShortString(self):
         ''' Returns the GedCom date as a short string. '''
         result = ''
+
+        if self.place is not None:
+            result = self.place
+
+        if ',' in result:
+            result = result[0:result.index(',')]
 
         # Return the calculated value.
         return result.strip()

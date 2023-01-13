@@ -44,7 +44,7 @@ class GedComFamily:
         while len(block) > 0:
             tags = block[0].split()
             if tags[1] == 'DATE':
-                self.startDate = GedComDate(block[0][7:])
+                self.startDate = GedComDate(block)
             elif tags[1] == 'PLAC':
                 self.startPlace = GedComPlace(block)
             else:

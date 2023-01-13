@@ -56,10 +56,40 @@ class GedComDate:
 
     def parse(self, dateString = None):
         '''
-        Update the object to the date specified in the string.
+        Update the object to the date specified in the parameter.
+        The parameter can be a block or a string.
         '''
         self.the2ndDate = None
-        if dateString is None or dateString == '' or dateString.upper() == 'UNKNOWN':
+        self.sources = []
+        if dateString is None:
+            return
+
+        if isinstance(dateString, str):
+            return self.parseString(dateString)
+
+        if not isinstance(dateString, list):
+            return
+
+        for line in dateString:
+            # print(line)
+            # Split into tags.
+            tags = line.split()
+            if tags[1] == 'DATE':
+                # Ignore this for now.
+                self.parseString(line[7:])
+            elif tags[1] == 'SOUR':
+                self.sources.append(tags[2][1:-1])
+            else:
+                # Unknown.
+                print(f'Individual NAME unrecogised tag \'{tags[1]}\'')
+
+
+
+    def parseString(self, dateString = None):
+        '''
+        Update the object to the date specified in the string.
+        '''
+        if dateString == '' or dateString.upper() == 'UNKNOWN':
             self.status = GedComDateStatus.EMPTY
             return
 
@@ -226,25 +256,25 @@ class GedComDate:
         if self.status == GedComDateStatus.EMPTY:
             return 'unknown'
         elif self.status == GedComDateStatus.BEFORE:
-            result = 'before '
+            result = '<'
         elif self.status == GedComDateStatus.AFTER:
-            result = 'after '
+            result = '>'
         elif self.status == GedComDateStatus.BETWEEN:
-            result = 'between '
+            result = 'bet '
         elif self.status == GedComDateStatus.FROM:
-            result = 'from '
+            result = 'bet '
         elif self.status == GedComDateStatus.NOT_ON:
             result = ''
         else:
             result = 'on '
         # Between is another possibility for later.
 
-        if self.accuracy == GedComDateAccuracy.ABOUT:
-            result = f'{result}about '
-        elif self.accuracy == GedComDateAccuracy.ESTIMATED:
-            result = f'{result}estimated '
-        elif self.accuracy == GedComDateAccuracy.CALCULATED:
-            result = f'{result}calculated '
+        #if self.accuracy == GedComDateAccuracy.ABOUT:
+        #    result = f'{result}about '
+        #elif self.accuracy == GedComDateAccuracy.ESTIMATED:
+        #    result = f'{result}estimated '
+        #elif self.accuracy == GedComDateAccuracy.CALCULATED:
+        #    result = f'{result}calculated '
 
         if self.dayStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%-d").strip()} '
@@ -260,9 +290,9 @@ class GedComDate:
             result = f'{result}({self.theDate.strftime("%y")})'
 
         if self.status == GedComDateStatus.BETWEEN:
-            result = f'{result.strip()} and {self.the2ndDate.toShortString()}'
+            result = f'{result.strip()}/{self.the2ndDate.toShortString()}'
         if self.status == GedComDateStatus.FROM:
-            result = f'{result.strip()} to {self.the2ndDate.toShortString()}'
+            result = f'{result.strip()}/{self.the2ndDate.toShortString()}'
 
         # Return the calculated value.
         return result.strip()

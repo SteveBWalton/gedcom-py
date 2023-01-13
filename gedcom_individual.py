@@ -34,20 +34,7 @@ class GedComIndividual:
     def __init__(self, gedcom, gedcomFile = None):
         ''' Class constructor for an individual in a gedcom file. '''
         self.gedcom = gedcom
-        self.identity = ''
-        self.givenName = ''
-        self.surname = ''
-        self.sex = IndividualSex.MALE
-        self.birthDate = GedComDate()
-        self.birthPlace = None
-        self.deathDate = None
-        self.deathPlace = None
-        # Families of own marrage.
-        self.familyIdentities = []
-        # Family of parents marrage.
-        self.parentFamilyIdentity = None
-        if gedcomFile != None:
-            self.parse(gedcomFile)
+        self.parse(gedcomFile)
 
 
 
@@ -58,7 +45,7 @@ class GedComIndividual:
         while len(block) > 0:
             tags = block[0].split()
             if tags[1] == 'DATE':
-                self.deathDate = GedComDate(block[0][7:])
+                self.deathDate = GedComDate(block)
             elif tags[1] == 'PLAC':
                 self.deathPlace = GedComPlace(block)
             elif tags[1] == 'SOUR':
@@ -79,11 +66,12 @@ class GedComIndividual:
         while len(block) > 0:
             tags = block[0].split()
             if tags[1] == 'DATE':
-                self.birthDate = GedComDate(block[0][7:])
+                # self.birthDate = GedComDate(block[0][7:])
+                self.birthDate = GedComDate(block)
             elif tags[1] == 'PLAC':
                 self.birthPlace = GedComPlace(block)
-            elif tags[1] == 'SOUR':
-                pass
+            #elif tags[1] == 'SOUR':
+            #    self.birthSources.append(tags[2][1:-1])
             else:
                 # Unknown.
                 print(f'Individual BIRTH unrecogised tag \'{tags[1]}\'')
@@ -129,7 +117,7 @@ class GedComIndividual:
                     for index in range(3, len(tags)):
                         self.givenName += ' ' + tags[index]
             elif tags[1] == 'SOUR':
-                pass
+                self.nameSources.append(tags[2][1:-1])
             else:
                 # Unknown.
                 print(f'Individual NAME unrecogised tag \'{tags[1]}\'')
@@ -138,6 +126,22 @@ class GedComIndividual:
 
     def parse(self, gedcomFile):
         ''' Build the individual from the specified gedcomFile settings. '''
+        self.identity = ''
+        self.givenName = ''
+        self.surname = ''
+        self.nameSources = []
+        self.sex = IndividualSex.MALE
+        self.birthDate = GedComDate()
+        self.birthPlace = None
+        self.deathDate = None
+        self.deathPlace = None
+        # Families of own marrage.
+        self.familyIdentities = []
+        # Family of parents marrage.
+        self.parentFamilyIdentity = None
+        if gedcomFile is None:
+            return
+
         # The identity is on the first line.
         tags = gedcomFile[0].split()
         if tags[1][:1] == '@':
@@ -191,6 +195,14 @@ class GedComIndividual:
     def getName(self):
         ''' Returns the full name of the individual. '''
         return self.givenName + ' ' + self.surname
+
+
+
+    def isMale(self):
+        ''' Returns True for males. '''
+        if self.sex == IndividualSex.FEMALE:
+            return False
+        return True
 
 
 

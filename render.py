@@ -237,20 +237,106 @@ class Render(walton.toolbar.IToolbar):
 
     def showHome(self, parameters):
         ''' Render the home page. '''
-        self.html.clear()
-        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
-        self.html.addLine("<h1>Home</h1>")
-        self.html.addLine("<p>Hello World</p>")
-        self.html.addLine('<div style="border: 1px solid black; width: 500px; height: 300px;">')
-        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: 400px; height: 200px;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
-        self.html.addLine('<line x1="0" y1="0" x2="100" y2="100" stroke="red"  stroke-width="3" />')
+        self.showIndividual({'person': self.application.gedcom.defaultIdentity})
+
+
+
+    def addLocalSource(self, localSources, source):
+        ''' Add the specified source to the local sources. '''
+        if not source in localSources:
+            localSources.append(source)
+        return localSources.index(source) + 1
+
+
+
+    def displayLocalSources(self, localSources):
+        ''' Display the local sources in a table. '''
+        if len(localSources) == 0:
+            return
+
+        self.html.addLine('<table>')
+        index = 1
+        for source in localSources:
+            self.html.add(f'<tr><td>{index}</td><td>')
+            self.html.add(f'{source}')
+            self.html.addLine('</td></tr>')
+            index += 1
+        self.html.addLine('</table>')
+
+
+
+    def drawIndividual(self, identity, x, y):
+        ''' Draw the specified individual at the specified location. '''
+        individual = self.application.gedcom.individuals[identity]
+
+        # Draw the container.
+        self.html.addLine(f'<a href="app:individual?person={individual.identity}">')
+        if individual.isMale():
+            self.html.addLine(f'<rect x="{x}" y="{y}" width="150" height="50" fill="lightskyblue"/>')
+        else:
+            self.html.addLine(f'<rect x="{x}" y="{y}" width="150" height="50" rx="15" fill="lightpink" />')
+        self.html.addLine('</a>')
+
+        # Draw the name.
+        self.html.addLine(f'<text font-size="7pt" text-anchor="middle" x="{x+75}" y="{y+10}">{individual.getName()}</text>')
+
+        # Draw the information.
+        if individual.birthDate is not None:
+            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birthDate.toShortString()}</text>')
+        if individual.birthPlace is not None:
+            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birthPlace.toShortString()}</text>')
+        if individual.deathDate is not None:
+            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.deathDate.toShortString()}</text>')
+
+
+
+    def drawSmallTree(self, identity):
+        ''' Draw a small family tree for the specified person. '''
+
+        # Setup a grid to add people to.
+        rows = [ [], [], [], [] ]
+
+        # Add this person to the second row.
+        rows[1].append(identity)
+
+        # Family details.
+        individual = self.application.gedcom.individuals[identity]
+        for familyIdentity in individual.familyIdentities:
+            family = self.application.gedcom.families[familyIdentity]
+            if family.wifeIdentity is not None:
+                if family.wifeIdentity != identity:
+                    rows[1].append(family.wifeIdentity)
+            if family.husbandIdentity is not None:
+                if family.husbandIdentity != identity:
+                    rows[1].insert(0, family.husbandIdentity)
+
+            for childIdentity in family.childrenIdentities:
+                rows[2].append(childIdentity)
+
+        # Parents family.
+        if individual.parentFamilyIdentity is not None:
+            parentFamily = self.application.gedcom.families[individual.parentFamilyIdentity]
+            if parentFamily.husbandIdentity is not None:
+                rows[0].append(parentFamily.husbandIdentity)
+            if parentFamily.wifeIdentity is not None:
+                rows[0].append(parentFamily.wifeIdentity)
+        width = 0
+        # Decide the required width.
+        for columns in rows:
+            requiredWidth = len(columns) * 170 - 10
+            if requiredWidth > width:
+                width = requiredWidth
+
+        # Draw the people.
+        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 200px;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+        y = 5
+        for columns in rows:
+            x = 5
+            for cell in columns:
+                self.drawIndividual(cell, x, y)
+                x += 170
+            y += 70
         self.html.addLine('</svg>')
-        self.html.addLine('</div>')
-        self.html.addLine("<p>More Hello World</p>")
-        individual = self.application.gedcom.individuals[self.application.gedcom.defaultIdentity]
-        self.html.addLine('<p>')
-        self.html.addLine(f'<a href="app:individual?person={individual.identity}">{individual.getName()}</a> was born {individual.birthDate.toLongString()}')
-        self.html.addLine('</p>')
 
 
 
@@ -259,6 +345,7 @@ class Render(walton.toolbar.IToolbar):
         identity = parameters['person'] if 'person' in parameters else None
 
         individual = self.application.gedcom.individuals[identity]
+        localSources = []
 
         parentFamily = None
         if individual.parentFamilyIdentity is not None:
@@ -267,12 +354,30 @@ class Render(walton.toolbar.IToolbar):
         self.html.clear()
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
         self.html.addLine(f"<h1>{individual.getName()}</h1>")
+
+        # Draw a small family tree for the person.
+        self.drawSmallTree(identity)
+
+        # Person Description.
         self.html.addLine('<p>')
-        self.html.add(f'<a href="app:individual?person={individual.identity}">{individual.getName()}</a> was born {individual.birthDate.toLongString()}')
+
+        # Born details.
+        self.html.add(f'<a href="app:individual?person={individual.identity}">{individual.getName()}</a>')
+        if len(individual.nameSources) > 0:
+            for source in individual.nameSources:
+                self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+        self.html.add(f' was born {individual.birthDate.toLongString()}')
+        if len(individual.birthDate.sources) > 0:
+            for source in individual.birthDate.sources:
+                self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
         if individual.birthPlace is not None:
-            self.html.addLine(f' at {individual.birthPlace.toLongString()}')
+            self.html.add(f' at {individual.birthPlace.toLongString()}')
+            if len(individual.birthPlace.sources) > 0:
+                for source in individual.birthPlace.sources:
+                    self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
         self.html.addLine('.')
 
+        # Family details.
         for familyIdentity in individual.familyIdentities:
             partner = None
             family = self.application.gedcom.families[familyIdentity]
@@ -284,12 +389,17 @@ class Render(walton.toolbar.IToolbar):
                     partner = self.application.gedcom.individuals[family.husbandIdentity]
             if partner is not None:
                 if family.startDate is not None:
-                    self.html.add(f'{firstCap(family.startDate.toLongString())} {individual.heShe()}')
+                    self.html.add(f'{firstCap(family.startDate.toLongString())}')
+                    for source in family.startDate.sources:
+                        self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                    self.html.add(f' {individual.heShe()}')
                 else:
                     self.html.add(f'{firstCap(individual.heShe())}')
                 self.html.add(f' married <a href="app:individual?person={partner.identity}">{partner.getName()}</a>')
                 if family.startPlace is not None:
-                    self.html.addLine(f' at {family.startPlace.toLongString()}')
+                    self.html.add(f' at {family.startPlace.toLongString()}')
+                    for source in family.startPlace.sources:
+                        self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
                 self.html.addLine('.')
 
             if len(family.childrenIdentities) == 0:
@@ -304,12 +414,18 @@ class Render(walton.toolbar.IToolbar):
                     self.html.add(f', <a href="app:individual?person={child.identity}">{child.getName()}</a>')
                 self.html.addLine('.')
 
+        # Death details.
         if individual.deathDate is not None:
             self.html.add(f'{firstCap(individual.heShe())} died {individual.deathDate.toLongString()}</a>')
+            for source in individual.deathDate.sources:
+                self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
             if individual.deathPlace is not None:
-                self.html.addLine(f' at {individual.deathPlace.toLongString()}')
+                self.html.add(f' at {individual.deathPlace.toLongString()}')
+                for source in individual.deathPlace.sources:
+                    self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
             self.html.addLine('.')
 
+        # Parents details.
         if parentFamily is not None:
             father = None
             if parentFamily.husbandIdentity is not None:
@@ -323,6 +439,9 @@ class Render(walton.toolbar.IToolbar):
 
         self.html.addLine('</p>')
 
+        # Display the sources referenced in this document.
+        self.displayLocalSources(localSources)
+
 
 
     def showIndex(self, _parameters):
@@ -332,18 +451,5 @@ class Render(walton.toolbar.IToolbar):
 
         self.html.addLine("<h1>Index</h1>")
         self.html.addLine("<ul>")
-        self.html.addLine(f'<li><a href="{self.host}list_champions">List of World Champions</a></li>')
-        self.html.addLine(f'<li><a href="{self.host}table_drivers">Table of Drivers</a></li>')
-        self.html.addLine(f'<li><a href="{self.host}table_teams">Table of Team Grand Prix Wins</a></li>')
-        self.html.addLine(f'<li><a href="{self.host}table_country">Table of Driver Nationality</a</li>')
-        self.html.addLine(f'<li><a href="{self.host}table_tracks">Table of Tracks</a></li>')
-        self.html.addLine(f'<li><a href="{self.host}table_hosts">Table of Hosting Nations</a></li>')
-        # self.html.addLine('<li><a href="app:table_driver_seasons">Table of Drivers by Season</a></li>')
-
-        self.html.addLine(f'<li><a href="{self.host}preferences">Preferences</a></li>')
-        self.html.addLine(f'<li><a href="{self.host}repair_db">Database Maintainace</a></li>')
         self.html.addLine("</ul>")
-
-        # Set the page flags.
-        self.levels = None
 
