@@ -266,7 +266,7 @@ class Render(walton.toolbar.IToolbar):
         if len(localSources) == 0:
             return
 
-        self.html.addLine('<table>')
+        self.html.addLine('<table class="reference">')
         index = 1
         for sourceIdentity in localSources:
             self.html.add(f'<tr><td>{index}</td><td>')
@@ -489,7 +489,7 @@ class Render(walton.toolbar.IToolbar):
         if source.title.startswith('Marriage'):
             # Marriage certificate.
             grid = source.note.getGrid()
-            self.html.addLine('<table style="background-color: #ccff99; border: 1px solid black;" align="center" cellpadding="5" cellspacing="5">')
+            self.html.addLine('<table class="certificate" style="background-color: #ccff99; border: 1px solid black;" align="center" cellpadding="5" cellspacing="5">')
             self.html.add('<tr><td colspan="7">')
             if source.date is not None:
                 self.html.add(source.date.theDate.strftime("%Y"))
@@ -533,6 +533,46 @@ class Render(walton.toolbar.IToolbar):
             self.html.add(grid[0][1])
             self.html.addLine('</td></tr>')
             self.html.addLine('</table>')
+        elif source.title.startswith('Birth'):
+            # Birth Certificate.
+            grid = source.note.getGrid()
+            self.html.addLine('<table class="certificate" style="background-color: mistyrose; border: 1px solid black;" align="center" cellpadding="5" cellspacing="0">')
+            self.html.add('<tr><td colspan="8">')
+            if source.date is not None:
+                self.html.add(source.date.theDate.strftime("%Y"))
+            self.html.addLine(f' <span class="birth">Birth in the registration district of</span> {grid[1][1]}</td></tr>')
+            self.html.add('<tr valign="bottom"><td><span class="birth">When and<br/>Where Born</span></td>')
+            self.html.add('<td class="birth">Name</td>')
+            self.html.add('<TD><SPAN class="birth">Sex</SPAN></TD>')
+            self.html.add('<TD><SPAN class="birth">Father</SPAN></TD>')
+            self.html.add('<TD><SPAN class="birth">Mother</SPAN></TD>')
+            self.html.add('<TD><SPAN class="birth">Occupation<BR>of Father</SPAN></TD>')
+            self.html.add('<TD><SPAN class="birth">Informant</SPAN></TD>')
+            self.html.addLine('<TD><SPAN class="birth">When Registered</SPAN></TD></TR>')
+
+            self.html.add('<TR valign=top><TD>')
+            if source.date is not None:
+                # self.html.add(source.date.theDate.strftime("%-d %b %Y"))
+                self.html.add(grid[2][1])
+            self.html.add(f'<br />{grid[2][2]}</td>')
+            self.html.add(f'<td>{grid[3][1]}</td>')
+            self.html.add(f'<td>{grid[3][2]}</td>')
+            self.html.add(f'<td>{grid[5][1]}</td>')
+            self.html.add(f'<td>{grid[4][1]}<br />{grid[4][2]}</td>')
+            self.html.add(f'<td>{grid[5][2]}</td>')
+            self.html.add(f'<td>{grid[6][1]}<br />{grid[6][2]}</td>')
+            self.html.add(f'<td>{grid[7][1]}</td></tr>')
+            self.html.add(f'<tr><td colspan="8" align="center"><span class="birth">GRO Reference</span> {grid[0][1]}</td></tr>')
+            self.html.add('</table>');
+
+            # Debugging.
+            self.html.addLine('<table>')
+            for rows in grid:
+                self.html.add('<tr>')
+                for cell in rows:
+                    self.html.add(f'<td style="white-space: nowrap;">\'{cell}\'</td>')
+                self.html.addLine('</tr>')
+            self.html.addLine('</table>')
         else:
             # General source.
             if source.date is not None:
@@ -541,19 +581,19 @@ class Render(walton.toolbar.IToolbar):
                 for line in source.note.lines:
                     self.html.addLine(f'<p>{line}</p>')
 
-            # Debugging.
-            grid = source.note.getGrid()
-            self.html.addLine('<table>')
-            for rows in grid:
-                self.html.add('<tr>')
-                for cell in rows:
-                    self.html.add(f'<td style="white-space: nowrap;">{cell}</td>')
-                self.html.addLine('</tr>')
-            self.html.addLine('</table>')
+                # Debugging.
+                grid = source.note.getGrid()
+                self.html.addLine('<table>')
+                for rows in grid:
+                    self.html.add('<tr>')
+                    for cell in rows:
+                        self.html.add(f'<td style="white-space: nowrap;">\'{cell}\'</td>')
+                    self.html.addLine('</tr>')
+                self.html.addLine('</table>')
 
         # Show the people that reference this source.
         self.html.addLine('<p>Individuals</p>')
-        self.html.addLine('<table>')
+        self.html.addLine('<table class="reference">')
         for individual in self.application.gedcom.individuals.values():
             facts = ''
             # print(f'{individual.identity} {individual.getName()}')
@@ -579,7 +619,7 @@ class Render(walton.toolbar.IToolbar):
 
         # Show the families that reference this source.
         self.html.addLine('<p>Families</p>')
-        self.html.addLine('<table>')
+        self.html.addLine('<table class="reference">')
         for family in self.application.gedcom.families.values():
             facts = ''
             if family.startDate is not None:
