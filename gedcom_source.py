@@ -9,6 +9,7 @@ from enum import Enum
 
 # Application Librariess.
 from gedcom_date import GedComDate
+from gedcom_note import GedComNote
 
 
 
@@ -45,6 +46,7 @@ class GedComSource:
         self.identity = None
         self.title = ''
         self.date = None
+        self.note = None
         if gedcomFile is None:
             return
         if len(gedcomFile) == 0:
@@ -64,8 +66,10 @@ class GedComSource:
             tags = block[0].split()
             if tags[1] == 'TITL':
                 self.title = block[0][7:]
-            elif tags[2] == 'DATE':
+            elif tags[1] == 'DATE':
                 self.date = GedComDate(block)
+            elif tags[1] == 'NOTE':
+                self.note = GedComNote(block)
             else:
                 # Unknown.
                 print(f'Source unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')

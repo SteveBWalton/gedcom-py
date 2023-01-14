@@ -75,13 +75,12 @@ class GedComDate:
             # Split into tags.
             tags = line.split()
             if tags[1] == 'DATE':
-                # Ignore this for now.
                 self.parseString(line[7:])
             elif tags[1] == 'SOUR':
                 self.sources.append(tags[2][1:-1])
             else:
                 # Unknown.
-                print(f'Individual NAME unrecogised tag \'{tags[1]}\'')
+                print(f'DATE unrecogised tag \'{tags[1]}\'')
 
 
 

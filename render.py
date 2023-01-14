@@ -480,7 +480,23 @@ class Render(walton.toolbar.IToolbar):
 
         self.html.clear()
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
-        self.html.addLine(f"<h1>{source.title}</h1>")
+        self.html.addLine(f'<h1>{source.title}</h1>')
+
+        # General source.
+        if source.date is not None:
+            self.html.addLine(f'<p>{source.date.toLongString()}</p>')
+        if source.note is not None:
+            for line in source.note.lines:
+                self.html.addLine(f'<p>{line}</p>')
+
+            grid = source.note.getGrid()
+            self.html.addLine('<table>')
+            for rows in grid:
+                self.html.add('<tr>')
+                for cell in rows:
+                    self.html.add(f'<td style="white-space: nowrap;">{cell}</td>')
+                self.html.addLine('</tr>')
+            self.html.addLine('</table>')
 
         # Show the people that reference this source.
         self.html.addLine('<p>Individuals</p>')
