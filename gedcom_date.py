@@ -44,13 +44,6 @@ class GedComDate:
         Class constructor for the :py:class:`GedComDate` class.
         '''
         self.parse(dateString)
-        #self.status = GedComDateStatus.EMPTY
-        #self.isAbout = False
-        #self.dayStatus = GedComDateStatus.UNKNOWN
-        #self.monthStatus = GedComDateStatus.UNKNOWN
-        #self.yearStatus = GedComDateStatus.UNKNOWN
-        ## pub is_month_quarter: bool,
-        #self.theDate = datetime.date.today()
 
 
 

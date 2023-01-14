@@ -467,6 +467,10 @@ class Render(walton.toolbar.IToolbar):
 
         self.html.addLine('</p>')
 
+        # Add the sources that have not been used.
+        for source in individual.sources:
+            self.addLocalSource(localSources, source)
+
         # Display the sources referenced in this document.
         self.displayLocalSources(localSources)
 
@@ -482,13 +486,62 @@ class Render(walton.toolbar.IToolbar):
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
         self.html.addLine(f'<h1>{source.title}</h1>')
 
-        # General source.
-        if source.date is not None:
-            self.html.addLine(f'<p>{source.date.toLongString()}</p>')
-        if source.note is not None:
-            for line in source.note.lines:
-                self.html.addLine(f'<p>{line}</p>')
+        if source.title.startswith('Marriage'):
+            # Marriage certificate.
+            grid = source.note.getGrid()
+            self.html.addLine('<table style="background-color: #ccff99; border: 1px solid black;" align="center" cellpadding="5" cellspacing="5">')
+            self.html.add('<tr><td colspan="7">')
+            if source.date is not None:
+                self.html.add(source.date.theDate.strftime("%Y"))
+            self.html.add(' <span class="marriage">Marriage solemnized at</span> ')
+            if source.place is not None:
+                self.html.add(source.place.toLongString())
+            self.html.addLine('</td></tr>')
+            self.html.add('<tr>')
+            self.html.add('<td><SPAN class=\"marriage\">When Married</SPAN></td>')
+            self.html.add('<td><SPAN class=\"marriage\">Name</SPAN></td>')
+            self.html.add('<td><SPAN class=\"marriage\">Age</SPAN></td>')
+            self.html.add('<td><SPAN class=\"marriage\">Rank or Profession</SPAN></td>')
+            self.html.add('<td><SPAN class=\"marriage\">Residence at the time of marriage</SPAN></td>')
+            self.html.add('<td><SPAN class=\"marriage\">Father\'s Name</SPAN></td>')
+            self.html.add('<td><SPAN class=\"marriage\">Rank of Profession of Father</SPAN></td>')
+            self.html.addLine('</tr>')
+            self.html.add("<tr>")
+            self.html.add('<td rowspan=2 style="white-space: nowrap;">')
+            if source.date is not None:
+                self.html.add(source.date.theDate.strftime("%-d %b %Y"))
+            # when.ToString("d MMM yyyy")
+            self.html.add('</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[1][1]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[1][2]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[1][3]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[1][4]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[3][1]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[3][2]}</td>')
+            self.html.addLine('</tr>')
+            self.html.add('<tr>')
+            #// sbHtml.Append("<TD><SPAN class=\"Small\">Bride</SPAN></TD>")
+            self.html.add(f'<td style="white-space: nowrap;">{grid[2][1]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[2][2]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[2][3]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[2][4]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[4][1]}</td>')
+            self.html.add(f'<td style="white-space: nowrap;">{grid[4][2]}</td>')
+            self.html.addLine('</tr>')
+            self.html.addLine(f'<tr><td colspan="7"><span class="marriage">in the Presence of us,</span> {grid[5][1]}</td></tr>')
+            self.html.add('<tr><td colspan=7 align=center><span class="marriage">GRO Reference</span> ')
+            self.html.add(grid[0][1])
+            self.html.addLine('</td></tr>')
+            self.html.addLine('</table>')
+        else:
+            # General source.
+            if source.date is not None:
+                self.html.addLine(f'<p>{source.date.toLongString()}</p>')
+            if source.note is not None:
+                for line in source.note.lines:
+                    self.html.addLine(f'<p>{line}</p>')
 
+            # Debugging.
             grid = source.note.getGrid()
             self.html.addLine('<table>')
             for rows in grid:
@@ -504,6 +557,8 @@ class Render(walton.toolbar.IToolbar):
         for individual in self.application.gedcom.individuals.values():
             facts = ''
             # print(f'{individual.identity} {individual.getName()}')
+            if identity in individual.sources:
+                facts += ' '
             if identity in individual.nameSources:
                 facts += 'Name, '
             if individual.birthDate is not None:

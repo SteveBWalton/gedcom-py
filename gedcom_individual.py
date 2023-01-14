@@ -127,6 +127,7 @@ class GedComIndividual:
     def parse(self, gedcomFile):
         ''' Build the individual from the specified gedcomFile settings. '''
         self.identity = ''
+        self.sources = []
         self.givenName = ''
         self.surname = ''
         self.nameSources = []
@@ -173,7 +174,7 @@ class GedComIndividual:
             elif tags[1] == 'EDUC':
                 pass
             elif tags[1] == 'SOUR':
-                pass
+                self.sources.append(tags[2][1:-1])
             elif tags[1] == 'OBJE':
                 pass
             elif tags[1] == 'CENS':

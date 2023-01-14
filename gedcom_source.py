@@ -9,15 +9,17 @@ from enum import Enum
 
 # Application Librariess.
 from gedcom_date import GedComDate
+from gedcom_place import GedComPlace
 from gedcom_note import GedComNote
 
 
 
-class GedComPlaceAccuracy(Enum):
-    KNOWN = 1
-    ABOUT = 2
-    ESTIMATED = 3
-    CALCULATED = 4
+''' The type of special sources. '''
+class GedComSourceType(Enum):
+    GENERAL = 1
+    BIRTH_CERTIFICATE = 2
+    MARRIAGE_CERTIFICATE = 3
+    DEATH_CERTIFICATE = 4
 
 
 
@@ -45,7 +47,9 @@ class GedComSource:
         '''
         self.identity = None
         self.title = ''
+        self.type = GedComSourceType.GENERAL
         self.date = None
+        self.place = None
         self.note = None
         if gedcomFile is None:
             return
@@ -70,6 +74,8 @@ class GedComSource:
                 self.date = GedComDate(block)
             elif tags[1] == 'NOTE':
                 self.note = GedComNote(block)
+            elif tags[1] == 'PLAC':
+                self.place = GedComPlace(block)
             else:
                 # Unknown.
                 print(f'Source unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')
