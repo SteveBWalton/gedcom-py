@@ -22,6 +22,12 @@ def firstCap(text):
 
 
 
+def toDoRank(todo):
+    ''' Function to rank ToDo items. '''
+    return todo.rank
+
+
+
 class Render(walton.toolbar.IToolbar):
     ''' Class to render the output from the Formula One results database.
     :ivar Dictionary action: The requests and coresponding fuctions that this class can handle.
@@ -63,7 +69,8 @@ class Render(walton.toolbar.IToolbar):
             'index'             : self.showIndex,
             'about'             : self.showAbout,
             'individual'        : self.showIndividual,
-            'source'            : self.showSource
+            'source'            : self.showSource,
+            'todo'              : self.showToDo,
         }
 
 
@@ -247,9 +254,10 @@ class Render(walton.toolbar.IToolbar):
         self.html.clear()
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
 
-        self.html.addLine("<h1>Index</h1>")
-        self.html.addLine("<ul>")
-        self.html.addLine("</ul>")
+        self.html.addLine('<h1>Index</h1>')
+        self.html.addLine('<ul>')
+        self.html.addLine('<li><a href="app:todo">ToDos</a></li>')
+        self.html.addLine('</ul>')
 
 
 
@@ -474,6 +482,17 @@ class Render(walton.toolbar.IToolbar):
         # Display the sources referenced in this document.
         self.displayLocalSources(localSources)
 
+        # Show the todo for this individual.
+        if individual.todos is not None:
+            self.html.addLine('<p><a href="app:todo">To Do</a></p>')
+            self.html.addLine('<table>')
+            for todo in individual.todos:
+                self.html.add('<tr>')
+                self.html.add(f'<td style="border: 1px solid black; background-color: white; padding: 2px;">{todo.rank}</td>')
+                self.html.add(f'<td style="border: 1px solid black; background-color: white; padding: 2px;">{todo.description}</td>')
+                self.html.addLine('<tr>')
+            self.html.addLine('</table>')
+
 
 
     def showSource(self, parameters):
@@ -631,4 +650,30 @@ class Render(walton.toolbar.IToolbar):
 
             if facts != '':
                 self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.identity}</a></td><td>{facts[:-2]}</td></tr>')
+        self.html.addLine('</table>')
+
+
+
+    def showToDo(self, parameters):
+        ''' Show all the ToDos. '''
+        self.html.clear()
+        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.html.addLine(f'<h1>All To Do\'s</h1>')
+        todos = []
+        for individual in self.application.gedcom.individuals.values():
+            if individual.todos is not None:
+                for todo in individual.todos:
+                    todos.append(todo)
+
+        # Sort the todos.
+        todos.sort(key=toDoRank)
+
+        # Display the todos.
+        self.html.addLine('<table>')
+        for todo in todos:
+            self.html.add('<tr>')
+            self.html.add(f'<td style="border: 1px solid black; background-color: white; padding: 3px;"><a href="app:individual?id={todo.individual.identity}">{todo.individual.getName()}</a></td>')
+            self.html.add(f'<td style="border: 1px solid black; background-color: white; padding: 3px; text-align: right;">{todo.rank}</td>')
+            self.html.add(f'<td style="border: 1px solid black; background-color: white; padding: 3px;">{todo.description}</td>')
+            self.html.addLine('<tr>')
         self.html.addLine('</table>')

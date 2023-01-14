@@ -47,6 +47,9 @@ class GedComFamily:
                 self.startDate = GedComDate(block)
             elif tags[1] == 'PLAC':
                 self.startPlace = GedComPlace(block)
+            elif tags[1] == 'TYPE':
+                # ignore for now.
+                pass
             else:
                 # Unknown.
                 print(f'Family MARR unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')

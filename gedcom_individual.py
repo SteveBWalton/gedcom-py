@@ -19,6 +19,34 @@ class IndividualSex(Enum):
 
 
 
+class ToDo:
+    ''' Class to represent a ToDO item. '''
+    def __init__(self, individual, block):
+        ''' Class constructor for a ToDo item. '''
+        self.individual = individual
+        self.rank = 100
+        self.description = ''
+        if block is None:
+            return
+        if not isinstance(block, list):
+            return
+
+        for line in block:
+            # print(line)
+            # Split into tags.
+            tags = line.split()
+            if tags[1] == '_TODO':
+                # Add a line.
+                self.rank = int(tags[2])
+                position = line.find(tags[2]) + len(tags[2]) + 1
+                self.description = line[position:]
+                print(f'TODO Description \'{self.description}\'')
+            else:
+                # Unknown.
+                print(f'_TODO unrecogised tag \'{tags[1]}\' \'{line}\'')
+
+
+
 class GedComIndividual:
     '''
     Class to represent an individual in the gedcom python library.
@@ -140,6 +168,7 @@ class GedComIndividual:
         self.familyIdentities = []
         # Family of parents marrage.
         self.parentFamilyIdentity = None
+        self.todos = None
         if gedcomFile is None:
             return
 
@@ -179,6 +208,10 @@ class GedComIndividual:
                 pass
             elif tags[1] == 'CENS':
                 pass
+            elif tags[1] == '_TODO':
+                if self.todos is None:
+                    self.todos = []
+                self.todos.append(ToDo(self, block))
             elif tags[1] == 'CHAN':
                 pass
             else:

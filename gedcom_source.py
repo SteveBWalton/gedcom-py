@@ -76,6 +76,8 @@ class GedComSource:
                 self.note = GedComNote(block)
             elif tags[1] == 'PLAC':
                 self.place = GedComPlace(block)
+            elif tags[1] == 'REPO':
+                pass
             else:
                 # Unknown.
                 print(f'Source unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')
