@@ -47,6 +47,35 @@ class ToDo:
 
 
 
+class IdentitySources:
+    ''' Class to represent a identity and sources. '''
+    def __init__(self, block):
+        ''' Class constructor for a identity sources object. '''
+        self.identity = None
+        self.sources = None
+        if block is None:
+            return
+        if not isinstance(block, list):
+            return
+
+        # Identity in first line.
+        tags = block[0].split()
+        self.identity = tags[2][1:-1]
+
+        for line in block:
+            # print(line)
+            # Split into tags.
+            tags = line.split()
+            if tags[1] == 'SOUR':
+                if self.sources is None:
+                    self.sources = []
+                self.sources.append(tags[2][1:-1])
+            else:
+                # Unknown.
+                print(f'Identity Sources unrecogised tag \'{tags[1]}\' \'{line}\'')
+
+
+
 class GedComIndividual:
     '''
     Class to represent an individual in the gedcom python library.
@@ -164,7 +193,7 @@ class GedComIndividual:
         self.birthPlace = None
         self.deathDate = None
         self.deathPlace = None
-        # Families of own marrage.
+        # Families of own marrages.
         self.familyIdentities = []
         # Family of parents marrage.
         self.parentFamilyIdentity = None
@@ -194,7 +223,7 @@ class GedComIndividual:
                 self.parseDeath(block)
             elif tags[1] == 'FAMS':
                 # Family spouse.
-                self.familyIdentities.append(tags[2][1:-1])
+                self.familyIdentities.append(IdentitySources(block))
             elif tags[1] == 'FAMC':
                 # Family child.
                 self.parentFamilyIdentity = tags[2][1:-1]

@@ -299,15 +299,15 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('</a>')
 
         # Draw the name.
-        self.html.addLine(f'<text font-size="7pt" text-anchor="middle" x="{x+75}" y="{y+10}">{individual.getName()}</text>')
+        self.html.addLine(f'<text font-size="8pt" text-anchor="middle" x="{x+75}" y="{y+12}">{individual.getName()}</text>')
 
         # Draw the information.
         if individual.birthDate is not None:
-            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birthDate.toShortString()}</text>')
+            self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birthDate.toShortString()}</text>')
         if individual.birthPlace is not None:
-            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birthPlace.toShortString()}</text>')
+            self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birthPlace.toShortString()}</text>')
         if individual.deathDate is not None:
-            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.deathDate.toShortString()}</text>')
+            self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.deathDate.toShortString()}</text>')
 
 
 
@@ -323,7 +323,7 @@ class Render(walton.toolbar.IToolbar):
         # Family details.
         individual = self.application.gedcom.individuals[identity]
         for familyIdentity in individual.familyIdentities:
-            family = self.application.gedcom.families[familyIdentity]
+            family = self.application.gedcom.families[familyIdentity.identity]
             if family.wifeIdentity is not None:
                 if family.wifeIdentity != identity:
                     rows[2].append(family.wifeIdentity)
@@ -416,7 +416,7 @@ class Render(walton.toolbar.IToolbar):
         # Family details.
         for familyIdentity in individual.familyIdentities:
             partner = None
-            family = self.application.gedcom.families[familyIdentity]
+            family = self.application.gedcom.families[familyIdentity.identity]
             if family.wifeIdentity is not None:
                 if family.wifeIdentity != identity:
                     partner = self.application.gedcom.individuals[family.wifeIdentity]
@@ -432,6 +432,9 @@ class Render(walton.toolbar.IToolbar):
                 else:
                     self.html.add(f'{firstCap(individual.heShe())}')
                 self.html.add(f' married <a href="app:individual?person={partner.identity}">{partner.getName()}</a>')
+                if familyIdentity.sources is not None:
+                    for source in familyIdentity.sources:
+                        self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
                 if family.startPlace is not None:
                     self.html.add(f' at {family.startPlace.toLongString()}')
                     for source in family.startPlace.sources:
