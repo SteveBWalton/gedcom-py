@@ -185,6 +185,7 @@ class GedComIndividual:
 
     def parse(self, gedcomFile):
         ''' Build the individual from the specified gedcomFile settings. '''
+        self.gedcomFile = gedcomFile
         self.identity = ''
         self.sources = []
         self.givenName = ''

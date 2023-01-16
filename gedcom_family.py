@@ -62,6 +62,7 @@ class GedComFamily:
     def parse(self, gedcomFile):
         ''' Build the family from the specified gedcom settings. '''
         # The default empty settings.
+        self.gedcomFile = gedcomFile
         self.identity = ''
         self.husbandIdentity = None
         self.wifeIdentity = None

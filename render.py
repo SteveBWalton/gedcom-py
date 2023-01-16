@@ -69,6 +69,7 @@ class Render(walton.toolbar.IToolbar):
             'index'             : self.showIndex,
             'about'             : self.showAbout,
             'individual'        : self.showIndividual,
+            'family'            : self.showFamily,
             'source'            : self.showSource,
             'todo'              : self.showToDo,
         }
@@ -438,7 +439,7 @@ class Render(walton.toolbar.IToolbar):
                     self.html.add(f' {individual.heShe()}')
                 else:
                     self.html.add(f'{firstCap(individual.heShe())}')
-                self.html.add(f' married <a href="app:individual?person={partner.identity}">{partner.getName()}</a>')
+                self.html.add(f' <a href="app:family?id={family.identity}">married</a> <a href="app:individual?id={partner.identity}">{partner.getName()}</a>')
                 if familyIdentity.sources is not None:
                     for source in familyIdentity.sources:
                         self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
@@ -504,6 +505,32 @@ class Render(walton.toolbar.IToolbar):
                 self.html.add(f'<td style="border: 1px solid black; background-color: white; padding: 2px;">{todo.description}</td>')
                 self.html.addLine('<tr>')
             self.html.addLine('</table>')
+
+        # Show the gedcom data for this individual.
+        self.html.add('<pre style="border: 1px solid black;">')
+        for line in individual.gedcomFile:
+            indent = int(line[:1])
+            self.html.addLine(f'{"  " * indent}{line}')
+        self.html.addLine('</pre>')
+
+
+
+    def showFamily(self, parameters):
+        ''' Show a family. '''
+        identity = parameters['id'] if 'id' in parameters else identity
+        family = self.application.gedcom.families[identity]
+        localSources = []
+
+        self.html.clear()
+        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.html.addLine(f"<h1>{family.identity}</h1>")
+
+        # Show the gedcom data for this individual.
+        self.html.add('<pre style="border: 1px solid black;">')
+        for line in family.gedcomFile:
+            indent = int(line[:1])
+            self.html.addLine(f'{"  " * indent}{line}')
+        self.html.addLine('</pre>')
 
 
 
