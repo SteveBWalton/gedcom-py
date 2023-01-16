@@ -40,7 +40,6 @@ class ToDo:
                 self.rank = int(tags[2])
                 position = line.find(tags[2]) + len(tags[2]) + 1
                 self.description = line[position:]
-                print(f'TODO Description \'{self.description}\'')
             else:
                 # Unknown.
                 print(f'_TODO unrecogised tag \'{tags[1]}\' \'{line}\'')
@@ -61,7 +60,9 @@ class IdentitySources:
         # Identity in first line.
         tags = block[0].split()
         self.identity = tags[2][1:-1]
+        block.pop(0)
 
+        # Loop through the rest of block.
         for line in block:
             # print(line)
             # Split into tags.
@@ -251,7 +252,7 @@ class GedComIndividual:
             block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
-        print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\', \'{self.birthDate.toLongString()}\', \'{ self.familyIdentities}\', \'{ self.parentFamilyIdentity}\'')
+        print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\', \'{self.birthDate.toLongString()}\'')
 
 
 
