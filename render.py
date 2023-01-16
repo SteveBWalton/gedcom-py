@@ -307,7 +307,12 @@ class Render(walton.toolbar.IToolbar):
         if individual.birthPlace is not None:
             self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birthPlace.toShortString()}</text>')
         if individual.deathDate is not None:
-            self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.deathDate.toShortString()}</text>')
+            self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.deathDate.toShortString()} ({individual.getYears(individual.deathDate)})</text>')
+        elif individual.birthDate is not None:
+            years = individual.getYears()
+            if years <= 100:
+                self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+45}">age {years}</text>')
+
 
 
 
@@ -428,6 +433,8 @@ class Render(walton.toolbar.IToolbar):
                     self.html.add(f'{firstCap(family.startDate.toLongString())}')
                     for source in family.startDate.sources:
                         self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                    if individual.birthDate is not None:
+                        self.html.add(f' when {individual.heShe()} was {individual.getAge(family.startDate)} old,')
                     self.html.add(f' {individual.heShe()}')
                 else:
                     self.html.add(f'{firstCap(individual.heShe())}')
@@ -458,6 +465,8 @@ class Render(walton.toolbar.IToolbar):
             self.html.add(f'{firstCap(individual.heShe())} died {individual.deathDate.toLongString()}</a>')
             for source in individual.deathDate.sources:
                 self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+            if individual.birthDate is not None:
+                self.html.add(f' when {individual.heShe()} was {individual.getAge(individual.deathDate)} old')
             if individual.deathPlace is not None:
                 self.html.add(f' at {individual.deathPlace.toLongString()}')
                 for source in individual.deathPlace.sources:
@@ -591,21 +600,32 @@ class Render(walton.toolbar.IToolbar):
         elif source.title.startswith('Death'):
             # Death Cerificate.
             grid = source.note.getGrid()
-            self.html.addLine('<table class="certificate" style="background-color: thistle; border: 1px solid black;" align=center cellpadding=5 cellspacing=0>')
-            self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Registration District</span></td><td colspan=3>{grid[1][1]}</td></tr>')
-            self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">When and Where</span></td><td colspan=3>{grid[2][1]}</td></tr>')
-            self.html.add(f'<tr><td style="text-align: right;"><span class="death">Name</span></td><td>{grid[4][1]}</td>')
-            self.html.addLine(f'<td style="text-align: right;"><span class="death">Sex</span></td><td>{grid[4][2]}</td></tr>')
-            self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Date Place of Birth</span></td><td colspan=3>{grid[5][1]}</td></tr>')
-            self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Occupation</span></td><td colspan=3>{grid[6][1]}</td></tr>')
-            self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Usual Address</span></td><td colspan=3>{grid[7][1]}</td></tr>')
-            self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Cause of Death</span></td><td colspan=3>{grid[8][1]}</td></tr>')
-            self.html.add(f'<tr><td style="text-align: right;"><span class="death">Informant</span></td><td>{grid[9][1]}</td>')
-            self.html.addLine(f'<td style="text-align: right;"><span class="death">Informant Description</span></td><td>{grid[9][2]}</td></tr>')
-            self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Informant Address</span></td><td colspan=3>{grid[10][1]}</td></tr>')
-            self.html.add(f'<tr><td style="text-align: right;"><span class="death">When Registered</span></td><td>{grid[11][1]}</td>')
-            self.html.addLine(f'<td style="text-align: right;"><span class="death">Reference</span></td><td>{grid[0][1]}</td></tr>')
-            self.html.addLine('</table>');
+            try:
+                self.html.addLine('<table class="certificate" style="background-color: thistle; border: 1px solid black;" align=center cellpadding=5 cellspacing=0>')
+                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Registration District</span></td><td colspan=3>{grid[1][1]}</td></tr>')
+                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">When and Where</span></td><td colspan=3>{grid[2][1]}</td></tr>')
+                self.html.add(f'<tr><td style="text-align: right;"><span class="death">Name</span></td><td>{grid[4][1]}</td>')
+                self.html.addLine(f'<td style="text-align: right;"><span class="death">Sex</span></td><td>{grid[4][2]}</td></tr>')
+                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Date Place of Birth</span></td><td colspan=3>{grid[5][1]}</td></tr>')
+                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Occupation</span></td><td colspan=3>{grid[6][1]}</td></tr>')
+                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Usual Address</span></td><td colspan=3>{grid[7][1]}</td></tr>')
+                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Cause of Death</span></td><td colspan=3>{grid[8][1]}</td></tr>')
+                self.html.add(f'<tr><td style="text-align: right;"><span class="death">Informant</span></td><td>{grid[9][1]}</td>')
+                self.html.addLine(f'<td style="text-align: right;"><span class="death">Informant Description</span></td><td>{grid[9][2]}</td></tr>')
+                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Informant Address</span></td><td colspan=3>{grid[10][1]}</td></tr>')
+                self.html.add(f'<tr><td style="text-align: right;"><span class="death">When Registered</span></td><td>{grid[11][1]}</td>')
+                self.html.addLine(f'<td style="text-align: right;"><span class="death">Reference</span></td><td>{grid[0][1]}</td></tr>')
+                self.html.addLine('</table>')
+            except:
+                self.html.addLine('<h1>Error</h1>')
+                self.html.addLine('<table>')
+                for rows in grid:
+                    self.html.add('<tr>')
+                    for cell in rows:
+                        self.html.add(f'<td style="white-space: nowrap;">\'{cell}\'</td>')
+                    self.html.addLine('</tr>')
+                self.html.addLine('</table>')
+
 
         elif source.title.startswith('Census') or source.title.startswith('1939 Register'):
             # Census.

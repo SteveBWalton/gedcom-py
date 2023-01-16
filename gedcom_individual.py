@@ -7,6 +7,7 @@ This module implements the :py:class:`GedComIndividual` class.
 
 # System libraries.
 from enum import Enum
+import datetime
 
 # Application libraries.
 from gedcom_date import GedComDate
@@ -283,3 +284,28 @@ class GedComIndividual:
         if self.sex == IndividualSex.FEMALE:
             return 'her'
         return 'his'
+
+
+
+    def getAge(self, theDate = None):
+        ''' Returns the age of the individual on the specified day. '''
+        if self.birthDate is None:
+            return 'unknown'
+        years = self.getYears(theDate)
+        return f'{years} years'
+
+
+
+    def getYears(self, theDate = None):
+        ''' Returns the age of hte individual in years on the specified date. '''
+        if self.birthDate is None:
+            return None
+        if theDate == None:
+            ageDate = datetime.date.today()
+        else:
+            ageDate = theDate.theDate
+        years = ageDate.year - self.birthDate.theDate.year
+        if ageDate.month < self.birthDate.theDate.month or (ageDate.month == self.birthDate.theDate.month and ageDate.day == self.birthDate.theDate.day):
+            years -= 1
+
+        return years
