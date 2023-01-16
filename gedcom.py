@@ -40,7 +40,7 @@ class GedCom:
     Class to represent a gedcom file.
 
     :ivar dict(GedComIndividual) individuals: Collection of individuals in this gedcom.
-    :ivar dict(GedComFamily) family: Collection of families in this gedcom.
+    :ivar dict(GedComFamily) families: Collection of families in this gedcom.
     :ivar string defaultIdentity: The identity of the default individual.
     '''
 
@@ -122,6 +122,7 @@ class GedCom:
         file.close()
 
         print(f'There are {len(self.individuals)} individuals, {len(self.families)} families, {len(self.media)} media and {len(self.sources)} sources.')
+
 
 
 

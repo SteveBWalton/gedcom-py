@@ -12,6 +12,7 @@ import datetime
 # Application libraries.
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
+from gedcom_fact import GedComFact
 
 
 class IndividualSex(Enum):
@@ -201,6 +202,7 @@ class GedComIndividual:
         # Family of parents marrage.
         self.parentFamilyIdentity = None
         self.todos = None
+        self.facts = None
         if gedcomFile is None:
             return
 
@@ -230,10 +232,10 @@ class GedComIndividual:
             elif tags[1] == 'FAMC':
                 # Family child.
                 self.parentFamilyIdentity = tags[2][1:-1]
-            elif tags[1] == 'OCCU':
-                pass
-            elif tags[1] == 'EDUC':
-                pass
+            elif tags[1] == 'OCCU' or tags[1] == 'EDUC':
+                if self.facts is None:
+                    self.facts = []
+                self.facts.append(GedComFact(self, block))
             elif tags[1] == 'SOUR':
                 self.sources.append(tags[2][1:-1])
             elif tags[1] == 'OBJE':

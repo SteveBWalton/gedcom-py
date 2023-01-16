@@ -417,7 +417,7 @@ class Render(walton.toolbar.IToolbar):
             if len(individual.birthPlace.sources) > 0:
                 for source in individual.birthPlace.sources:
                     self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-        self.html.addLine('.')
+        self.html.addLine('. ')
 
         # Family details.
         for familyIdentity in individual.familyIdentities:
@@ -447,7 +447,7 @@ class Render(walton.toolbar.IToolbar):
                     self.html.add(f' at {family.startPlace.toLongString()}')
                     for source in family.startPlace.sources:
                         self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-                self.html.addLine('.')
+                self.html.addLine('. ')
 
             if len(family.childrenIdentities) == 0:
                 self.html.addLine(f'They had no children.')
@@ -459,7 +459,21 @@ class Render(walton.toolbar.IToolbar):
                 for childIdentity in family.childrenIdentities:
                     child = self.application.gedcom.individuals[childIdentity]
                     self.html.add(f', <a href="app:individual?person={child.identity}">{child.getName()}</a>')
-                self.html.addLine('.')
+                self.html.addLine('. ')
+
+        # Facts.
+        if individual.facts is not None:
+            for fact in individual.facts:
+                if fact.type == 'OCCU':
+                    self.html.add(f'{firstCap(individual.heShe())} worked as {fact.information}')
+                elif fact.type == 'EDUC':
+                    self.html.add(f'{firstCap(individual.heShe())} was educated at {fact.information}')
+                else:
+                    # Unknown fact type.
+                    self.html.add(f'{fact.type} {fact.information}')
+                for source in fact.sources:
+                    self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                self.html.addLine('. ')
 
         # Death details.
         if individual.deathDate is not None:
@@ -472,7 +486,7 @@ class Render(walton.toolbar.IToolbar):
                 self.html.add(f' at {individual.deathPlace.toLongString()}')
                 for source in individual.deathPlace.sources:
                     self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-            self.html.addLine('.')
+            self.html.addLine('. ')
 
         # Parents details.
         if parentFamily is not None:
@@ -507,11 +521,13 @@ class Render(walton.toolbar.IToolbar):
             self.html.addLine('</table>')
 
         # Show the gedcom data for this individual.
+        self.html.add('<div style="width: 50%">')
         self.html.add('<pre style="border: 1px solid black;">')
         for line in individual.gedcomFile:
             indent = int(line[:1])
             self.html.addLine(f'{"  " * indent}{line}')
         self.html.addLine('</pre>')
+        self.html.add('</div>')
 
 
 
