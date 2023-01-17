@@ -45,6 +45,7 @@ class GedComSource:
         '''
         Update the object to the date specified in the string.
         '''
+        self.gedcomFile = gedcomFile
         self.identity = None
         self.title = ''
         self.type = GedComSourceType.GENERAL

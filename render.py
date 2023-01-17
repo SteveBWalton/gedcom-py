@@ -392,7 +392,7 @@ class Render(walton.toolbar.IToolbar):
                 width = requiredWidth
 
         # Draw the people.
-        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 270px;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 270px; background-color: white;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
         y = 5
         previousJoinPoints = []
         for columns in rows:
@@ -538,7 +538,6 @@ class Render(walton.toolbar.IToolbar):
                     self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
                 self.html.addLine('. ')
 
-
         # Census.
         if individual.census is not None:
             if True:
@@ -653,13 +652,11 @@ class Render(walton.toolbar.IToolbar):
             self.html.addLine('</table>')
 
         # Show the gedcom data for this individual.
-        self.html.add('<div style="width: 50%">')
-        self.html.add('<pre style="border: 1px solid black;">')
+        self.html.add('<pre style="border: 1px solid black; background-color: white; width: 50%">')
         for line in individual.gedcomFile:
             indent = int(line[:1])
             self.html.addLine(f'{"  " * indent}{line}')
         self.html.addLine('</pre>')
-        self.html.add('</div>')
 
 
 
@@ -740,7 +737,7 @@ class Render(walton.toolbar.IToolbar):
         self.displayLocalSources(localSources)
 
         # Show the gedcom data for this family.
-        self.html.add('<pre style="border: 1px solid black;">')
+        self.html.add('<pre style="border: 1px solid black;  background-color: white; width: 50%">')
         for line in family.gedcomFile:
             indent = int(line[:1])
             self.html.addLine(f'{"  " * indent}{line}')
@@ -1026,6 +1023,12 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.getName()}</a></td><td>{facts[:-2]}</td></tr>')
         self.html.addLine('</table>')
 
+        # Show the gedcom data for this family.
+        self.html.add('<pre style="border: 1px solid black;  background-color: white; width: 50%">')
+        for line in source.gedcomFile:
+            indent = int(line[:1])
+            self.html.addLine(f'{"  " * indent}{line}')
+        self.html.addLine('</pre>')
 
 
     def showToDo(self, parameters):
