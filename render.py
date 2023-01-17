@@ -524,13 +524,20 @@ class Render(walton.toolbar.IToolbar):
 
             if family.divorce is not None:
                 if family.divorce.date is not None:
-                    self.html.add(f'{firstCap(family.divorce.date.toLongString())} they ')
+                    self.html.add(f'{firstCap(family.divorce.date.toLongString())}')
+                    for source in family.divorce.date.sources:
+                        self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                    self.html.add(' they ')
                 else:
                     self.html.add('They ')
                 if family.marriage is None:
-                    self.html.addLine('separated. ')
+                    self.html.add('separated')
                 else:
-                    self.html.addLine('got divorced. ')
+                    self.html.add('got divorced')
+                for source in family.divorce.sources:
+                    self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                self.html.addLine('. ')
+
 
         # Census.
         if individual.census is not None:
@@ -664,9 +671,75 @@ class Render(walton.toolbar.IToolbar):
 
         self.html.clear()
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
-        self.html.addLine(f"<h1>{family.identity}</h1>")
+        # self.html.addLine(f"<h1>{family.identity} {family.getName()}</h1>")
+        self.html.addLine(f"<h1>{family.getName()}</h1>")
 
-        # Show the gedcom data for this individual.
+        # Show a description of this family.
+        self.html.add('<p>')
+        if family.marriage is None:
+            pass
+            # self.html.add(f'{firstCap(individual.heShe())} had a <a href="app:family?id={family.identity}">relationship</a> with ')
+        else:
+            if family.marriage.date is not None:
+                self.html.add(f'{firstCap(family.marriage.date.toLongString())}')
+                for source in family.marriage.date.sources:
+                    self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                self.html.add(' ')
+        husband = None
+        wife = None
+        if family.husbandIdentity is not None:
+            husband = self.application.gedcom.individuals[family.husbandIdentity]
+            self.html.add(f'<a href="app:individual?id={family.husbandIdentity}">{husband.getName()}</a>')
+        if family.wifeIdentity is not None:
+            wife = self.application.gedcom.individuals[family.wifeIdentity]
+            self.html.add(' and ')
+            self.html.add(f'<a href="app:individual?id={family.wifeIdentity}">{wife.getName()}</a>')
+        if family.marriage is None:
+            pass
+        else:
+            self.html.add(' got married')
+            if family.marriage.place is not None:
+                self.html.add(f' at {family.marriage.place.toLongString()}')
+                for source in family.marriage.place.sources:
+                    self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+        self.html.add('. ')
+
+        if len(family.childrenIdentities) == 0:
+            # self.html.addLine(f'They had no children.')
+            pass
+        else:
+            if len(family.childrenIdentities) == 1:
+                self.html.add(f'They had 1 child')
+            else:
+                self.html.add(f'They had {len(family.childrenIdentities)} children')
+            for childIdentity in family.childrenIdentities:
+                child = self.application.gedcom.individuals[childIdentity]
+                self.html.add(f', <a href="app:individual?person={child.identity}">{child.getName()}</a>')
+            self.html.addLine('. ')
+
+        if family.divorce is not None:
+            if family.divorce.date is not None:
+                self.html.add(f'{firstCap(family.divorce.date.toLongString())}')
+                for source in family.divorce.date.sources:
+                    self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                self.html.add(' they ')
+            else:
+                self.html.add('They ')
+            if family.marriage is None:
+                self.html.add('separated')
+            else:
+                self.html.add('got divorced')
+            for source in family.divorce.sources:
+                self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+            self.html.addLine('. ')
+
+
+        self.html.addLine('</p>')
+
+        # Display the sources referenced in this document.
+        self.displayLocalSources(localSources)
+
+        # Show the gedcom data for this family.
         self.html.add('<pre style="border: 1px solid black;">')
         for line in family.gedcomFile:
             indent = int(line[:1])
@@ -935,15 +1008,22 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('<table class="reference">')
         for family in self.application.gedcom.families.values():
             facts = ''
-            if family.startDate is not None:
-                if identity in family.startDate.sources:
-                    facts += 'Marriage Date, '
-            if family.startPlace is not None:
-                if identity in family.startPlace.sources:
-                    facts += 'Marriage Place, '
+            if family.marriage is not None:
+                if family.marriage.date is not None:
+                    if identity in family.marriage.date.sources:
+                        facts += 'Marriage Date, '
+                if family.marriage.place is not None:
+                    if identity in family.marriage.place.sources:
+                        facts += 'Marriage Place, '
+            if family.divorce is not None:
+                if identity in family.divorce.sources:
+                    facts += 'Divorce, '
+                if family.divorce.date is not None:
+                    if identity in family.divorce.date.sources:
+                        facts += 'Divorce Date, '
 
             if facts != '':
-                self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.identity}</a></td><td>{facts[:-2]}</td></tr>')
+                self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.getName()}</a></td><td>{facts[:-2]}</td></tr>')
         self.html.addLine('</table>')
 
 

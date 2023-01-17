@@ -84,19 +84,25 @@ class GedComFamily:
             block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
-        husbandName = None
-        if self.husbandIdentity is not None:
-            husband = self.gedcom.individuals[self.husbandIdentity]
-            husbandName = husband.givenName + ' ' + husband.surname
-
-        wifeName = None
-        if self.wifeIdentity is not None:
-            wife = self.gedcom.individuals[self.wifeIdentity]
-            wifeName = wife.givenName + ' ' + wife.surname
-
         childrenName = ''
         for childIdentity in self.childrenIdentities:
             child = self.gedcom.individuals[childIdentity]
             childrenName += f', \'{child.givenName}\'';
 
-        print(f'\'{self.identity}\', \'{husbandName}\', \'{wifeName}\'{childrenName}')
+        print(f'\'{self.identity}\', \'{self.getName()}\', \'{childrenName}')
+
+
+
+    def getName(self):
+        ''' Returns a name for this family. '''
+        husbandName = None
+        if self.husbandIdentity is not None:
+            husband = self.gedcom.individuals[self.husbandIdentity]
+            husbandName = husband.getName()
+
+        wifeName = None
+        if self.wifeIdentity is not None:
+            wife = self.gedcom.individuals[self.wifeIdentity]
+            wifeName = wife.getName()
+
+        return f'{husbandName} & {wifeName}'
