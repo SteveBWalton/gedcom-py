@@ -47,6 +47,18 @@ class GedComDate:
 
 
 
+    def __lt__(self, other):
+        ''' Magic Method to define < behaviour. '''
+        if self.theDate is None:
+            return True
+        if other is None:
+            return False
+        if other.theDate is None:
+            return False
+        return self.theDate < other.theDate
+
+
+
     def parse(self, dateString = None):
         '''
         Update the object to the date specified in the parameter.

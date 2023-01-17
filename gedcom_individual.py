@@ -13,6 +13,7 @@ import datetime
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
 from gedcom_fact import GedComFact
+from gedcom_census import GedComCensus
 
 
 class IndividualSex(Enum):
@@ -203,6 +204,7 @@ class GedComIndividual:
         self.parentFamilyIdentity = None
         self.todos = None
         self.facts = None
+        self.census = None
         if gedcomFile is None:
             return
 
@@ -241,7 +243,9 @@ class GedComIndividual:
             elif tags[1] == 'OBJE':
                 pass
             elif tags[1] == 'CENS':
-                pass
+                if self.census is None:
+                    self.census = []
+                self.census.append(GedComCensus(self, block))
             elif tags[1] == '_TODO':
                 if self.todos is None:
                     self.todos = []
@@ -300,7 +304,7 @@ class GedComIndividual:
 
 
     def getYears(self, theDate = None):
-        ''' Returns the age of hte individual in years on the specified date. '''
+        ''' Returns the age of the individual in years on the specified date. '''
         if self.birthDate is None:
             return None
         if theDate == None:
@@ -308,7 +312,72 @@ class GedComIndividual:
         else:
             ageDate = theDate.theDate
         years = ageDate.year - self.birthDate.theDate.year
-        if ageDate.month < self.birthDate.theDate.month or (ageDate.month == self.birthDate.theDate.month and ageDate.day == self.birthDate.theDate.day):
+        if ageDate.month < self.birthDate.theDate.month or (ageDate.month == self.birthDate.theDate.month and ageDate.day < self.birthDate.theDate.day):
             years -= 1
 
         return years
+
+
+
+    def byDateOfMarriage(self, identitySource):
+        ''' Key for a list sort of families by start date order. '''
+        identity = identitySource.identity
+        family = self.gedcom.families[identity]
+        if family.marriage is None:
+            return datetime.date.today()
+        if family.marriage.date is None:
+            return datetime.date.today()
+        return family.marriage.date.theDate
+
+
+
+    def byDateOfBirth(self, identity):
+        ''' Key for a list sort of individuals by date of birth order. '''
+        individual = self.gedcom.individuals[identity]
+        if individual.birthDate is None:
+            return None
+        return individual.birthDate.theDate
+
+
+
+    def getSiblings(self):
+        ''' Returns the identities of siblings of the individual. '''
+        siblings = []
+        if self.parentFamilyIdentity is not None:
+            family = self.gedcom.families[self.parentFamilyIdentity]
+            if family.husbandIdentity is not None:
+                father = self.gedcom.individuals[family.husbandIdentity]
+                fatherChildren = father.getChildren()
+                for child in fatherChildren:
+                    if not child in siblings and not child == self.identity:
+                        siblings.append(child)
+            if family.wifeIdentity is not None:
+                mother = self.gedcom.individuals[family.wifeIdentity]
+                motherChildren = mother.getChildren()
+                for child in motherChildren:
+                    if not child in siblings and not child == self.identity:
+                        siblings.append(child)
+
+        # Sort the siblings into date order!
+        siblings.sort(key=self.byDateOfBirth)
+
+        # Return the children of mother and father.
+        return siblings
+
+
+
+    def getChildren(self):
+        ''' Returns the identities of children of the individual. '''
+        children = []
+        for familyIdentity in self.familyIdentities:
+            family = self.gedcom.families[familyIdentity.identity]
+            for childIdentity in family.childrenIdentities:
+                children.append(childIdentity)
+
+        # Sort the children into date order!
+        children.sort(key=self.byDateOfBirth)
+
+        # Return the children.
+        return children
+
+

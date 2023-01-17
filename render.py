@@ -324,43 +324,66 @@ class Render(walton.toolbar.IToolbar):
         rows = [ [], [], [], [] ]
 
         # Add this person to the second row.
-        rows[2].append(identity)
+        mainPerson = self.application.gedcom.individuals[identity]
+        rows[2].append((identity, 10))
 
-        # Family details.
+        # Family details (add partner next to person).
         individual = self.application.gedcom.individuals[identity]
+        familyCount = 1
+        insertPoint = 0
         for familyIdentity in individual.familyIdentities:
             family = self.application.gedcom.families[familyIdentity.identity]
             if family.wifeIdentity is not None:
                 if family.wifeIdentity != identity:
-                    rows[2].append(family.wifeIdentity)
+                    rows[2].append((family.wifeIdentity, familyCount))
             if family.husbandIdentity is not None:
                 if family.husbandIdentity != identity:
-                    rows[2].insert(0, family.husbandIdentity)
+                    rows[2].insert(insertPoint, (family.husbandIdentity, familyCount))
+                    insertPoint += 1
 
             for childIdentity in family.childrenIdentities:
-                rows[3].append(childIdentity)
+                rows[3].append((childIdentity, 10 * familyCount))
+
+            familyCount += 1
+
+        # Siblings.
+        siblings = individual.getSiblings()
+        insertPoint = 0
+        for siblingIdentity in siblings:
+            sibling = self.application.gedcom.individuals[siblingIdentity]
+            if sibling.parentFamilyIdentity == individual.parentFamilyIdentity:
+                code = 10
+            else:
+                code = 0
+            if sibling.birthDate < mainPerson.birthDate:
+                # print(f'{sibling.getName()} < {mainPerson.getName()}')
+                rows[2].insert(insertPoint, (siblingIdentity, code))
+                insertPoint += 1
+            else:
+                # print(f'{sibling.getName()} > {mainPerson.getName()}')
+                rows[2].append((siblingIdentity, code))
 
         # Parents family.
         if individual.parentFamilyIdentity is not None:
             parentFamily = self.application.gedcom.families[individual.parentFamilyIdentity]
             if parentFamily.husbandIdentity is not None:
-                rows[1].append(parentFamily.husbandIdentity)
+                rows[1].append((parentFamily.husbandIdentity, 11))
                 father = self.application.gedcom.individuals[parentFamily.husbandIdentity]
                 if father.parentFamilyIdentity is not None:
                     fatherFamily = self.application.gedcom.families[father.parentFamilyIdentity]
                     if fatherFamily.husbandIdentity is not None:
-                        rows[0].append(fatherFamily.husbandIdentity)
+                        rows[0].append((fatherFamily.husbandIdentity, 1))
                     if fatherFamily.wifeIdentity is not None:
-                        rows[0].append(fatherFamily.wifeIdentity)
+                        rows[0].append((fatherFamily.wifeIdentity, 0))
             if parentFamily.wifeIdentity is not None:
-                rows[1].append(parentFamily.wifeIdentity)
+                rows[1].append((parentFamily.wifeIdentity, 21))
                 mother = self.application.gedcom.individuals[parentFamily.wifeIdentity]
                 if mother.parentFamilyIdentity is not None:
                     motherFamily = self.application.gedcom.families[mother.parentFamilyIdentity]
                     if motherFamily.husbandIdentity is not None:
-                        rows[0].append(motherFamily.husbandIdentity)
+                        rows[0].append((motherFamily.husbandIdentity, 2))
                     if motherFamily.wifeIdentity is not None:
-                        rows[0].append(motherFamily.wifeIdentity)
+                        rows[0].append((motherFamily.wifeIdentity, 0))
         width = 0
         # Decide the required width.
         for columns in rows:
@@ -371,12 +394,43 @@ class Render(walton.toolbar.IToolbar):
         # Draw the people.
         self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 270px;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
         y = 5
+        previousJoinPoints = []
         for columns in rows:
+            familyJoinPoints = []
             x = 5
             for cell in columns:
-                self.drawIndividual(cell, x, y)
+                # print(f'individual = {cell[0]}, type = {cell[1]}')
+                self.drawIndividual(cell[0], x, y)
+
+                if cell[1] % 10 > 0:
+                    # Family.
+                    partner = self.application.gedcom.individuals[cell[0]]
+                    if partner.isMale():
+                        familyJoinPoints.append(x+160)
+                        self.html.addLine(f'<line x1="{x+150}" y1="{y+20}" x2="{x+170}" y2="{y+20}" stroke="black" />')
+                        self.html.addLine(f'<line x1="{x+150}" y1="{y+25}" x2="{x+170}" y2="{y+25}" stroke="black" />')
+                    else:
+                        familyJoinPoints.append(x-10)
+                        self.html.addLine(f'<line x1="{x}" y1="{y+20}" x2="{x-20}" y2="{y+20}" stroke="black" />')
+                        self.html.addLine(f'<line x1="{x}" y1="{y+25}" x2="{x-20}" y2="{y+25}" stroke="black" />')
+
+                if cell[1] // 10 > 0:
+                    # Child of family one above.
+                    joinPoint = (cell[1] // 10) - 1
+                    joinHeight = y - 10
+                    if joinPoint == 1:
+                        joinHeight = y - 15
+                    # print(f'joinPoint = {joinPoint}, joinHeight = {joinHeight}')
+                    self.html.addLine(f'<line x1="{x+75}" y1="{y}" x2="{x+75}" y2="{joinHeight}" stroke="black" />')
+
+                    if len(previousJoinPoints) > joinPoint:
+                        self.html.addLine(f'<line x1="{x+75}" y1="{joinHeight}" x2="{previousJoinPoints[joinPoint]}" y2="{joinHeight}" stroke="black" />')
+                        self.html.addLine(f'<line x1="{previousJoinPoints[joinPoint]}" y1="{joinHeight}" x2="{previousJoinPoints[joinPoint]}" y2="{y-45}" stroke="black" />')
                 x += 170
             y += 70
+            previousJoinPoints = familyJoinPoints
+            # print(f'previousJoinPoints = {previousJoinPoints}')
+
         self.html.addLine('</svg>')
 
 
@@ -430,27 +484,34 @@ class Render(walton.toolbar.IToolbar):
                 if family.husbandIdentity != identity:
                     partner = self.application.gedcom.individuals[family.husbandIdentity]
             if partner is not None:
-                if family.startDate is not None:
-                    self.html.add(f'{firstCap(family.startDate.toLongString())}')
-                    for source in family.startDate.sources:
-                        self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-                    if individual.birthDate is not None:
-                        self.html.add(f' when {individual.heShe()} was {individual.getAge(family.startDate)} old,')
-                    self.html.add(f' {individual.heShe()}')
+                if family.marriage is None:
+                    self.html.add(f'{firstCap(individual.heShe())} had a <a href="app:family?id={family.identity}">relationship</a> with ')
                 else:
-                    self.html.add(f'{firstCap(individual.heShe())}')
-                self.html.add(f' <a href="app:family?id={family.identity}">married</a> <a href="app:individual?id={partner.identity}">{partner.getName()}</a>')
+                    if family.marriage.date is not None:
+                        self.html.add(f'{firstCap(family.marriage.date.toLongString())}')
+                        for source in family.marriage.date.sources:
+                            self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                        if individual.birthDate is not None:
+                            self.html.add(f' aged {individual.getAge(family.marriage.date)}, ')
+                        self.html.add(f' {individual.heShe()}')
+                    else:
+                        self.html.add(f'{firstCap(individual.heShe())}')
+                    self.html.add(f' <a href="app:family?id={family.identity}">')
+                    self.html.add('married')
+                self.html.add(f'</a> <a href="app:individual?id={partner.identity}">{partner.getName()}</a>')
                 if familyIdentity.sources is not None:
                     for source in familyIdentity.sources:
                         self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-                if family.startPlace is not None:
-                    self.html.add(f' at {family.startPlace.toLongString()}')
-                    for source in family.startPlace.sources:
-                        self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                if family.marriage is not None:
+                    if family.marriage.place is not None:
+                        self.html.add(f' at {family.marriage.place.toLongString()}')
+                        for source in family.marriage.place.sources:
+                            self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
                 self.html.addLine('. ')
 
             if len(family.childrenIdentities) == 0:
-                self.html.addLine(f'They had no children.')
+                # self.html.addLine(f'They had no children.')
+                pass
             else:
                 if len(family.childrenIdentities) == 1:
                     self.html.add(f'They had 1 child')
@@ -460,6 +521,70 @@ class Render(walton.toolbar.IToolbar):
                     child = self.application.gedcom.individuals[childIdentity]
                     self.html.add(f', <a href="app:individual?person={child.identity}">{child.getName()}</a>')
                 self.html.addLine('. ')
+
+            if family.divorce is not None:
+                if family.divorce.date is not None:
+                    self.html.add(f'{firstCap(family.divorce.date.toLongString())} they ')
+                else:
+                    self.html.add('They ')
+                if family.marriage is None:
+                    self.html.addLine('separated. ')
+                else:
+                    self.html.addLine('got divorced. ')
+
+        # Census.
+        if individual.census is not None:
+            if True:
+                # Census as table.
+                self.html.addLine('</p>')
+                self.html.addLine('<table style="border: 1px solid black;">')
+                for census in individual.census:
+                    self.html.add('<tr><td>')
+                    if census.date is not None:
+                        self.html.add(f'{census.date.toLongString()}')
+                        if individual.birthDate is not None:
+                            self.html.add(f' aged {individual.getAge(census.date)}')
+                    self.html.add('</td><td>')
+                    if census.place is not None:
+                        self.html.add(f'{census.place.toLongString()}')
+                    self.html.add('</td><td>')
+                    if census.facts is not None:
+                        for fact in census.facts:
+                            if fact.type == 'OCCU':
+                                self.html.add(f'{fact.information}')
+                    self.html.add('</td><td>')
+                    if census.facts is not None:
+                        for fact in census.facts:
+                            if fact.type == 'NOTE':
+                                if fact.information.startswith('Living with'):
+                                    self.html.add(f' {fact.information[11:]}')
+                    self.html.add('</td><td>')
+                    for source in census.sources:
+                        self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                    self.html.addLine('</td></tr>')
+                self.html.addLine('</table>')
+
+                self.html.add('<p>')
+            else:
+                # Census as continue description.
+                for census in individual.census:
+                    if census.date is not None:
+                        self.html.add(f'{firstCap(census.date.toLongString())}')
+                        if individual.birthDate is not None:
+                            self.html.add(f' aged {individual.getAge(census.date)}, ')
+                    self.html.add(f'{individual.heShe()} was living at ')
+                    if census.place is not None:
+                        self.html.add(f'{census.place.toLongString()}')
+                    for source in census.sources:
+                        self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                    if census.facts is not None:
+                        for fact in census.facts:
+                            if fact.type == 'OCCU':
+                                self.html.add(f' working as a {fact.information}')
+                            if fact.type == 'NOTE':
+                                if fact.information.startswith('Living with'):
+                                    self.html.add(f' living with {fact.information[11:]}')
+                    self.html.addLine('. ')
 
         # Facts.
         if individual.facts is not None:

@@ -121,6 +121,11 @@ class GedCom:
             line = file.readline().rstrip('\n')
         file.close()
 
+        # Sort the familes by date order.
+        for individual in self.individuals.values():
+            individual.familyIdentities.sort(key=individual.byDateOfMarriage)
+
+
         print(f'There are {len(self.individuals)} individuals, {len(self.families)} families, {len(self.media)} media and {len(self.sources)} sources.')
 
 

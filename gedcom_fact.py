@@ -7,6 +7,10 @@ This module implements the :py:class:`GedComFact` class.
 # System Libraries.
 from enum import Enum
 
+# Application libraries.
+from gedcom_source import GedComSource
+from gedcom_date import GedComDate
+from gedcom_place import GedComPlace
 
 
 
@@ -15,16 +19,20 @@ class GedComFact:
     '''
     Class to represent a fact in the gedcom python library.
 
-    :ivar GedComDateStatus status: The status of the date, EMPTY, ON, BEFORE, AFTER.
-    :ivar GedComDateAccuracy accuracy: The accuracy of the date, KNOWN, ABOUT, ESTIMATED, CALCULATED
+    :ivar str type: The type of fact.
+    :ivar str information: The value of the fact.
+    :ivar list(GedComSource): A list of sources for the fact.
+    :ivar GedComDate date: The date of the fact.
+    :ivar GedComPlace place: The place of the fact.
     '''
 
 
-    def __init__(self, individual, block = None):
+    def __init__(self, parent, block = None):
         '''
         Class constructor for the :py:class:`GedComDate` class.
         '''
-        self.individual = individual
+        # Individual or family.  Must have .gedcom member.
+        self.parent = parent
         self.parse(block)
 
 
@@ -46,18 +54,14 @@ class GedComFact:
         if not isinstance(gedcomFile, list):
             return
 
+        # Fetch the fact data.
         tags = gedcomFile[0].split()
-        print(gedcomFile[0])
         self.type = tags[1]
-        self.information = gedcomFile[0][gedcomFile[0].index(tags[1]) + len(tags[1]) +1:]
-        print(f'FACT type is \'{self.type}\'')
-        print(f'FACT information is \'{self.information}\'')
+        self.information = gedcomFile[0][gedcomFile[0].index(tags[1]) + len(tags[1]) + 1:]
 
         # Fetch the first block.
-        block, start = self.individual.gedcom.getNextBlock(gedcomFile, 1)
+        block, start = self.parent.gedcom.getNextBlock(gedcomFile, 1)
         while len(block) > 0:
-
-            # print(line)
             # Split into tags.
             tags = block[0].split()
             if tags[1] == 'SOUR':
@@ -68,16 +72,16 @@ class GedComFact:
                 self.place = GedComPlace(block)
             else:
                 # Unknown.
-                print(f'FACT unrecogised tag \'{tags[1]}\'')
+                print(f'FACT unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
 
             # Fetch the next block.
-            block, start = self.individual.gedcom.getNextBlock(gedcomFile, start)
+            block, start = self.parent.gedcom.getNextBlock(gedcomFile, start)
 
 
 
 
     def toLongString(self):
-        ''' Returns the GedCom note as a long string. '''
+        ''' Returns the GedCom fact as a long string. '''
         result = ''
 
         # Return the calculated value.
@@ -87,7 +91,7 @@ class GedComFact:
 
 
     def toShortString(self):
-        ''' Returns the GedCom note as a short string. '''
+        ''' Returns the GedCom fact as a short string. '''
         result = ''
 
         # Return the calculated value.
