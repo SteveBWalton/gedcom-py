@@ -232,9 +232,13 @@ class GedComDate:
             result = f'{result}calculated '
 
         if self.dayStatus == GedComDateStatus.KNOWN:
-            result = f'{result}{self.theDate.strftime("%-d").strip()} '
+            # Does not work under Windows!
+            # result = f'{result}{self.theDate.strftime("%-d").strip()} '
+            result = f'{result}{self.theDate.day} '
         elif self.dayStatus == GedComDateStatus.GUESS:
-            result = f'{result}({self.theDate.strftime("%-d").strip()}) '
+            # Does not work under Windows!
+            # result = f'{result}({self.theDate.strftime("%-d").strip()}) '
+            result = f'{result}({self.theDate.day}) '
         if self.monthStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%B")} '
         elif self.monthStatus == GedComDateStatus.GUESS:
@@ -281,17 +285,29 @@ class GedComDate:
         #    result = f'{result}calculated '
 
         if self.dayStatus == GedComDateStatus.KNOWN:
-            result = f'{result}{self.theDate.strftime("%-d").strip()} '
+            # This does not work under Windows.
+            # result = f'{result}{self.theDate.strftime("%-d").strip()} '
+            # This seem better under Linux or Windows.
+            result = f'{result}{self.theDate.day} '
         elif self.dayStatus == GedComDateStatus.GUESS:
-            result = f'{result}({self.theDate.strftime("%-d").strip()}) '
+            # This does not work under Windows.
+            # result = f'{result}({self.theDate.strftime("%-d").strip()}) '
+            # This seem better under Linux or Windows.
+            result = f'{result}({self.theDate.day}) '
         if self.monthStatus == GedComDateStatus.KNOWN:
             result = f'{result}{self.theDate.strftime("%b")} '
         elif self.monthStatus == GedComDateStatus.GUESS:
             result = f'{result}({self.theDate.strftime("%b")}) '
         if self.yearStatus == GedComDateStatus.KNOWN:
-            result = f'{result}{self.theDate.strftime("%y")}'
+            # This does not work in Windows for years before 1900.
+            # result = f'{result}{self.theDate.strftime("%y")}'
+            # This is not the same as the above but I was thinking about have 4 digit years in short dates.
+            result = f'{result}{self.theDate.year}'
         elif self.yearStatus == GedComDateStatus.GUESS:
-            result = f'{result}({self.theDate.strftime("%y")})'
+            # This does not work in Windows for years before 1900.
+            # result = f'{result}({self.theDate.strftime("%y")})'
+            # This is not the same as the above but I was thinking about have 4 digit years in short dates.
+            result = f'{result}({self.theDate.year})'
 
         if self.status == GedComDateStatus.BETWEEN:
             result = f'{result.strip()}/{self.the2ndDate.toShortString()}'

@@ -246,7 +246,8 @@ class Render(walton.toolbar.IToolbar):
 
     def showHome(self, parameters):
         ''' Render the home page. '''
-        self.showIndividual({'person': self.application.gedcom.defaultIdentity})
+        if self.application.gedcom.defaultIdentity is not None:
+            self.showIndividual({'person': self.application.gedcom.defaultIdentity})
 
 
 
@@ -392,7 +393,8 @@ class Render(walton.toolbar.IToolbar):
                 width = requiredWidth
 
         # Draw the people.
-        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 270px; background-color: white;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 270px; background-color: white;" viewBox="0 0 {width} 270" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+        # self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; background-color: white;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
         y = 5
         previousJoinPoints = []
         for columns in rows:

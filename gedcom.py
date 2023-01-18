@@ -46,6 +46,17 @@ class GedCom:
 
 
 
+    def __init__(self):
+        ''' Class constructor for GedCom objects. '''
+        objectType = GedComObjects.UNKNOWN
+        objectLines = []
+        self.defaultIdentity = None
+        self.individuals = {}
+        self.families = {}
+        self.media = []
+
+
+
     def getNextBlock(self, gedcom, start):
         ''' Returns the next block and next position in the gedcom lines or empty list at the end. '''
         block = []

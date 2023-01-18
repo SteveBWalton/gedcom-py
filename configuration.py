@@ -46,7 +46,15 @@ class Configuration:
         # Check that the configuration directory exists.
         if not os.path.exists(self.DIRECTORY):
             print(f"Create {self.DIRECTORY}")
-            os.mkdir(self.DIRECTORY)
+            try:
+                os.mkdir(self.DIRECTORY)
+            except:
+                # This will not fix the problem now, but might for the next run!
+                parentFolder = os.path.join(str(pathlib.Path.home()), '.walton')
+                if not os.path.exists(parentFolder):
+                    print(f"Create {parentFolder}")
+                    os.mkdir(parentFolder)
+
 
         # The XmlDocument object that persits the configuration options.
         self.xmlDocument = walton.xml.XmlDocument(self.FILENAME, 'gedcom')
