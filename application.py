@@ -52,8 +52,11 @@ class Application(walton.application.IApplication):
         self.args = args
         self.request = 'home'
         self.parameters = ''
+        # This will be set by the active main window.
         self.postRenderPage = None
         self.decodeLink = None
+        # The actions that the application can handle.
+        # This will be overwritten by the active main window.
         self.actions = {}
         # Remove this in due course.
         self.debug = True
@@ -86,12 +89,12 @@ class Application(walton.application.IApplication):
         Display chain is :py:func:`followLocalLink` → :py:func:`openCurrentPage` → :py:func:`displayCurrentPage`.
         '''
         if self.debug:
-            print(f'openCurrentPage({self.request}, {self.parameters})')
+            print(f'application.openCurrentPage({self.request}, {self.parameters})')
 
         parameters = self.parameters
 
         if self.debug:
-            print(f"    Request '{self.request}', Parameters '{parameters}'")
+            print(f"\trequest '{self.request}', parameters '{parameters}'")
 
         # Build a dictionary from the parameters.
         parametersDictionary = self.decodeParameters(parameters)

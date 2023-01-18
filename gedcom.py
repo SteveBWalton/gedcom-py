@@ -17,7 +17,7 @@ from enum import Enum
 import walton.install
 import walton.ansi
 from application import Application
-import main_window
+import widget_wx.main_window
 from gedcom_date import GedComDate
 from gedcom_individual import GedComIndividual
 from gedcom_family import GedComFamily
@@ -185,9 +185,9 @@ def main():
 
     if isGraphicsAvailable():
         # Run via wxPython main window.
-        wxApp = main_window.WxApp(application)
+        wxApp = widget_wx.main_window.WxApp(application)
         application.postRenderPage = wxApp.frame.displayCurrentPage
-        # application.actions = wxApp.frame.actions
+        application.actions = wxApp.frame.actions
         # wxPython loop.
         wxApp.runMainLoop()
     else:

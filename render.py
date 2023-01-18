@@ -305,15 +305,15 @@ class Render(walton.toolbar.IToolbar):
 
         # Draw the information.
         if individual.birthDate is not None:
-            self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birthDate.toShortString()}</text>')
+            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birthDate.toShortString()}</text>')
         if individual.birthPlace is not None:
-            self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birthPlace.toShortString()}</text>')
+            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birthPlace.toShortString()}</text>')
         if individual.deathDate is not None:
-            self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.deathDate.toShortString()} ({individual.getYears(individual.deathDate)})</text>')
+            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.deathDate.toShortString()} ({individual.getYears(individual.deathDate)})</text>')
         elif individual.birthDate is not None:
             years = individual.getYears()
             if years <= 100:
-                self.html.addLine(f'<text font-size="8pt" text-anchor="left" x="{x+10}" y="{y+45}">age {years}</text>')
+                self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">age {years}</text>')
 
 
 
@@ -450,7 +450,7 @@ class Render(walton.toolbar.IToolbar):
             parentFamily = self.application.gedcom.families[individual.parentFamilyIdentity]
 
         self.html.clear()
-        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.displayToolbar(True, f'edit_individual?id={identity}', None, None, False, False, False, '', self.host)
         self.html.addLine(f"<h1>{individual.getName()}</h1>")
 
         # Draw a small family tree for the person.

@@ -22,7 +22,7 @@ import wx.html2     # Try package python3-wxpython4-webview
 #import database
 #import render
 #import walton.year_range
-#import widget_wx.edit_race
+import widget_wx.edit_individual
 
 
 
@@ -45,7 +45,7 @@ class WxMainWindow(wx.Frame):
 
     def __init__(self, application):
         '''
-        :param Application application: The object that represents the formula one database application.
+        :param Application application: The object that represents the gedcom application.
 
         Class constructor for the :py:class:`WxMainWindow` class.
         '''
@@ -59,9 +59,9 @@ class WxMainWindow(wx.Frame):
 
         # Intialise the application.
         self.application = application
-        #self.actions = {
-        #    'edit_race'         : self.editRace,
-        #}
+        self.actions = {
+            'edit_individual'         : self.editIndividual,
+        }
 
         # Build the menu bar.
         menuBar = wx.MenuBar()
@@ -222,7 +222,6 @@ class WxMainWindow(wx.Frame):
         ''' Signal handler for the 'Edit' → 'Copy' menu item. '''
         self.clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         self.clipboard.set_text(self.application.render.clipboard_text, -1)
-
 
 
     def _ViewFullscreen(self, widget):
@@ -392,7 +391,7 @@ class WxMainWindow(wx.Frame):
         Display chain is :py:func:`followLocalLink` -> :py:func:`~application.Applicaiton.openCurrentPage` -> :py:func:`displayCurrentPage`.
         '''
         if self.application.debug:
-            print('followLocalLinks("{}")'.format(linkUrl))
+            print('wx.mainWindow.followLocalLink("{}")'.format(linkUrl))
         isDecode = True
 
         # Show the wait cursor.
@@ -437,7 +436,7 @@ class WxMainWindow(wx.Frame):
                 self.application.request = linkUrl[:nSplit]
 
             if self.application.debug:
-                print("Request '{}', Parameters '{}'".format(self.application.request, self.application.parameters))
+                print("\trequest '{}', parameters '{}'".format(self.application.request, self.application.parameters))
 
         # Call the next function in the display chain.
         self.application.openCurrentPage()
@@ -453,7 +452,7 @@ class WxMainWindow(wx.Frame):
         Display chain is :py:func:`followLocalLink` -> :py:func:`~application.Application.openCurrentPage` -> :py:func:`displayCurrentPage`.
         '''
         if self.application.debug:
-            print("displayCurrentPage()")
+            print("wx.mainWindow.displayCurrentPage()")
 
         # No events / signals until this finishes.
         self.noEvents += 1
@@ -465,6 +464,20 @@ class WxMainWindow(wx.Frame):
 
         # Enable events / signals again.
         self.noEvents -= 1
+
+
+
+    def editIndividual(self, parameters):
+        ''' Display the dialog to edit the specified individual. '''
+        identity = parameters['id'] if 'id' in parameters else identity
+
+        print(f'Edit {identity}')
+
+        dialog = widget_wx.edit_individual.EditIndividual(self)
+        if dialog.editIndividual(None, None):
+            print(f'Update {identity}')
+        else:
+            print('Cancel changes.')
 
 
 
