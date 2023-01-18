@@ -319,7 +319,7 @@ class GedComDate:
 
 
 
-    def toGedComDate(self):
+    def toGedCom(self):
         '''
         Return the object in GedCom format.
         '''
@@ -360,9 +360,9 @@ class GedComDate:
             result = f'{result}<{self.theDate.strftime("%Y")}>'
 
         if self.status == GedComDateStatus.BETWEEN:
-            result = f'{result.strip()} AND {self.the2ndDate.toGedComDate()}'
+            result = f'{result.strip()} AND {self.the2ndDate.toGedCom()}'
         if self.status == GedComDateStatus.FROM:
-            result = f'{result.strip()} TO {self.the2ndDate.toGedComDate()}'
+            result = f'{result.strip()} TO {self.the2ndDate.toGedCom()}'
 
         # Return the calculated value.
         return result.strip()

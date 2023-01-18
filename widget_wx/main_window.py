@@ -474,7 +474,7 @@ class WxMainWindow(wx.Frame):
         print(f'Edit {identity}')
 
         dialog = widget_wx.edit_individual.EditIndividual(self)
-        if dialog.editIndividual(None, None):
+        if dialog.editIndividual(self.application.gedcom, identity):
             print(f'Update {identity}')
         else:
             print('Cancel changes.')
