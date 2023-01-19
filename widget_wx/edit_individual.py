@@ -37,6 +37,9 @@ class EditIndividual(wx.Dialog):
         # Initialise the base class.
         wx.Dialog.__init__(self, parentWindow, title='Edit Individual')
 
+        # Initialise members.
+        self.individual = None
+
         # Add a panel to the dialog.
         self.panel = wx.Panel(self, wx.ID_ANY)
 
@@ -77,37 +80,44 @@ class EditIndividual(wx.Dialog):
         labelSurname = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Surname')
         groupDetailsSizer.Add(labelSurname, 0, wx.ALL | wx.ALIGN_RIGHT)
         self.textSurname = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(140,-1))
+        self.textSurname.Bind(wx.EVT_SET_FOCUS, self.onFocusName)
         groupDetailsSizer.Add(self.textSurname)
         labelDoB = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Date of Birth')
         groupDetailsSizer.Add(labelDoB, 0, wx.ALL | wx.ALIGN_RIGHT)
         self.textDoB = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
+        self.textDoB.Bind(wx.EVT_SET_FOCUS, self.onFocusDoB)
         groupDetailsSizer.Add(self.textDoB)
         labelGivenName = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Given Names')
         groupDetailsSizer.Add(labelGivenName, 0, wx.ALL | wx.ALIGN_RIGHT)
         self.textGivenName = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(140,-1))
+        self.textGivenName.Bind(wx.EVT_SET_FOCUS, self.onFocusName)
         groupDetailsSizer.Add(self.textGivenName)
         labelDoD = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Date of Death')
         groupDetailsSizer.Add(labelDoD, 0, wx.ALL | wx.ALIGN_RIGHT)
         self.textDoD = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
+        self.textDoD.Bind(wx.EVT_SET_FOCUS, self.onFocusDoD)
         groupDetailsSizer.Add(self.textDoD)
         labelSex = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Sex')
         groupDetailsSizer.Add(labelSex, 0, wx.ALL | wx.ALIGN_RIGHT)
-        comboxboxSex = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=['Male', 'Female'])
-        groupDetailsSizer.Add(comboxboxSex, 0, wx.ALL | wx.ALIGN_LEFT)
+        self.comboxboxSex = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=['Male', 'Female'])
+        self.comboxboxSex.Bind(wx.EVT_SET_FOCUS, self.onFocusGeneral)
+        groupDetailsSizer.Add(self.comboxboxSex, 0, wx.ALL | wx.ALIGN_LEFT)
         groupDetails.Add(groupDetailsSizer)
         self.boxsizer.Add(groupDetails)
 
         # Sources group box.
-        groupSources = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Sources')
+        self.groupSources = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Sources')
+        self.listboxSources = wx.ListBox(self.groupSources.GetStaticBox(), wx.ID_ANY)
+        self.groupSources.Add(self.listboxSources)
         boxsizerNewSource = wx.BoxSizer(wx.HORIZONTAL)
-        comboxboxNewSource = wx.ComboBox(groupSources.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=['One', 'Two', 'Three'])
+        comboxboxNewSource = wx.ComboBox(self.groupSources.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=[])
         boxsizerNewSource.Add(comboxboxNewSource)
-        buttonAddSource = wx.Button(groupSources.GetStaticBox(), wx.ID_OK, 'Add')
+        buttonAddSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_OK, 'Add')
         boxsizerNewSource.Add(buttonAddSource)
-        buttonRemoveSource = wx.Button(groupSources.GetStaticBox(), wx.ID_OK, 'Remove')
+        buttonRemoveSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_OK, 'Remove')
         boxsizerNewSource.Add(buttonRemoveSource)
-        groupSources.Add(boxsizerNewSource)
-        self.boxsizer.Add(groupSources)
+        self.groupSources.Add(boxsizerNewSource)
+        self.boxsizer.Add(self.groupSources)
 
         # Links group box.
         groupLinks = wx.StaticBox(self.panel, wx.ID_ANY, 'Links')
@@ -137,15 +147,68 @@ class EditIndividual(wx.Dialog):
 
 
 
-    def populateDialog(self, individual):
-        ''' Populate the dialog from the individual. '''
-        self.textGivenName.SetValue(individual.givenName)
-        self.textSurname.SetValue(individual.surname)
-        if individual.birthDate is not None:
-            self.textDoB.SetValue(individual.birthDate.toGedCom())
-        if individual.deathDate is not None:
-            self.textDoD.SetValue(individual.deathDate.toGedCom())
 
+    def onFocusGeneral(self, event):
+        ''' Event handler for name getting focus. '''
+        self.groupSources.GetStaticBox().SetLabel('General Sources')
+        self.listboxSources.Clear()
+        if self.individual is not None:
+            for sourceIdentity in self.individual.sources:
+                source = self.gedcom.sources[sourceIdentity]
+                self.listboxSources.Append(source.title)
+        self.panel.Layout()
+
+
+
+    def onFocusName(self, event):
+        ''' Event handler for name getting focus. '''
+        self.groupSources.GetStaticBox().SetLabel('Sources for Name')
+        self.listboxSources.Clear()
+        if self.individual is not None:
+            for sourceIdentity in self.individual.nameSources:
+                source = self.gedcom.sources[sourceIdentity]
+                self.listboxSources.Append(source.title)
+        self.panel.Layout()
+
+
+
+    def onFocusDoB(self, event):
+        ''' Event handler for DoB getting focus. '''
+        self.groupSources.GetStaticBox().SetLabel('Sources for DoB')
+        self.listboxSources.Clear()
+        if self.individual is not None:
+            for sourceIdentity in self.individual.birthDate.sources:
+                source = self.gedcom.sources[sourceIdentity]
+                self.listboxSources.Append(source.title)
+        self.panel.Layout()
+
+
+
+    def onFocusDoD(self, event):
+        ''' Event handler for DoB getting focus. '''
+        self.groupSources.GetStaticBox().SetLabel('Sources for DoD')
+        self.listboxSources.Clear()
+        if self.individual is not None:
+            if self.individual.deathDate is not None:
+                for sourceIdentity in self.individual.deathDate.sources:
+                    source = self.gedcom.sources[sourceIdentity]
+                    self.listboxSources.Append(source.title)
+        self.panel.Layout()
+
+
+
+    def populateDialog(self,):
+        ''' Populate the dialog from the individual. '''
+        self.textGivenName.SetValue(self.individual.givenName)
+        self.textSurname.SetValue(self.individual.surname)
+        if self.individual.birthDate is not None:
+            self.textDoB.SetValue(self.individual.birthDate.toGedCom())
+        if self.individual.deathDate is not None:
+            self.textDoD.SetValue(self.individual.deathDate.toGedCom())
+        if self.individual.isMale():
+            self.comboxboxSex.SetSelection(0)
+        else:
+            self.comboxboxSex.SetSelection(1)
 
 
     def editIndividual(self, gedcom, identity):
@@ -156,8 +219,9 @@ class EditIndividual(wx.Dialog):
         :param int seasonIndex: Specify the year of the initial race.
         :param int locationIndex: Specify the ID the initial location.
         '''
-        individual = gedcom.individuals[identity]
-        self.populateDialog(individual)
+        self.gedcom = gedcom
+        self.individual = gedcom.individuals[identity]
+        self.populateDialog()
 
         # Default function result.
         isResult = False

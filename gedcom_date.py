@@ -348,9 +348,9 @@ class GedComDate:
 
         if self.dayStatus == GedComDateStatus.KNOWN:
             # This does not work under Windows.
-            # result = f'{result}({self.theDate.strftime("%-d").strip()}) '
+            # result = f'{result}{self.theDate.strftime("%-d").strip()} '
             # This seem better under Linux or Windows.
-            result = f'{result}({self.theDate.day}) '
+            result = f'{result}{self.theDate.day} '
         elif self.dayStatus == GedComDateStatus.GUESS:
             # This does not work under Windows.
             # result = f'{result}<{self.theDate.strftime("%-d").strip()}> '
