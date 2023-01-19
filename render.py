@@ -976,6 +976,10 @@ class Render(walton.toolbar.IToolbar):
                 #    self.html.addLine('</tr>')
                 #self.html.addLine('</table>')
 
+        # Show the last change.
+        self.html.addLine(f'<p class="last_change">Last change {source.change.toLongString()}</p>')
+
+
         # Show the people that reference this source.
         self.html.addLine('<p>Individuals</p>')
         self.html.addLine('<table class="reference">')

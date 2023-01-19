@@ -11,6 +11,7 @@ from enum import Enum
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
 from gedcom_note import GedComNote
+from gedcom_change import GedComChange
 
 
 
@@ -52,6 +53,7 @@ class GedComSource:
         self.date = None
         self.place = None
         self.note = None
+        self.change = None
         if gedcomFile is None:
             return
         if len(gedcomFile) == 0:
@@ -79,6 +81,8 @@ class GedComSource:
                 self.place = GedComPlace(block)
             elif tags[1] == 'REPO':
                 pass
+            elif tags[1] == 'CHAN':
+                self.change = GedComChange(block)
             else:
                 # Unknown.
                 print(f'Source unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')
