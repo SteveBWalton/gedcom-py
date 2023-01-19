@@ -5,6 +5,7 @@ Module to support the editing of individual in gedcom.
 This uses the wx library.
 '''
 
+# System Libraries.
 import wx
 import wx.adv
 import sqlite3
@@ -12,6 +13,7 @@ import datetime
 import time
 import os
 import sys
+import copy
 
 # Import my own libraries.
 #import modEntryCalendar
@@ -39,6 +41,10 @@ class EditIndividual(wx.Dialog):
 
         # Initialise members.
         self.individual = None
+        self.generalSources = []
+        self.nameSources = []
+        self.dobSources = []
+        self.dodSources = []
 
         # Add a panel to the dialog.
         self.panel = wx.Panel(self, wx.ID_ANY)
@@ -152,10 +158,9 @@ class EditIndividual(wx.Dialog):
         ''' Event handler for name getting focus. '''
         self.groupSources.GetStaticBox().SetLabel('General Sources')
         self.listboxSources.Clear()
-        if self.individual is not None:
-            for sourceIdentity in self.individual.sources:
-                source = self.gedcom.sources[sourceIdentity]
-                self.listboxSources.Append(source.title)
+        for sourceIdentity in self.generalSources:
+            source = self.gedcom.sources[sourceIdentity]
+            self.listboxSources.Append(source.title)
         self.panel.Layout()
 
 
@@ -164,10 +169,9 @@ class EditIndividual(wx.Dialog):
         ''' Event handler for name getting focus. '''
         self.groupSources.GetStaticBox().SetLabel('Sources for Name')
         self.listboxSources.Clear()
-        if self.individual is not None:
-            for sourceIdentity in self.individual.nameSources:
-                source = self.gedcom.sources[sourceIdentity]
-                self.listboxSources.Append(source.title)
+        for sourceIdentity in self.nameSources:
+            source = self.gedcom.sources[sourceIdentity]
+            self.listboxSources.Append(source.title)
         self.panel.Layout()
 
 
@@ -176,10 +180,9 @@ class EditIndividual(wx.Dialog):
         ''' Event handler for DoB getting focus. '''
         self.groupSources.GetStaticBox().SetLabel('Sources for DoB')
         self.listboxSources.Clear()
-        if self.individual is not None:
-            for sourceIdentity in self.individual.birthDate.sources:
-                source = self.gedcom.sources[sourceIdentity]
-                self.listboxSources.Append(source.title)
+        for sourceIdentity in self.dobSources:
+            source = self.gedcom.sources[sourceIdentity]
+            self.listboxSources.Append(source.title)
         self.panel.Layout()
 
 
@@ -188,11 +191,9 @@ class EditIndividual(wx.Dialog):
         ''' Event handler for DoB getting focus. '''
         self.groupSources.GetStaticBox().SetLabel('Sources for DoD')
         self.listboxSources.Clear()
-        if self.individual is not None:
-            if self.individual.deathDate is not None:
-                for sourceIdentity in self.individual.deathDate.sources:
-                    source = self.gedcom.sources[sourceIdentity]
-                    self.listboxSources.Append(source.title)
+        for sourceIdentity in self.dodSources:
+            source = self.gedcom.sources[sourceIdentity]
+            self.listboxSources.Append(source.title)
         self.panel.Layout()
 
 
@@ -209,6 +210,15 @@ class EditIndividual(wx.Dialog):
             self.comboxboxSex.SetSelection(0)
         else:
             self.comboxboxSex.SetSelection(1)
+
+        self.generalSources = copy.copy(self.individual.sources)
+        self.nameSources = copy.copy(self.individual.nameSources)
+        self.dobSources = copy.copy(self.individual.birthDate.sources)
+        if self.individual.deathDate is None:
+            self.dodSources = []
+        else:
+            self.dodSources = copy.copy(self.individual.deathDate.sources)
+
 
 
     def editIndividual(self, gedcom, identity):
