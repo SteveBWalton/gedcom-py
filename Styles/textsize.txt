@@ -1,0 +1,16 @@
+p { font-size: [FONT-SIZE,+5]; margin-top: 3px; margin-bottom: 3px; }
+h1 { font-size: [FONT-SIZE,*2,+4]; margin-top: 3px; margin-bottom: 3px; }
+h2 { font-size: [FONT-SIZE,*2]; margin-top: 3px; margin-bottom: 3px; }
+li { font-size: [FONT-SIZE,*2]; margin-top: 3px; margin-bottom: 3px; }
+td { font-size: [FONT-SIZE,+5]; margin-top: 3px; margin-bottom: 3px; }
+.h1 { font-size: [FONT-SIZE,*2,+4]; }
+.driver { font-size: [FONT-SIZE,+5]; }
+.team { font-size: [FONT-SIZE,+5]; }
+.age { font-size: [FONT-SIZE]; }
+.years { font-size: [FONT-SIZE,>7]; }
+.date { font-size: [FONT-SIZE,>7]; }
+.pts {}
+.resultslist { font-size: [FONT-SIZE]; }
+.rank { font-size: [FONT-SIZE,-4,>7]; }
+.label { font-size: [FONT-SIZE,+1]; }
+.chassis { font-size: [FONT-SIZE,*0.5,>7]; }

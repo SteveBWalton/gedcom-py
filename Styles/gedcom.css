@@ -1,0 +1,44 @@
+body { font-family: Liberation Sans, sans-serif; }
+
+a { text-decoration: none; color: inherit; }
+a:hover { text-decoration: underline; color: inherit; }
+a:visited { color: inherit; }
+
+/* Toolbar */
+div.toolbar { background-color: black; color: white; border: 1px solid white; padding: 4px 4px 4px 4px; }
+a.button { font-family: awesome; font-size: 24px; }
+a.button:hover { text-decoration: none; color: inherit; }
+form.toolbar { display: inline; }
+select.toolbar { position: relative; top: -7px; font-size: 8pt; }
+
+table { border-spacing: 0px; border-collapse: collapse; }
+td { padding: 2px; border: 0px; vertical-align: middle; }
+
+tr.title { font-weight: 700; }
+td.position_sum { text-align: right; vertical-align: middle; width: 15px; }
+td.pts { text-align: right; vertical-align: middle; width: 30px; }
+table.certificate td { padding: 10px; }
+table.reference td { font-size: 8pt; background-color: white; padding: 2px; border: 1px solid black; }
+table.centretext td { text-align: center; }
+table.righttext td { text-align: right; }
+
+table.columns { margin: 0px; padding: 0px; border: 0px solid black; }
+td.columns { vertical-align: top; } /* table.columns td had side effects into tables inside columns. */
+
+fieldset { border: 1px solid grey; }
+legend { color: grey; font-size: 8pt; }
+
+button.selected { background-color: LightGray; font-weight: bold; }
+
+/* These are required to stop extra spacing in html5 */
+img { padding: 0px; border: 0px; margin: 0px; vertical-align: middle; }
+img.flag { padding: 0px; border: 0px; margin: 0px; vertical-align: top; border: 1px solid black;}
+svg { padding: 0px; border: 0px; margin: 0px; vertical-align: middle; }
+
+.age {  }
+.census {font-family: 'Times New Roman'; font-size: 8pt; color: darkcyan; margin-top: 3pt; margin-bottom: 3pt}
+.marriage {font-family: 'Times New Roman'; font-size: 8pt; color: seagreen; margin-top: 3pt; margin-bottom: 3pt}
+.birth {font-family: 'Times New Roman'; font-size: 8pt; color: orangered; margin-top: 3pt; margin-bottom: 3pt}
+.death {font-family: 'Times New Roman'; font-size: 8pt; color: purple; margin-top: 3pt; margin-bottom: 3pt}
+
+
