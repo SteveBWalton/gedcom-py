@@ -9,6 +9,7 @@ This module implements the :py:class:`Render` class.
 # import sys
 import datetime
 import time
+import html
 
 # The program libraries.
 import walton.html
@@ -545,7 +546,7 @@ class Render(walton.toolbar.IToolbar):
             if True:
                 # Census as table.
                 self.html.addLine('</p>')
-                self.html.addLine('<table style="border: 1px solid black;">')
+                self.html.addLine('<table style="background-color: white; border: 1px solid black;">')
                 for census in individual.census:
                     self.html.add('<tr><td>')
                     if census.date is not None:
@@ -662,14 +663,14 @@ class Render(walton.toolbar.IToolbar):
         self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
         for line in individual.gedcomFile:
             indent = int(line[:1])
-            self.html.addLine(f'{"  " * indent}{line}')
+            self.html.addLine(f'{"  " * indent}{html.escape(line)}')
         self.html.addLine('</pre></div>')
         gedcom = individual.toGedCom()
         self.html.add('<div style="display: inline-block; vertical-align:top;">')
         self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
         for line in gedcom:
             indent = int(line[:1])
-            self.html.addLine(f'{"  " * indent}{line}')
+            self.html.addLine(f'{"  " * indent}{html.escape(line)}')
         self.html.addLine('</pre></div>')
 
 
@@ -758,14 +759,14 @@ class Render(walton.toolbar.IToolbar):
         self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
         for line in family.gedcomFile:
             indent = int(line[:1])
-            self.html.addLine(f'{"  " * indent}{line}')
+            self.html.addLine(f'{"  " * indent}{html.escape(line)}')
         self.html.addLine('</pre></div>')
         gedcom = family.toGedCom()
         self.html.add('<div style="display: inline-block; vertical-align:top;">')
         self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
         for line in gedcom:
             indent = int(line[:1])
-            self.html.addLine(f'{"  " * indent}{line}')
+            self.html.addLine(f'{"  " * indent}{html.escape(line)}')
         self.html.addLine('</pre></div>')
 
 
@@ -780,224 +781,236 @@ class Render(walton.toolbar.IToolbar):
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
         self.html.addLine(f'<h1>{source.title}</h1>')
 
+        isUseStandardRender = True
+
         if source.title.startswith('Marriage'):
             # Marriage certificate.
-            grid = source.note.getGrid()
-            self.html.addLine('<table class="certificate" style="background-color: #ccff99; border: 1px solid black;" align="center" cellpadding="5" cellspacing="5">')
-            self.html.add('<tr><td colspan="7">')
-            if source.date is not None:
-                self.html.add(source.date.theDate.strftime("%Y"))
-            self.html.add(' <span class="marriage">Marriage solemnized at</span> ')
-            if source.place is not None:
-                self.html.add(source.place.toLongString())
-            self.html.addLine('</td></tr>')
-            self.html.add('<tr>')
-            self.html.add('<td><span class=\"marriage\">When Married</span></td>')
-            self.html.add('<td><span class=\"marriage\">Name</span></td>')
-            self.html.add('<td><span class=\"marriage\">Age</span></td>')
-            self.html.add('<td><span class=\"marriage\">Rank or Profession</span></td>')
-            self.html.add('<td><span class=\"marriage\">Residence at the time of marriage</span></td>')
-            self.html.add('<td><span class=\"marriage\">Father\'s Name</span></td>')
-            self.html.add('<td><span class=\"marriage\">Rank of Profession of Father</span></td>')
-            self.html.addLine('</tr>')
-            self.html.add("<tr>")
-            self.html.add('<td rowspan=2 style="white-space: nowrap;">')
-            if source.date is not None:
-                self.html.add(source.date.theDate.strftime("%-d %b %Y"))
-            # when.ToString("d MMM yyyy")
-            self.html.add('</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[1][1]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[1][2]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[1][3]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[1][4]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[3][1]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[3][2]}</td>')
-            self.html.addLine('</tr>')
-            self.html.add('<tr>')
-            #// sbHtml.Append("<td><span class=\"Small\">Bride</span></td>")
-            self.html.add(f'<td style="white-space: nowrap;">{grid[2][1]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[2][2]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[2][3]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[2][4]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[4][1]}</td>')
-            self.html.add(f'<td style="white-space: nowrap;">{grid[4][2]}</td>')
-            self.html.addLine('</tr>')
-            self.html.addLine(f'<tr><td colspan="7"><span class="marriage">in the Presence of us,</span> {grid[5][1]}</td></tr>')
-            self.html.add('<tr><td colspan=7 align=center><span class="marriage">GRO Reference</span> ')
-            self.html.add(grid[0][1])
-            self.html.addLine('</td></tr>')
-            self.html.addLine('</table>')
+            grid = None
+            if source.facts is not None:
+                for fact in source.facts:
+                    if isinstance(fact.information, list):
+                        grid = fact.information
+            if grid is not None:
+                self.html.addLine('<table class="certificate" style="background-color: #ccff99; border: 1px solid black;" align="center" cellpadding="5" cellspacing="5">')
+                self.html.add('<tr><td colspan="7">')
+                if source.date is not None:
+                    self.html.add(source.date.theDate.strftime("%Y"))
+                self.html.add(' <span class="marriage">Marriage solemnized at</span> ')
+                if source.place is not None:
+                    self.html.add(source.place.toLongString())
+                self.html.addLine('</td></tr>')
+                self.html.add('<tr>')
+                self.html.add('<td><span class=\"marriage\">When Married</span></td>')
+                self.html.add('<td><span class=\"marriage\">Name</span></td>')
+                self.html.add('<td><span class=\"marriage\">Age</span></td>')
+                self.html.add('<td><span class=\"marriage\">Rank or Profession</span></td>')
+                self.html.add('<td><span class=\"marriage\">Residence at the time of marriage</span></td>')
+                self.html.add('<td><span class=\"marriage\">Father\'s Name</span></td>')
+                self.html.add('<td><span class=\"marriage\">Rank of Profession of Father</span></td>')
+                self.html.addLine('</tr>')
+                self.html.add("<tr>")
+                self.html.add('<td rowspan=2 style="white-space: nowrap;">')
+                if source.date is not None:
+                    self.html.add(source.date.theDate.strftime("%-d %b %Y"))
+                # when.ToString("d MMM yyyy")
+                self.html.add('</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[1][1]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[1][2]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[1][3]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[1][4]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[3][1]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[3][2]}</td>')
+                self.html.addLine('</tr>')
+                self.html.add('<tr>')
+                #// sbHtml.Append("<td><span class=\"Small\">Bride</span></td>")
+                self.html.add(f'<td style="white-space: nowrap;">{grid[2][1]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[2][2]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[2][3]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[2][4]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[4][1]}</td>')
+                self.html.add(f'<td style="white-space: nowrap;">{grid[4][2]}</td>')
+                self.html.addLine('</tr>')
+                self.html.addLine(f'<tr><td colspan="7"><span class="marriage">in the Presence of us,</span> {grid[5][1]}</td></tr>')
+                self.html.add('<tr><td colspan=7 align=center><span class="marriage">GRO Reference</span> ')
+                self.html.add(grid[0][2])
+                self.html.addLine('</td></tr>')
+                self.html.addLine('</table>')
+                isUseStandardRender = False
 
         elif source.title.startswith('Birth'):
             # Birth Certificate.
-            grid = source.note.getGrid()
-            self.html.addLine('<table class="certificate" style="background-color: mistyrose; border: 1px solid black;" align="center" cellpadding="5" cellspacing="0">')
-            self.html.add('<tr><td colspan="8">')
-            if source.date is not None:
-                self.html.add(source.date.theDate.strftime("%Y"))
-            self.html.addLine(f' <span class="birth">Birth in the registration district of</span> {grid[1][1]}</td></tr>')
-            self.html.add('<tr valign="bottom"><td><span class="birth">When and<br/>Where Born</span></td>')
-            self.html.add('<td class="birth">Name</td>')
-            self.html.add('<td><span class="birth">Sex</span></td>')
-            self.html.add('<td><span class="birth">Father</span></td>')
-            self.html.add('<td><span class="birth">Mother</span></td>')
-            self.html.add('<td><span class="birth">Occupation<br />of Father</span></td>')
-            self.html.add('<td><span class="birth">Informant</span></td>')
-            self.html.addLine('<td><span class="birth">When Registered</span></td></tr>')
+            grid = None
+            if source.facts is not None:
+                for fact in source.facts:
+                    if isinstance(fact.information, list):
+                        grid = fact.information
+            if grid is not None:
+                self.html.addLine('<table class="certificate" style="background-color: mistyrose; border: 1px solid black;" align="center" cellpadding="5" cellspacing="0">')
+                self.html.add('<tr><td colspan="8">')
+                if source.date is not None:
+                    self.html.add(source.date.theDate.strftime("%Y"))
+                self.html.addLine(f' <span class="birth">Birth in the registration district of</span> {grid[1][1]}</td></tr>')
+                self.html.add('<tr valign="bottom"><td><span class="birth">When and<br/>Where Born</span></td>')
+                self.html.add('<td class="birth">Name</td>')
+                self.html.add('<td><span class="birth">Sex</span></td>')
+                self.html.add('<td><span class="birth">Father</span></td>')
+                self.html.add('<td><span class="birth">Mother</span></td>')
+                self.html.add('<td><span class="birth">Occupation<br />of Father</span></td>')
+                self.html.add('<td><span class="birth">Informant</span></td>')
+                self.html.addLine('<td><span class="birth">When Registered</span></td></tr>')
 
-            self.html.add('<tr valign=top><td>')
-            if source.date is not None:
-                # self.html.add(source.date.theDate.strftime("%-d %b %Y"))
-                self.html.add(grid[2][1])
-            self.html.add(f'<br />{grid[2][2]}</td>')
-            self.html.add(f'<td>{grid[3][1]}</td>')
-            self.html.add(f'<td>{grid[3][2]}</td>')
-            self.html.add(f'<td>{grid[5][1]}</td>')
-            self.html.add(f'<td>{grid[4][1]}<br />{grid[4][2]}</td>')
-            self.html.add(f'<td>{grid[5][2]}</td>')
-            self.html.add(f'<td>{grid[6][1]}<br />{grid[6][2]}</td>')
-            self.html.add(f'<td>{grid[7][1]}</td></tr>')
-            self.html.add(f'<tr><td colspan="8" align="center"><span class="birth">GRO Reference</span> {grid[0][1]}</td></tr>')
-            self.html.add('</table>');
+                self.html.add('<tr valign=top><td>')
+                if source.date is not None:
+                    # self.html.add(source.date.theDate.strftime("%-d %b %Y"))
+                    self.html.add(grid[2][1])
+                self.html.add(f'<br />{grid[2][2]}</td>')
+                self.html.add(f'<td>{grid[3][1]}</td>')
+                self.html.add(f'<td>{grid[3][2]}</td>')
+                self.html.add(f'<td>{grid[5][1]}</td>')
+                self.html.add(f'<td>{grid[4][1]}<br />{grid[4][2]}</td>')
+                self.html.add(f'<td>{grid[5][2]}</td>')
+                self.html.add(f'<td>{grid[6][1]}<br />{grid[6][2]}</td>')
+                self.html.add(f'<td>{grid[7][1]}</td></tr>')
+                self.html.add(f'<tr><td colspan="8" align="center"><span class="birth">GRO Reference</span> {grid[0][2]}</td></tr>')
+                self.html.add('</table>');
+                isUseStandardRender = False
 
         elif source.title.startswith('Death'):
             # Death Cerificate.
-            grid = source.note.getGrid()
-            try:
-                self.html.addLine('<table class="certificate" style="background-color: thistle; border: 1px solid black;" align=center cellpadding=5 cellspacing=0>')
-                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Registration District</span></td><td colspan=3>{grid[1][1]}</td></tr>')
-                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">When and Where</span></td><td colspan=3>{grid[2][1]}</td></tr>')
-                self.html.add(f'<tr><td style="text-align: right;"><span class="death">Name</span></td><td>{grid[4][1]}</td>')
-                self.html.addLine(f'<td style="text-align: right;"><span class="death">Sex</span></td><td>{grid[4][2]}</td></tr>')
-                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Date Place of Birth</span></td><td colspan=3>{grid[5][1]}</td></tr>')
-                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Occupation</span></td><td colspan=3>{grid[6][1]}</td></tr>')
-                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Usual Address</span></td><td colspan=3>{grid[7][1]}</td></tr>')
-                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Cause of Death</span></td><td colspan=3>{grid[8][1]}</td></tr>')
-                self.html.add(f'<tr><td style="text-align: right;"><span class="death">Informant</span></td><td>{grid[9][1]}</td>')
-                self.html.addLine(f'<td style="text-align: right;"><span class="death">Informant Description</span></td><td>{grid[9][2]}</td></tr>')
-                self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Informant Address</span></td><td colspan=3>{grid[10][1]}</td></tr>')
-                self.html.add(f'<tr><td style="text-align: right;"><span class="death">When Registered</span></td><td>{grid[11][1]}</td>')
-                self.html.addLine(f'<td style="text-align: right;"><span class="death">Reference</span></td><td>{grid[0][1]}</td></tr>')
-                self.html.addLine('</table>')
-            except:
-                self.html.addLine('<h1>Error</h1>')
-                self.html.addLine('<table>')
-                for rows in grid:
-                    self.html.add('<tr>')
-                    for cell in rows:
-                        self.html.add(f'<td style="white-space: nowrap;">\'{cell}\'</td>')
-                    self.html.addLine('</tr>')
-                self.html.addLine('</table>')
-
+            grid = None
+            if source.facts is not None:
+                for fact in source.facts:
+                    if isinstance(fact.information, list):
+                        grid = fact.information
+            if grid is not None:
+                try:
+                    self.html.addLine('<table class="certificate" style="background-color: thistle; border: 1px solid black;" align=center cellpadding=5 cellspacing=0>')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Registration District</span></td><td colspan=3>{grid[1][1]}</td></tr>')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">When and Where</span></td><td colspan=3>{grid[2][1]}</td></tr>')
+                    self.html.add(f'<tr><td style="text-align: right;"><span class="death">Name</span></td><td>{grid[4][1]}</td>')
+                    self.html.addLine(f'<td style="text-align: right;"><span class="death">Sex</span></td><td>{grid[4][2]}</td></tr>')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Date Place of Birth</span></td><td colspan=3>{grid[5][1]}</td></tr>')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Occupation</span></td><td colspan=3>{grid[6][1]}</td></tr>')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Usual Address</span></td><td colspan=3>{grid[7][1]}</td></tr>')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Cause of Death</span></td><td colspan=3>{grid[8][1]}</td></tr>')
+                    self.html.add(f'<tr><td style="text-align: right;"><span class="death">Informant</span></td><td>{grid[9][1]}</td>')
+                    self.html.addLine(f'<td style="text-align: right;"><span class="death">Informant Description</span></td><td>{grid[9][2]}</td></tr>')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Informant Address</span></td><td colspan=3>{grid[10][1]}</td></tr>')
+                    self.html.add(f'<tr><td style="text-align: right;"><span class="death">When Registered</span></td><td>{grid[11][1]}</td>')
+                    self.html.addLine(f'<td style="text-align: right;"><span class="death">Reference</span></td><td>{grid[0][2]}</td></tr>')
+                    self.html.addLine('</table>')
+                    isUseStandardRender = False
+                except:
+                    self.html.addLine('<h1>Error</h1>')
+                    self.html.addLine('<table>')
+                    for rows in grid:
+                        self.html.add('<tr>')
+                        for cell in rows:
+                            self.html.add(f'<td style="white-space: nowrap;">\'{cell}\'</td>')
+                        self.html.addLine('</tr>')
+                    self.html.addLine('</table>')
 
         elif source.title.startswith('Census') or source.title.startswith('1939 Register'):
             # Census.
-            grid = source.note.getGrid()
-            self.html.addLine('<table class="certificate" style="background-color: lightcyan; border: 1px solid black;" align="center" cellpadding="5" cellspacing="0">')
-            self.html.add('<tr><td class="census" style="text-align: center;" colspan="5"><span style="font-size: 20pt;">')
-            if source.date is not None:
-                self.html.add(source.date.theDate.strftime("%Y"))
-            self.html.add(' Census</span> (')
-            if source.date is not None:
-                self.html.add(f'{source.date.toLongString()}')
-            self.html.add(')</td><tr>')
-            self.html.add('<tr><td colspan="5"><table width="100%"><tr>')
-            self.html.add('<td align="center"><span class="census">Series</span></td>')
-            self.html.add('<td align="center"><span class="census">Piece</span></td>')
-            self.html.add('<td align="center"><span class="census">Folio</span></td>')
-            self.html.add('<td align="center"><span class="census">Page</span></td>')
+            grid = None
+            if source.facts is not None:
+                for fact in source.facts:
+                    if isinstance(fact.information, list):
+                        grid = fact.information
+            if grid is not None:
+                self.html.addLine('<table class="certificate" style="background-color: lightcyan; border: 1px solid black;" align="center" cellpadding="5" cellspacing="0">')
+                self.html.add('<tr><td class="census" style="text-align: center;" colspan="5"><span style="font-size: 20pt;">')
+                if source.date is not None:
+                    self.html.add(source.date.theDate.strftime("%Y"))
+                self.html.add(' Census</span> (')
+                if source.date is not None:
+                    self.html.add(f'{source.date.toLongString()}')
+                self.html.add(')</td><tr>')
+                self.html.add('<tr><td colspan="5"><table width="100%"><tr>')
+                self.html.add('<td align="center"><span class="census">Series</span></td>')
+                self.html.add('<td align="center"><span class="census">Piece</span></td>')
+                self.html.add('<td align="center"><span class="census">Folio</span></td>')
+                self.html.add('<td align="center"><span class="census">Page</span></td>')
 
-            self.html.add('</tr></tr>')
+                self.html.add('</tr></tr>')
 
-            self.html.add('<td align="center">')
-            if len(grid[0]) >= 3:
-                self.html.add(f'{grid[0][2]}')
-            self.html.add('</td>')
-            self.html.add('<td align="center">')
-            if len(grid[0]) >= 5:
-                self.html.add(f'{grid[0][4]}')
-            self.html.add('</td>')
-            self.html.add('<td align="center">')
-            if len(grid[0]) >= 7:
-                self.html.add(f'{grid[0][6]}')
-            self.html.add('</td>')
-            self.html.add('<td align="center">')
-            if len(grid[0]) >= 9:
-                self.html.add(f'{grid[0][8]}')
-            self.html.add('</td>')
-            self.html.add('</tr></table></td></tr>')
+                self.html.add('<td align="center">')
+                if len(grid[0]) >= 3:
+                    self.html.add(f'{grid[0][3]}')
+                self.html.add('</td>')
+                self.html.add('<td align="center">')
+                if len(grid[0]) >= 5:
+                    self.html.add(f'{grid[0][5]}')
+                self.html.add('</td>')
+                self.html.add('<td align="center">')
+                if len(grid[0]) >= 7:
+                    self.html.add(f'{grid[0][7]}')
+                self.html.add('</td>')
+                self.html.add('<td align="center">')
+                if len(grid[0]) >= 9:
+                    self.html.add(f'{grid[0][9]}')
+                self.html.add('</td>')
+                self.html.add('</tr></table></td></tr>')
 
-            self.html.add('<tr><td colspan="5"><span class="census">Address</span> ')
-            if source.place is not None:
-                self.html.add(source.place.toLongString())
-            self.html.add('</td></tr>')
-            self.html.add('<tr valign="bottom">');
-            self.html.add('<td><span class="census">Name</span></td>')
-            #if (theYear == 1939)
-            #{
-            #    self.html.add("<td><span class=\"Census\">DoB</span></td>");
-            #    self.html.add("<td><span class=\"Census\">Sex</span></td>");
-            #}
-            #else
-            #{
-            self.html.add('<td><span class="census">Relation<br/>To Head</span></td>')
-            self.html.add('<td><span class="census">Age</span></td>')
-            #}
-            self.html.add('<td><span class="census">Occupation</span></td>')
-            #if (theYear == 1939)
-            #{
-            #    self.html.add("<td><span class=\"Census\">Marital Status</span></td>");
-            #}
-            #else
-            #{
-            self.html.add('<td><span class="census">Born Location</span></td>')
-            #}
-            self.html.add('</tr>')
+                self.html.add('<tr><td colspan="5"><span class="census">Address</span> ')
+                if source.place is not None:
+                    self.html.add(source.place.toLongString())
+                self.html.add('</td></tr>')
+                self.html.add('<tr valign="bottom">');
+                self.html.add('<td><span class="census">Name</span></td>')
+                #if (theYear == 1939)
+                #{
+                #    self.html.add("<td><span class=\"Census\">DoB</span></td>");
+                #    self.html.add("<td><span class=\"Census\">Sex</span></td>");
+                #}
+                #else
+                #{
+                self.html.add('<td><span class="census">Relation<br/>To Head</span></td>')
+                self.html.add('<td><span class="census">Age</span></td>')
+                #}
+                self.html.add('<td><span class="census">Occupation</span></td>')
+                #if (theYear == 1939)
+                #{
+                #    self.html.add("<td><span class=\"Census\">Marital Status</span></td>");
+                #}
+                #else
+                #{
+                self.html.add('<td><span class="census">Born Location</span></td>')
+                #}
+                self.html.add('</tr>')
 
-            count = 0
-            for rows in grid:
-                if count > 0:
-                    self.html.add('<tr>')
-                    self.html.add(f'<td>{rows[0]}</td>')
-                    if len(rows) > 2:
-                        self.html.add(f'<td>{rows[2]}</td>')
-                        self.html.add(f'<td>{rows[1]}</td>')
-                        if len(rows) > 4:
-                            self.html.add(f'<td>{rows[3]}</td>')
-                            self.html.add(f'<td>{rows[4]}</td>')
-                    self.html.addLine('</tr>')
-                count += 1
-            self.html.addLine('</table>')
+                count = 0
+                for rows in grid:
+                    if count > 0:
+                        self.html.add('<tr>')
+                        self.html.add(f'<td>{rows[0]}</td>')
+                        if len(rows) > 2:
+                            self.html.add(f'<td>{rows[2]}</td>')
+                            self.html.add(f'<td>{rows[1]}</td>')
+                            if len(rows) > 4:
+                                self.html.add(f'<td>{rows[3]}</td>')
+                                self.html.add(f'<td>{rows[4]}</td>')
+                        self.html.addLine('</tr>')
+                    count += 1
+                self.html.addLine('</table>')
+                isUseStandardRender = False
 
-        elif source.title == 'No MATCH':
-            # Debugging.
-            self.html.addLine('<table>')
-            for rows in grid:
-                self.html.add('<tr>')
-                for cell in rows:
-                    self.html.add(f'<td style="white-space: nowrap;">\'{cell}\'</td>')
-                self.html.addLine('</tr>')
-            self.html.addLine('</table>')
-
-        else:
+        # The default render
+        if isUseStandardRender:
             # General source.
             if source.date is not None:
                 self.html.addLine(f'<p>{source.date.toLongString()}</p>')
             if source.place is not None:
                 self.html.addLine(f'<p>{source.place.toLongString()}</p>')
-            if source.note is not None:
-                for line in source.note.lines:
-                    self.html.addLine(f'<p>{line}</p>')
-
-                # Debugging.
-                #grid = source.note.getGrid()
-                #self.html.addLine('<table>')
-                #for rows in grid:
-                #    self.html.add('<tr>')
-                #    for cell in rows:
-                #        self.html.add(f'<td style="white-space: nowrap;">\'{cell}\'</td>')
-                #    self.html.addLine('</tr>')
-                #self.html.addLine('</table>')
+            if source.facts is not None:
+                for fact in source.facts:
+                    self.html.addLine(f'<p>{fact.toLongString()}</p>')
+        else:
+            # Show any extra facts.
+            if source.facts is not None:
+                for fact in source.facts:
+                    if not isinstance(fact.information, list):
+                        self.html.addLine(f'<p>{fact.toLongString()}</p>')
 
         # Show the last change.
         if source.change is not None:
@@ -1058,12 +1071,16 @@ class Render(walton.toolbar.IToolbar):
         self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
         for line in source.gedcomFile:
             indent = int(line[:1])
-            self.html.addLine(f'{"  " * indent}{line}')
+            self.html.addLine(f'{"  " * indent}{html.escape(line)}')
         self.html.addLine('</pre></div>')
+        gedcom = source.toGedCom()
         self.html.add('<div style="display: inline-block; vertical-align:top;">')
         self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
-        self.html.addLine('Hello World.')
+        for line in gedcom:
+            indent = int(line[:1])
+            self.html.addLine(f'{"  " * indent}{html.escape(line)}')
         self.html.addLine('</pre></div>')
+
 
 
 

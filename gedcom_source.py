@@ -8,9 +8,9 @@ This module implements the :py:class:`GedComSource` class.
 from enum import Enum
 
 # Application Librariess.
+from gedcom_fact import GedComFact
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
-from gedcom_note import GedComNote
 from gedcom_change import GedComChange
 
 
@@ -52,7 +52,7 @@ class GedComSource:
         self.type = GedComSourceType.GENERAL
         self.date = None
         self.place = None
-        self.note = None
+        self.facts = None
         self.change = None
         if gedcomFile is None:
             return
@@ -76,7 +76,9 @@ class GedComSource:
             elif tags[1] == 'DATE':
                 self.date = GedComDate(block)
             elif tags[1] == 'NOTE':
-                self.note = GedComNote(block)
+                if self.facts is None:
+                    self.facts = []
+                self.facts.append(GedComFact(self, block))
             elif tags[1] == 'PLAC':
                 self.place = GedComPlace(block)
             elif tags[1] == 'REPO':
@@ -130,11 +132,21 @@ class GedComSource:
 
 
 
-    def toGedCom(self, level):
-        '''
-        Return the object in GedCom format.
-        '''
-        result = []
+    def toGedCom(self):
+        ''' Return the source in GedCom format. '''
+        gedcom = []
+        gedcom.append(f'0 @{self.identity}@ SOUR')
+        gedcom.append(f'1 TITL {self.title}')
+        if self.date is not None:
+            gedcom.append(f'1 DATE {self.date.toGedCom()}')
+        if self.place is not None:
+            gedcom.extend(self.place.toGedCom())
+        # Facts.
+        if self.facts is not None:
+            for fact in self.facts:
+                gedcom.extend(fact.toGedCom())
+        # Change.
+        gedcom.extend(self.change.toGedCom(1))
 
         # Return the calculated value.
-        return result
+        return gedcom
