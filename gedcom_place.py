@@ -106,11 +106,24 @@ class GedComPlace:
 
 
 
-    def toGedComPlace(self, level):
+    def toGedCom(self, level = 1):
         '''
         Return the object in GedCom format.
         '''
         result = []
+        result.append(f'{level} PLAC {self.place}')
+        if self.address is not None:
+            result.append(f'{level + 1} ADDR {self.address}')
+        if self.latitude is not None or self.longitude is not None:
+            result.append(f'{level + 1} MAP')
+        if self.latitude is not None:
+            result.append(f'{level + 2} LATI {self.latitude}')
+        if self.longitude is not None:
+            result.append(f'{level + 2} LONG {self.longitude}')
+        if self.country is not None:
+            result.append(f'{level + 1} CTRY {self.country}')
+        for source in self.sources:
+            result.append(f'{level + 1} SOUR @{source}@')
 
         # Return the calculated value.
         return result

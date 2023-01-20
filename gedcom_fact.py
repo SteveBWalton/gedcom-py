@@ -99,11 +99,18 @@ class GedComFact:
 
 
 
-    def toGedCom(self):
-        '''
-        Return the object in GedCom format.
-        '''
-        result = ''
+    def toGedCom(self, level = 1):
+        ''' Return the object in GedCom format. '''
+        result = []
+        result.append(f'{level} {self.type} {self.information}')
+        if self.date is not None:
+            result.append(f'{level + 1} DATE {self.date.toGedCom()}')
+            for source in self.date.sources:
+                result.append(f'{level + 2} SOUR @{source}@')
+        if self.place is not None:
+            result.extend(self.place.toGedCom(level))
+        for source in self.sources:
+            result.append(f'{level + 1} SOUR @{source}@')
 
         # Return the calculated value.
-        return result.strip()
+        return result

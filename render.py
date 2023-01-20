@@ -653,12 +653,24 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('<tr>')
             self.html.addLine('</table>')
 
+        # Show the last change.
+        if individual.change is not None:
+            self.html.addLine(f'<p class="change">Last change {individual.change.toLongString()}</p>')
+
         # Show the gedcom data for this individual.
-        self.html.add('<pre style="border: 1px solid black; background-color: white; width: 50%">')
+        self.html.add('<div style="display: inline-block; vertical-align:top;">')
+        self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
         for line in individual.gedcomFile:
             indent = int(line[:1])
             self.html.addLine(f'{"  " * indent}{line}')
-        self.html.addLine('</pre>')
+        self.html.addLine('</pre></div>')
+        gedcom = individual.toGedCom()
+        self.html.add('<div style="display: inline-block; vertical-align:top;">')
+        self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
+        for line in gedcom:
+            indent = int(line[:1])
+            self.html.addLine(f'{"  " * indent}{line}')
+        self.html.addLine('</pre></div>')
 
 
 
@@ -732,18 +744,29 @@ class Render(walton.toolbar.IToolbar):
                 self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
             self.html.addLine('. ')
 
-
         self.html.addLine('</p>')
 
         # Display the sources referenced in this document.
         self.displayLocalSources(localSources)
 
+        # Show the last change.
+        if family.change is not None:
+            self.html.addLine(f'<p class="change">Last change {family.change.toLongString()}</p>')
+
         # Show the gedcom data for this family.
-        self.html.add('<pre style="border: 1px solid black;  background-color: white; width: 50%">')
+        self.html.add('<div style="display: inline-block; vertical-align:top;">')
+        self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
         for line in family.gedcomFile:
             indent = int(line[:1])
             self.html.addLine(f'{"  " * indent}{line}')
-        self.html.addLine('</pre>')
+        self.html.addLine('</pre></div>')
+        gedcom = family.toGedCom()
+        self.html.add('<div style="display: inline-block; vertical-align:top;">')
+        self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
+        for line in gedcom:
+            indent = int(line[:1])
+            self.html.addLine(f'{"  " * indent}{line}')
+        self.html.addLine('</pre></div>')
 
 
 
@@ -977,8 +1000,8 @@ class Render(walton.toolbar.IToolbar):
                 #self.html.addLine('</table>')
 
         # Show the last change.
-        self.html.addLine(f'<p class="last_change">Last change {source.change.toLongString()}</p>')
-
+        if source.change is not None:
+            self.html.addLine(f'<p class="change">Last change {source.change.toLongString()}</p>')
 
         # Show the people that reference this source.
         self.html.addLine('<p>Individuals</p>')
@@ -1030,11 +1053,18 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('</table>')
 
         # Show the gedcom data for this family.
-        self.html.add('<pre style="border: 1px solid black;  background-color: white; width: 50%">')
+        # The div is only needed to see both loaded and calculated gedcom.
+        self.html.add('<div style="display: inline-block; vertical-align:top;">')
+        self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
         for line in source.gedcomFile:
             indent = int(line[:1])
             self.html.addLine(f'{"  " * indent}{line}')
-        self.html.addLine('</pre>')
+        self.html.addLine('</pre></div>')
+        self.html.add('<div style="display: inline-block; vertical-align:top;">')
+        self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
+        self.html.addLine('Hello World.')
+        self.html.addLine('</pre></div>')
+
 
 
     def showToDo(self, parameters):

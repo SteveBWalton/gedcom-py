@@ -14,6 +14,7 @@ from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
 from gedcom_fact import GedComFact
 from gedcom_census import GedComCensus
+from gedcom_change import GedComChange
 
 
 class IndividualSex(Enum):
@@ -205,6 +206,7 @@ class GedComIndividual:
         self.todos = None
         self.facts = None
         self.census = None
+        self.change = None
         if gedcomFile is None:
             return
 
@@ -234,7 +236,7 @@ class GedComIndividual:
             elif tags[1] == 'FAMC':
                 # Family child.
                 self.parentFamilyIdentity = tags[2][1:-1]
-            elif tags[1] == 'OCCU' or tags[1] == 'EDUC':
+            elif tags[1] == 'OCCU' or tags[1] == 'EDUC' or tags[1] == 'NOTE':
                 if self.facts is None:
                     self.facts = []
                 self.facts.append(GedComFact(self, block))
@@ -251,16 +253,76 @@ class GedComIndividual:
                     self.todos = []
                 self.todos.append(ToDo(self, block))
             elif tags[1] == 'CHAN':
-                pass
+                self.change = GedComChange(block)
             else:
                 # Unknown.
-                print(f'Individual unrecogised tag \'{tags[1]}\'')
+                print(f'Individual unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
 
             # Fetch the next block.
             block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
         print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\', \'{self.birthDate.toLongString()}\'')
+
+
+
+    def toGedCom(self):
+        ''' Returns the calculated gedcom description of this person. '''
+        gedcom = []
+        gedcom.append(f'0 @{self.identity}@ INDI')
+        gedcom.append(f'1 NAME {self.givenName} /{self.surname}/')
+        gedcom.append(f'2 GIVN {self.givenName}')
+        gedcom.append(f'2 SURN {self.surname}')
+        for source in self.nameSources:
+            gedcom.append(f'2 SOUR @{source}@')
+        if self.sex == IndividualSex.MALE:
+            gedcom.append(f'1 SEX M')
+        else:
+            gedcom.append(f'1 SEX F')
+        # Birth.
+        gedcom.append(f'1 BIRT')
+        gedcom.append(f'2 DATE {self.birthDate.toGedCom()}')
+        for source in self.birthDate.sources:
+            gedcom.append(f'3 SOUR @{source}@')
+        if self.birthPlace is not None:
+            lines = self.birthPlace.toGedCom(2)
+            for line in lines:
+                gedcom.append(line)
+        # Death.
+        if self.deathDate is not None:
+            gedcom.append(f'1 DEAT Y')
+            gedcom.append(f'2 DATE {self.deathDate.toGedCom()}')
+            for source in self.deathDate.sources:
+                gedcom.append(f'3 SOUR @{source}@')
+            if self.deathPlace is not None:
+                lines = self.deathPlace.toGedCom(2)
+                for line in lines:
+                    gedcom.append(line)
+        # Parents.
+        if self.parentFamilyIdentity is not None:
+            gedcom.append(f'1 FAMC @{self.parentFamilyIdentity}@')
+        # Families.
+        for family in self.familyIdentities:
+            gedcom.append(f'1 FAMS @{family.identity}@')
+            if family.sources is not None:
+                for source in family.sources:
+                    gedcom.append(f'2 SOUR @{source}@')
+        # Census.
+        if self.census is not None:
+            for census in self.census:
+                gedcom.extend(census.toGedCom())
+        # Facts.
+        if self.facts is not None:
+            for fact in self.facts:
+                gedcom.extend(fact.toGedCom())
+        # General sources.
+        for source in self.sources:
+            gedcom.append(f'1 SOUR @{source}@')
+        # Change.
+        gedcom.extend(self.change.toGedCom(1))
+
+        # Return calculated gedcom.
+        return gedcom
 
 
 

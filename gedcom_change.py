@@ -68,7 +68,7 @@ class GedComChange:
 
 
     def toLongString(self):
-        ''' Returns the GedCom fact as a long string. '''
+        ''' Returns the change as a long string. '''
         result = f'{self.datetime.day} {self.datetime.strftime("%B %Y %H:%M:%S")} by {self.by}'
 
         # Return the calculated value.
@@ -78,7 +78,7 @@ class GedComChange:
 
 
     def toShortString(self):
-        ''' Returns the GedCom fact as a short string. '''
+        ''' Returns the change as a short string. '''
         result = ''
 
         # Return the calculated value.
@@ -86,11 +86,13 @@ class GedComChange:
 
 
 
-    def toGedCom(self):
-        '''
-        Return the object in GedCom format.
-        '''
-        result = ''
+    def toGedCom(self, level):
+        ''' Return the change in GedCom format. '''
+        result = []
+        result.append(f'{level} CHAN')
+        result.append(f'{level+1} DATE {self.datetime.day} {self.datetime.strftime("%b").upper()} {self.datetime.year}')
+        result.append(f'{level+2} TIME {self.datetime.strftime("%H:%M:%S")}')
+        result.append(f'{level+1} _PGVU {self.by}')
 
         # Return the calculated value.
-        return result.strip()
+        return result

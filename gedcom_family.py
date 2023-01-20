@@ -12,6 +12,7 @@ from enum import Enum
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
 from gedcom_fact import GedComFact
+from gedcom_change import GedComChange
 
 
 class IndividualSex(Enum):
@@ -47,6 +48,8 @@ class GedComFamily:
         self.childrenIdentities = []
         self.marriage = None
         self.divorce = None
+        self.change = None
+        self.sources = []
         if gedcomFile is None:
             return
 
@@ -71,11 +74,11 @@ class GedComFamily:
             elif tags[1] == 'DIV':
                 self.divorce = GedComFact(self, block)
             elif tags[1] == 'SOUR':
-                pass
+                self.sources.append(tags[2][1:-1])
             elif tags[1] == 'OBJE':
                 pass
             elif tags[1] == 'CHAN':
-                pass
+                self.change = GedComChange(block)
             else:
                 # Unknown.
                 print(f'Family unrecogised tag \'{tags[1]}\'')
@@ -90,6 +93,31 @@ class GedComFamily:
             childrenName += f', \'{child.givenName}\'';
 
         print(f'\'{self.identity}\', \'{self.getName()}\', \'{childrenName}')
+
+
+
+    def toGedCom(self):
+        ''' Returns the calculated gedcom description of this family. '''
+        gedcom = []
+        gedcom.append(f'0 @{self.identity}@ FAM')
+        if self.wifeIdentity is not None:
+            gedcom.append(f'1 WIFE @{self.wifeIdentity}@')
+        if self.husbandIdentity is not None:
+            gedcom.append(f'1 HUSB @{self.husbandIdentity}@')
+        # Marriage.
+        if self.marriage is not None:
+            gedcom.extend(self.marriage.toGedCom(2))
+        # Children.
+        for child in self.childrenIdentities:
+            gedcom.append(f'1 CHIL @{child}@')
+        # General sources.
+        for source in self.sources:
+            gedcom.append(f'1 SOUR @{source}@')
+        # Change
+        gedcom.extend(self.change.toGedCom(1))
+
+        # Return calculated gedcom.
+        return gedcom
 
 
 

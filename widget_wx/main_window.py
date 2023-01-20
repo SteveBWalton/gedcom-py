@@ -14,8 +14,8 @@ import platform
 import subprocess
 import shutil
 import datetime
-import wx           # Try package python3-wxpython4 or python -m pip install wxPython
-import wx.html2     # Try package python3-wxpython4-webview
+import wx           # Try package python3-wxpython4 or apt package python3-wxgtk4.0 or python -m pip install wxPython
+import wx.html2     # Try package python3-wxpython4-webview or apt package python3-wxgtk-webview4.0
 
 # Application libraries.
 #import configuration

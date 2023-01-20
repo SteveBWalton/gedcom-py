@@ -95,11 +95,21 @@ class GedComCensus:
 
 
 
-    def toGedCom(self):
-        '''
-        Return the object in GedCom format.
-        '''
-        result = ''
+    def toGedCom(self, level = 1):
+        ''' Return the census in GedCom format. '''
+        result = []
+        result.append(f'{level} CENS')
+        if self.date is not None:
+            result.append(f'2 DATE {self.date.toGedCom()}')
+        if self.place is not None:
+            lines = self.place.toGedCom(level + 1)
+            for line in lines:
+                result.append(line)
+        if self.facts is not None:
+            for fact in self.facts:
+                lines = fact.toGedCom(level + 1)
+                for line in lines:
+                    result.append(line)
 
         # Return the calculated value.
-        return result.strip()
+        return result

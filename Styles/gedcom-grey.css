@@ -7,28 +7,7 @@ tr.title { background-color: Navy; color: Peru; }
 .border-left { border-left: 1px solid black; }
 .border-right { border-right: 1px solid black; }
 
-.driver { }
-.team { }
 .age { color: grey; }
-.years { color: peru; }
-.date { color: peru; }
-.resultslist { }
-.winner { background-color: #FFFF73; }
-.podium { background-color: #FFFFF0; }
-.result_retired { background-color: #FFCCCC; }
-.rank { color: peru; }
+.change { color: grey; }
 .comment { color: grey; }
-.racewins { color: purple; }
-.racepodium { color: darkorange; }
-.racetop6 { color: green; }
-.racetop10 { color: dimgray; }
-.racetop20 { color: lightsteelblue; }
-.poles { color: blue; }
-.laps { color: DarkCyan; }
-.difference { color: peru; }
-.qualify { color: red; }
-.races { color: grey; }
-.car_number { color: lightseagreen; }
-.retired { color: red; }
 .label { color: grey; }
-.chassis { color: peru;}
