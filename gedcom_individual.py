@@ -100,49 +100,6 @@ class GedComIndividual:
 
 
 
-    def parseDeath(self, gedcomFile):
-        ''' Build the death from the specified gedcom settings. '''
-        # Fetch the first block.
-        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
-        while len(block) > 0:
-            tags = block[0].split()
-            if tags[1] == 'DATE':
-                self.deathDate = GedComDate(block)
-            elif tags[1] == 'PLAC':
-                self.deathPlace = GedComPlace(block)
-            elif tags[1] == 'SOUR':
-                pass
-            else:
-                # Unknown.
-                print(f'Individual DEATH unrecogised tag \'{tags[1]}\'')
-
-            # Fetch next block.
-            block, start = self.gedcom.getNextBlock(gedcomFile, start)
-
-
-
-    def parseBirth(self, gedcomFile):
-        ''' Build the birth from the specified gedcom settings. '''
-        # Fetch the first block.
-        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
-        while len(block) > 0:
-            tags = block[0].split()
-            if tags[1] == 'DATE':
-                # self.birthDate = GedComDate(block[0][7:])
-                self.birthDate = GedComDate(block)
-            elif tags[1] == 'PLAC':
-                self.birthPlace = GedComPlace(block)
-            #elif tags[1] == 'SOUR':
-            #    self.birthSources.append(tags[2][1:-1])
-            else:
-                # Unknown.
-                print(f'Individual BIRTH unrecogised tag \'{tags[1]}\'')
-
-            # Fetch next block.
-            block, start = self.gedcom.getNextBlock(gedcomFile, start)
-
-
-
     def parseSex(self, gedcom):
         ''' Build the sex from the specified gedcom settings. '''
         for line in gedcom:
@@ -184,6 +141,8 @@ class GedComIndividual:
                 # Unknown.
                 print(f'Individual NAME unrecogised tag \'{tags[1]}\'')
 
+        names = self.givenName.split(' ')
+        self.firstName = names[0]
 
 
     def parse(self, gedcomFile):
@@ -193,12 +152,11 @@ class GedComIndividual:
         self.sources = []
         self.givenName = ''
         self.surname = ''
+        self.firstName = ''
         self.nameSources = []
         self.sex = IndividualSex.MALE
-        self.birthDate = GedComDate()
-        self.birthPlace = None
-        self.deathDate = None
-        self.deathPlace = None
+        self.birth = None
+        self.death = None
         # Families of own marrages.
         self.familyIdentities = []
         # Family of parents marrage.
@@ -227,9 +185,11 @@ class GedComIndividual:
             elif tags[1] == 'SEX':
                 self.parseSex(block)
             elif tags[1] == 'BIRT':
-                self.parseBirth(block)
+                # self.parseBirth(block)
+                self.birth = GedComFact(self, block)
             elif tags[1] == 'DEAT':
-                self.parseDeath(block)
+                # self.parseDeath(block)
+                self.death = GedComFact(self, block)
             elif tags[1] == 'FAMS':
                 # Family spouse.
                 self.familyIdentities.append(IdentitySources(block))
@@ -262,7 +222,7 @@ class GedComIndividual:
             block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
-        print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\', \'{self.birthDate.toLongString()}\'')
+        print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\'')
 
 
 
@@ -280,24 +240,11 @@ class GedComIndividual:
         else:
             gedcom.append(f'1 SEX F')
         # Birth.
-        gedcom.append(f'1 BIRT')
-        gedcom.append(f'2 DATE {self.birthDate.toGedCom()}')
-        for source in self.birthDate.sources:
-            gedcom.append(f'3 SOUR @{source}@')
-        if self.birthPlace is not None:
-            lines = self.birthPlace.toGedCom(2)
-            for line in lines:
-                gedcom.append(line)
+        if self.birth is not None:
+            gedcom.extend(self.birth.toGedCom(1))
         # Death.
-        if self.deathDate is not None:
-            gedcom.append(f'1 DEAT Y')
-            gedcom.append(f'2 DATE {self.deathDate.toGedCom()}')
-            for source in self.deathDate.sources:
-                gedcom.append(f'3 SOUR @{source}@')
-            if self.deathPlace is not None:
-                lines = self.deathPlace.toGedCom(2)
-                for line in lines:
-                    gedcom.append(line)
+        if self.death is not None:
+            gedcom.extend(self.death.toGedCom(1))
         # Parents.
         if self.parentFamilyIdentity is not None:
             gedcom.append(f'1 FAMC @{self.parentFamilyIdentity}@')
@@ -358,23 +305,26 @@ class GedComIndividual:
 
     def getAge(self, theDate = None):
         ''' Returns the age of the individual on the specified day. '''
-        if self.birthDate is None:
+        if self.birth.date is None:
             return 'unknown'
         years = self.getYears(theDate)
-        return f'{years} years'
+        if years > 0:
+            return f'{years} years'
+        difference = theDate.theDate - self.birth.date.theDate
+        return f'{difference.days} days'
 
 
 
     def getYears(self, theDate = None):
         ''' Returns the age of the individual in years on the specified date. '''
-        if self.birthDate is None:
+        if self.birth.date is None:
             return None
         if theDate == None:
             ageDate = datetime.date.today()
         else:
             ageDate = theDate.theDate
-        years = ageDate.year - self.birthDate.theDate.year
-        if ageDate.month < self.birthDate.theDate.month or (ageDate.month == self.birthDate.theDate.month and ageDate.day < self.birthDate.theDate.day):
+        years = ageDate.year - self.birth.date.theDate.year
+        if ageDate.month < self.birth.date.theDate.month or (ageDate.month == self.birth.date.theDate.month and ageDate.day < self.birth.date.theDate.day):
             years -= 1
 
         return years
@@ -396,9 +346,13 @@ class GedComIndividual:
     def byDateOfBirth(self, identity):
         ''' Key for a list sort of individuals by date of birth order. '''
         individual = self.gedcom.individuals[identity]
-        if individual.birthDate is None:
+        #if individual.birthDate is None:
+        #    return None
+        if individual.birth is None:
             return None
-        return individual.birthDate.theDate
+        if individual.birth.date is None:
+            return None
+        return individual.birth.date.theDate
 
 
 

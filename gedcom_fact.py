@@ -156,7 +156,7 @@ class GedComFact:
             for source in self.date.sources:
                 result.append(f'{level + 2} SOUR @{source}@')
         if self.place is not None:
-            result.extend(self.place.toGedCom(level))
+            result.extend(self.place.toGedCom(level + 1))
         for source in self.sources:
             result.append(f'{level + 1} SOUR @{source}@')
 

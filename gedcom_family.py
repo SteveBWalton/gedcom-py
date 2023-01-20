@@ -106,7 +106,9 @@ class GedComFamily:
             gedcom.append(f'1 HUSB @{self.husbandIdentity}@')
         # Marriage.
         if self.marriage is not None:
-            gedcom.extend(self.marriage.toGedCom(2))
+            gedcom.extend(self.marriage.toGedCom())
+        if self.divorce is not None:
+            gedcom.extend(self.divorce.toGedCom())
         # Children.
         for child in self.childrenIdentities:
             gedcom.append(f'1 CHIL @{child}@')

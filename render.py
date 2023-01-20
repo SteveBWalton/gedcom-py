@@ -305,13 +305,16 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine(f'<text font-size="8pt" text-anchor="middle" x="{x+75}" y="{y+12}">{individual.getName()}</text>')
 
         # Draw the information.
-        if individual.birthDate is not None:
-            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birthDate.toShortString()}</text>')
-        if individual.birthPlace is not None:
-            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birthPlace.toShortString()}</text>')
-        if individual.deathDate is not None:
-            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.deathDate.toShortString()} ({individual.getYears(individual.deathDate)})</text>')
-        elif individual.birthDate is not None:
+        if individual.birth.date is not None:
+            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birth.date.toShortString()}</text>')
+        if individual.birth.place is not None:
+            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birth.place.toShortString()}</text>')
+        if individual.death is not None:
+            if individual.death.date is not None:
+                self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.death.date.toShortString()} ({individual.getYears(individual.death.date)})</text>')
+            else:
+                self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">d. Yes</text>')
+        elif individual.birth.date is not None:
             years = individual.getYears()
             if years <= 100:
                 self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">age {years}</text>')
@@ -357,7 +360,7 @@ class Render(walton.toolbar.IToolbar):
                 code = 10
             else:
                 code = 0
-            if sibling.birthDate < mainPerson.birthDate:
+            if sibling.birth.date < mainPerson.birth.date:
                 # print(f'{sibling.getName()} < {mainPerson.getName()}')
                 rows[2].insert(insertPoint, (siblingIdentity, code))
                 insertPoint += 1
@@ -465,14 +468,14 @@ class Render(walton.toolbar.IToolbar):
         if len(individual.nameSources) > 0:
             for source in individual.nameSources:
                 self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-        self.html.add(f' was born {individual.birthDate.toLongString()}')
-        if len(individual.birthDate.sources) > 0:
-            for source in individual.birthDate.sources:
+        self.html.add(f' was born {individual.birth.date.toLongString()}')
+        if len(individual.birth.date.sources) > 0:
+            for source in individual.birth.date.sources:
                 self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-        if individual.birthPlace is not None:
-            self.html.add(f' at {individual.birthPlace.toLongString()}')
-            if len(individual.birthPlace.sources) > 0:
-                for source in individual.birthPlace.sources:
+        if individual.birth.place is not None:
+            self.html.add(f' at {individual.birth.place.toLongString()}')
+            if len(individual.birth.place.sources) > 0:
+                for source in individual.birth.place.sources:
                     self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
         self.html.addLine('. ')
 
@@ -494,7 +497,7 @@ class Render(walton.toolbar.IToolbar):
                         self.html.add(f'{firstCap(family.marriage.date.toLongString())}')
                         for source in family.marriage.date.sources:
                             self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-                        if individual.birthDate is not None:
+                        if individual.birth.date is not None:
                             self.html.add(f' aged {individual.getAge(family.marriage.date)}, ')
                         self.html.add(f' {individual.heShe()}')
                     else:
@@ -550,9 +553,11 @@ class Render(walton.toolbar.IToolbar):
                 for census in individual.census:
                     self.html.add('<tr><td>')
                     if census.date is not None:
-                        self.html.add(f'{census.date.toLongString()}')
-                        if individual.birthDate is not None:
-                            self.html.add(f' aged {individual.getAge(census.date)}')
+                        self.html.add(f'{census.date.toLongString()[3:]}</td><td>')
+                        if individual.birth.date is not None:
+                            self.html.add(f'{individual.getYears(census.date)}')
+                    else:
+                        self.html.add('</td><td>')
                     self.html.add('</td><td>')
                     if census.place is not None:
                         self.html.add(f'{census.place.toLongString()}')
@@ -599,9 +604,14 @@ class Render(walton.toolbar.IToolbar):
         if individual.facts is not None:
             for fact in individual.facts:
                 if fact.type == 'OCCU':
-                    self.html.add(f'{firstCap(individual.heShe())} worked as {fact.information}')
+                    self.html.add(f'{firstCap(individual.heShe())} worked as a')
+                    if fact.information[0:1] in 'AEIOU':
+                        self.html.add('n')
+                    self.html.add(f' {fact.information}')
                 elif fact.type == 'EDUC':
                     self.html.add(f'{firstCap(individual.heShe())} was educated at {fact.information}')
+                elif fact.type == 'NOTE':
+                    self.html.add(f'{firstCap(individual.heShe())} {fact.information}')
                 else:
                     # Unknown fact type.
                     self.html.add(f'{fact.type} {fact.information}')
@@ -610,15 +620,16 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('. ')
 
         # Death details.
-        if individual.deathDate is not None:
-            self.html.add(f'{firstCap(individual.heShe())} died {individual.deathDate.toLongString()}</a>')
-            for source in individual.deathDate.sources:
-                self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-            if individual.birthDate is not None:
-                self.html.add(f' when {individual.heShe()} was {individual.getAge(individual.deathDate)} old')
-            if individual.deathPlace is not None:
-                self.html.add(f' at {individual.deathPlace.toLongString()}')
-                for source in individual.deathPlace.sources:
+        if individual.death is not None:
+            if individual.death.date is not None:
+                self.html.add(f'{firstCap(individual.heShe())} died {individual.death.date.toLongString()}</a>')
+                for source in individual.death.date.sources:
+                    self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+                if individual.birth.date is not None:
+                    self.html.add(f' when {individual.heShe()} was {individual.getAge(individual.death.date)} old')
+            if individual.death.place is not None:
+                self.html.add(f' at {individual.death.place.toLongString()}')
+                for source in individual.death.place.sources:
                     self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
             self.html.addLine('. ')
 
@@ -627,12 +638,20 @@ class Render(walton.toolbar.IToolbar):
             father = None
             if parentFamily.husbandIdentity is not None:
                 father = self.application.gedcom.individuals[parentFamily.husbandIdentity]
+                self.html.add(f'{firstCap(individual.hisHer())} father was <a href="app:individual?person={father.identity}">{father.getName()}</a>')
+                if father.death is not None and father.death.date is not None:
+                    self.html.add(f' who died {father.death.date.toLongString()} when {individual.firstName} was {individual.getAge(father.death.date)} old')
+                self.html.addLine('.')
             mother = None
             if parentFamily.wifeIdentity is not None:
                 mother = self.application.gedcom.individuals[parentFamily.wifeIdentity]
+                self.html.add(f'{firstCap(individual.hisHer())} mother was <a href="app:individual?person={mother.identity}">{mother.getName()}</a>')
+                if mother.death is not None and mother.death.date is not None:
+                    self.html.add(f' who died {mother.death.date.toLongString()} when {individual.firstName} was {individual.getAge(mother.death.date)} old')
+                self.html.addLine('.')
 
-            if father is not None and mother is not None:
-                self.html.addLine(f'{firstCap(individual.hisHer())} parents were <a href="app:individual?person={father.identity}">{father.getName()}</a> and <a href="app:individual?person={mother.identity}">{mother.getName()}</a>.')
+            #if father is not None and mother is not None:
+            #    self.html.addLine(f'{firstCap(individual.hisHer())} parents were <a href="app:individual?person={father.identity}">{father.getName()}</a> and <a href="app:individual?person={mother.identity}">{mother.getName()}</a>.')
 
         self.html.addLine('</p>')
 
@@ -702,12 +721,16 @@ class Render(walton.toolbar.IToolbar):
         if family.husbandIdentity is not None:
             husband = self.application.gedcom.individuals[family.husbandIdentity]
             self.html.add(f'<a href="app:individual?id={family.husbandIdentity}">{husband.getName()}</a>')
+            if family.marriage is not None and family.marriage.date is not None:
+                self.html.add(f'<span class="age">({husband.getYears(family.marriage.date)})</span>')
         if family.wifeIdentity is not None:
             wife = self.application.gedcom.individuals[family.wifeIdentity]
             self.html.add(' and ')
             self.html.add(f'<a href="app:individual?id={family.wifeIdentity}">{wife.getName()}</a>')
+            if family.marriage is not None and family.marriage.date is not None:
+                self.html.add(f'<span class="age">({wife.getYears(family.marriage.date)})</span>')
         if family.marriage is None:
-            pass
+            self.html.add(' had a relationship')
         else:
             self.html.add(' got married')
             if family.marriage.place is not None:
@@ -1026,18 +1049,24 @@ class Render(walton.toolbar.IToolbar):
                 facts += ' '
             if identity in individual.nameSources:
                 facts += 'Name, '
-            if individual.birthDate is not None:
-                if identity in individual.birthDate.sources:
-                    facts += 'Birth Date, '
-            if individual.birthPlace is not None:
-                if identity in individual.birthPlace.sources:
-                    facts += 'Birth Place, '
-            if individual.deathDate is not None:
-                if identity in individual.deathDate.sources:
-                    facts += 'Death Date, '
-            if individual.deathPlace is not None:
-                if identity in individual.deathPlace.sources:
-                    facts += 'Death Place, '
+            if individual.birth is not None:
+                if individual.birth.date is not None:
+                    if identity in individual.birth.date.sources:
+                        facts += 'Birth Date, '
+                if individual.birth.place is not None:
+                    if identity in individual.birth.place.sources:
+                        facts += 'Birth Place, '
+                if identity in individual.birth.sources:
+                    facts += 'Birth, '
+            if individual.death is not None:
+                if individual.death.date is not None:
+                    if identity in individual.death.date.sources:
+                        facts += 'Death Date, '
+                if individual.death.place is not None:
+                    if identity in individual.death.place.sources:
+                        facts += 'Death Place, '
+                if identity in individual.death.sources:
+                    facts += 'Death, '
             if facts != '':
                 self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{facts[:-2]}</td></tr>')
         self.html.addLine('</table>')
