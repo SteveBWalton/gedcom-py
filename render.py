@@ -72,7 +72,9 @@ class Render(walton.toolbar.IToolbar):
             'individual'        : self.showIndividual,
             'family'            : self.showFamily,
             'source'            : self.showSource,
+            'media'             : self.showMedia,
             'todo'              : self.showToDo,
+            'all'               : self.showAll,
         }
 
 
@@ -260,6 +262,7 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('<h1>Index</h1>')
         self.html.addLine('<ul>')
         self.html.addLine('<li><a href="app:todo">ToDos</a></li>')
+        self.html.addLine('<li><a href="app:all">All Elements</a></li>')
         self.html.addLine('</ul>')
 
 
@@ -1094,7 +1097,7 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.getName()}</a></td><td>{facts[:-2]}</td></tr>')
         self.html.addLine('</table>')
 
-        # Show the gedcom data for this family.
+        # Show the gedcom data for this source.
         # The div is only needed to see both loaded and calculated gedcom.
         self.html.add('<div style="display: inline-block; vertical-align:top;">')
         self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
@@ -1111,6 +1114,33 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('</pre></div>')
 
 
+
+    def showMedia(self, parameters):
+        ''' Show a media object. '''
+        identity = parameters['id'] if 'id' in parameters else None
+
+        media = self.application.gedcom.media[identity]
+
+        self.html.clear()
+        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.html.addLine(f'<h1>{media.title}</h1>')
+        self.html.addLine(f'<img src="{self.application.gedcom.mediaFolder}{media.file}" />')
+
+        # Show the gedcom data for this media.
+        # The div is only needed to see both loaded and calculated gedcom.
+        self.html.add('<div style="display: inline-block; vertical-align:top;">')
+        self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
+        for line in media.gedcomFile:
+            indent = int(line[:1])
+            self.html.addLine(f'{"  " * indent}{html.escape(line)}')
+        self.html.addLine('</pre></div>')
+        gedcom = media.toGedCom()
+        self.html.add('<div style="display: inline-block; vertical-align:top;">')
+        self.html.add('<pre style="border: 1px solid black;  background-color: white;">')
+        for line in gedcom:
+            indent = int(line[:1])
+            self.html.addLine(f'{"  " * indent}{html.escape(line)}')
+        self.html.addLine('</pre></div>')
 
 
     def showToDo(self, parameters):
@@ -1136,3 +1166,54 @@ class Render(walton.toolbar.IToolbar):
             self.html.add(f'<td style="border: 1px solid black; background-color: white; padding: 3px;">{todo.description}</td>')
             self.html.addLine('<tr>')
         self.html.addLine('</table>')
+
+
+
+    def showAll(self, parameters):
+        ''' Show all elements. '''
+        self.html.clear()
+        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.html.addLine(f'<h1>All Elements</h1>')
+        self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
+        self.html.addLine(f'<legend>Individuals</legend>')
+        self.html.addLine(f'<table>')
+        for individual in self.application.gedcom.individuals.values():
+            self.html.add('<tr>')
+            self.html.add(f'<td>{individual.identity}</td>')
+            self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
+            self.html.addLine('</tr>')
+        self.html.add('</table>')
+        self.html.addLine('</fieldset>')
+
+        self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
+        self.html.addLine(f'<legend>Families</legend>')
+        self.html.addLine(f'<table>')
+        for family in self.application.gedcom.families.values():
+            self.html.add('<tr>')
+            self.html.add(f'<td>{family.identity}</td>')
+            self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
+            self.html.addLine('</tr>')
+        self.html.add('</table>')
+        self.html.addLine('</fieldset>')
+
+        self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
+        self.html.addLine(f'<legend>Sources</legend>')
+        self.html.addLine(f'<table>')
+        for source in self.application.gedcom.sources.values():
+            self.html.add('<tr>')
+            self.html.add(f'<td>{source.identity}</td>')
+            self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
+            self.html.addLine('</tr>')
+        self.html.add('</table>')
+        self.html.addLine('</fieldset>')
+
+        self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
+        self.html.addLine(f'<legend>Media</legend>')
+        self.html.addLine(f'<table>')
+        for media in self.application.gedcom.media.values():
+            self.html.add('<tr>')
+            self.html.add(f'<td>{media.identity}</td>')
+            self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
+            self.html.addLine('</tr>')
+        self.html.add('</table>')
+        self.html.addLine('</fieldset>')

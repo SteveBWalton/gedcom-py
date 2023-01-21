@@ -22,6 +22,7 @@ from gedcom_date import GedComDate
 from gedcom_individual import GedComIndividual
 from gedcom_family import GedComFamily
 from gedcom_source import GedComSource
+from gedcom_media import GedComMedia
 
 
 
@@ -53,7 +54,7 @@ class GedCom:
         self.defaultIdentity = None
         self.individuals = {}
         self.families = {}
-        self.media = []
+        self.media = {}
 
 
 
@@ -83,10 +84,11 @@ class GedCom:
         file = open(fileName, 'r')
         objectType = GedComObjects.UNKNOWN
         objectLines = []
+        self.mediaFolder = '/home/steve/Documents/Waltons/Family Tree/'
         self.defaultIdentity = None
         self.individuals = {}
         self.families = {}
-        self.media = []
+        self.media = {}
         self.sources = {}
         line = file.readline().rstrip('\n')
         while line != '':
@@ -104,7 +106,8 @@ class GedCom:
                     source = GedComSource(self, objectLines)
                     self.sources[source.identity] = source
                 elif objectType == GedComObjects.MEDIA:
-                    self.media.append(1)
+                    media = GedComMedia(self, objectLines)
+                    self.media[media.identity] = media
                 else:
                     pass
                     # print('Unknown Gedcom object.')
@@ -135,7 +138,6 @@ class GedCom:
         # Sort the familes by date order.
         for individual in self.individuals.values():
             individual.familyIdentities.sort(key=individual.byDateOfMarriage)
-
 
         print(f'There are {len(self.individuals)} individuals, {len(self.families)} families, {len(self.media)} media and {len(self.sources)} sources.')
 

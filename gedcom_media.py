@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to support sources in the gedcom python library.
-This module implements the :py:class:`GedComSource` class.
+Module to support media in the gedcom python library.
+This module implements the :py:class:`GedComMedia` class.
 '''
 # System Libraries.
 from enum import Enum
@@ -24,7 +24,7 @@ class GedComSourceType(Enum):
 
 
 
-class GedComSource:
+class GedComMedia:
     '''
     Class to represent a source in the gedcom python library.
 
@@ -42,18 +42,37 @@ class GedComSource:
 
 
 
+    def parseFile(self, block):
+        ''' Parse the FILE tag. '''
+        for line in block:
+            tags = line.split()
+            if tags[1] == 'FILE':
+                self.file = line[7:]
+            if tags[1] == 'TITL':
+                self.title = line[7:]
+            if tags[1] == 'FORM':
+                self.form = line[7:]
+            if tags[1] == 'TYPE':
+                self.type = line[7:]
+            else:
+                # Unknown.
+                print(f'FILE unrecogised tag \'{tags[1]}\' \'{line}\'.')
+
+            # Fetch the next block.
+
+
     def parse(self, gedcomFile = None):
         '''
         Update the object to the date specified in the string.
         '''
         self.gedcomFile = gedcomFile
         self.identity = None
-        self.title = ''
-        self.type = GedComSourceType.GENERAL
-        self.date = None
-        self.place = None
-        self.facts = None
-        self.change = None
+        self.file = None
+        self.title = None
+        self.form = None
+        self.type = None
+        self.isPrimary = None
+        self.isThumbnail = None
         if gedcomFile is None:
             return
         if len(gedcomFile) == 0:
@@ -71,23 +90,21 @@ class GedComSource:
             #    print(line)
             #print('<--')
             tags = block[0].split()
-            if tags[1] == 'TITL':
-                self.title = block[0][7:]
-            elif tags[1] == 'DATE':
-                self.date = GedComDate(block)
+            if tags[1] == 'FILE':
+                self.parseFile(block)
             elif tags[1] == 'NOTE':
                 if self.facts is None:
                     self.facts = []
                 self.facts.append(GedComFact(self, block))
-            elif tags[1] == 'PLAC':
-                self.place = GedComPlace(block)
-            elif tags[1] == 'REPO':
-                pass
             elif tags[1] == 'CHAN':
                 self.change = GedComChange(block)
+            elif tags[1] == '_PRIM':
+                self.isPrimary = tags[2] == 'Y'
+            elif tags[1] == '_THUM':
+                self.isThumbnail = tags[2] == 'Y'
             else:
                 # Unknown.
-                print(f'Source unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')
+                print(f'Media unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')
 
             # Fetch the next block.
             block, start = self.gedcom.getNextBlock(gedcomFile, start)
@@ -101,16 +118,6 @@ class GedComSource:
         ''' Returns the GedCom source as a long string. '''
         result = ''
 
-        if self.place is not None:
-            result = self.place
-
-        if self.address is not None:
-            if not self.address in result:
-                result = self.address + ', ' + result
-        if self.country is not None:
-            if not self.country in result:
-                result = result + ', ' + self.country
-
         # Return the calculated value.
         return result.strip()
 
@@ -121,12 +128,6 @@ class GedComSource:
         ''' Returns the GedCom source as a short string. '''
         result = ''
 
-        if self.place is not None:
-            result = self.place
-
-        if ',' in result:
-            result = result[0:result.index(',')]
-
         # Return the calculated value.
         return result.strip()
 
@@ -135,19 +136,25 @@ class GedComSource:
     def toGedCom(self):
         ''' Return the source in GedCom format. '''
         gedcom = []
-        gedcom.append(f'0 @{self.identity}@ SOUR')
-        gedcom.append(f'1 TITL {self.title}')
-        if self.date is not None:
-            gedcom.append(f'1 DATE {self.date.toGedCom()}')
-        if self.place is not None:
-            gedcom.extend(self.place.toGedCom())
-        # Facts.
-        if self.facts is not None:
-            for fact in self.facts:
-                gedcom.extend(fact.toGedCom())
-        # Change.
-        gedcom.extend(self.change.toGedCom(1))
-
+        gedcom.append(f'0 @{self.identity}@ OBJE')
+        if self.file is not None:
+            gedcom.append(f'1 FILE {self.file}')
+        if self.form is not None:
+            gedcom.append(f'2 FORM {self.form}')
+        if self.type is not None:
+            gedcom.append(f'3 TYPE {self.type}')
+        if self.title is not None:
+            gedcom.append(f'2 TITL {self.title}')
+        if self.isPrimary is not None:
+            if self.isPrimary:
+                gedcom.append(f'1 _PRIM Y')
+            else:
+                gedcom.append(f'1 _PRIM N')
+        if self.isThumbnail is not None:
+            if self.isThumbnail:
+                gedcom.append(f'1 _THUM Y')
+            else:
+                gedcom.append(f'1 _THUM N')
         # Return the calculated value.
         return gedcom
 
