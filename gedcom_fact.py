@@ -46,6 +46,7 @@ class GedComFact:
         self.sources = []
         self.date = None
         self.place = None
+        self.facts = None
         if gedcomFile is None:
             return
 
@@ -82,6 +83,10 @@ class GedComFact:
                 else:
                     # Add to existing string.
                     self.information += '\n' + block[0][7:]
+            elif tags[1] == 'CAUS' or tags[1] == 'TYPE':
+                if self.facts is None:
+                    self.facts = []
+                self.facts.append(GedComFact(self.parent, block))
             else:
                 # Unknown.
                 print(f'FACT unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
@@ -157,6 +162,9 @@ class GedComFact:
                 result.append(f'{level + 2} SOUR @{source}@')
         if self.place is not None:
             result.extend(self.place.toGedCom(level + 1))
+        if self.facts is not None:
+            for fact in self.facts:
+                result.extend(fact.toGedCom(level + 1))
         for source in self.sources:
             result.append(f'{level + 1} SOUR @{source}@')
 

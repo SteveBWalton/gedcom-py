@@ -164,6 +164,7 @@ class GedComIndividual:
         self.todos = None
         self.facts = None
         self.census = None
+        self.media = None
         self.change = None
         if gedcomFile is None:
             return
@@ -203,7 +204,9 @@ class GedComIndividual:
             elif tags[1] == 'SOUR':
                 self.sources.append(tags[2][1:-1])
             elif tags[1] == 'OBJE':
-                pass
+                if self.media is None:
+                    self.media = []
+                self.media.append(tags[2][1:-1])
             elif tags[1] == 'CENS':
                 if self.census is None:
                     self.census = []
@@ -262,6 +265,10 @@ class GedComIndividual:
         if self.facts is not None:
             for fact in self.facts:
                 gedcom.extend(fact.toGedCom())
+        # Media.
+        if self.media is not None:
+            for identity in self.media:
+                gedcom.append(f'1 OBJE @{identity}@')
         # General sources.
         for source in self.sources:
             gedcom.append(f'1 SOUR @{source}@')

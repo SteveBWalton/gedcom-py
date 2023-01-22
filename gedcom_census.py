@@ -110,6 +110,8 @@ class GedComCensus:
                 lines = fact.toGedCom(level + 1)
                 for line in lines:
                     result.append(line)
-
+        if self.sources is not None:
+            for source in self.sources:
+                result.append(f'{level + 1} SOUR {source}')
         # Return the calculated value.
         return result

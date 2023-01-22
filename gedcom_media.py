@@ -48,11 +48,11 @@ class GedComMedia:
             tags = line.split()
             if tags[1] == 'FILE':
                 self.file = line[7:]
-            if tags[1] == 'TITL':
+            elif tags[1] == 'TITL':
                 self.title = line[7:]
-            if tags[1] == 'FORM':
+            elif tags[1] == 'FORM':
                 self.form = line[7:]
-            if tags[1] == 'TYPE':
+            elif tags[1] == 'TYPE':
                 self.type = line[7:]
             else:
                 # Unknown.
@@ -157,6 +157,14 @@ class GedComMedia:
                 gedcom.append(f'1 _THUM N')
         # Return the calculated value.
         return gedcom
+
+
+
+    def toImage(self, height=0):
+        ''' Return the media object as a html image. '''
+        if height == 0:
+            return f'<img src="file://{self.gedcom.mediaFolder}{self.file}" />'
+        return f'<img src="file://{self.gedcom.mediaFolder}{self.file}" height="{height}" />'
 
 
 

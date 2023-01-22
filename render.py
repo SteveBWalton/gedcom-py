@@ -466,6 +466,12 @@ class Render(walton.toolbar.IToolbar):
         # Person Description.
         self.html.addLine('<p>')
 
+        if individual.media is not None:
+            media = self.application.gedcom.media[individual.media[0]]
+            self.html.add(f'<a href="app:media?id={media.identity}">')
+            self.html.add(f'<img src="file://{self.application.gedcom.mediaFolder}{media.file}" align="right" height="120" />')
+            self.html.addLine('</a>')
+
         # Born details.
         self.html.add(f'<a href="app:individual?person={individual.identity}">{individual.getName()}</a>')
         if len(individual.nameSources) > 0:
@@ -675,6 +681,21 @@ class Render(walton.toolbar.IToolbar):
                 self.html.add(f'<td style="border: 1px solid black; background-color: white; padding: 2px;">{todo.description}</td>')
                 self.html.addLine('<tr>')
             self.html.addLine('</table>')
+
+        # Media
+        if individual.media is not None:
+            if len(individual.media) > 1:
+                self.html.addLine('<div style="padding: 5px;">')
+                isFirst = True
+                for identity in individual.media:
+                    if isFirst:
+                        isFirst = False
+                    else:
+                        media = self.application.gedcom.media[identity]
+                        self.html.add(f'<a href="app:media?id={media.identity}">')
+                        self.html.add(media.toImage(120))
+                        self.html.addLine('</a>')
+                self.html.addLine('</div>')
 
         # Show the last change.
         if individual.change is not None:
@@ -1124,7 +1145,20 @@ class Render(walton.toolbar.IToolbar):
         self.html.clear()
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
         self.html.addLine(f'<h1>{media.title}</h1>')
-        self.html.addLine(f'<img src="{self.application.gedcom.mediaFolder}{media.file}" />')
+        self.html.addLine(f'<div><img src="file://{self.application.gedcom.mediaFolder}{media.file}" /></div>')
+
+        # Show the people that reference this source.
+        self.html.addLine('<p>Individuals</p>')
+        self.html.addLine('<table class="reference">')
+        for individual in self.application.gedcom.individuals.values():
+            isShow = False
+            if individual.media is not None:
+                if identity in individual.media:
+                    isShow = True
+
+            if isShow:
+                self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td></tr>')
+        self.html.addLine('</table>')
 
         # Show the gedcom data for this media.
         # The div is only needed to see both loaded and calculated gedcom.
@@ -1141,6 +1175,7 @@ class Render(walton.toolbar.IToolbar):
             indent = int(line[:1])
             self.html.addLine(f'{"  " * indent}{html.escape(line)}')
         self.html.addLine('</pre></div>')
+
 
 
     def showToDo(self, parameters):
