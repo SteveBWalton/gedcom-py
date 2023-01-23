@@ -271,7 +271,7 @@ class Render(walton.toolbar.IToolbar):
         ''' Add the specified source to the local sources. '''
         if not source in localSources:
             localSources.append(source)
-        return localSources.index(source) + 1
+        return chr(ord('A') + localSources.index(source))
 
 
 
@@ -281,9 +281,9 @@ class Render(walton.toolbar.IToolbar):
             return
 
         self.html.addLine('<table class="reference">')
-        index = 1
+        index = 0
         for sourceIdentity in localSources:
-            self.html.add(f'<tr><td>{index}</td><td>')
+            self.html.add(f'<tr><td style="text-align: center;">{chr(ord("A") + index)}</td><td>')
             source = self.application.gedcom.sources[sourceIdentity]
             self.html.add(f'<a href="app:source?id={sourceIdentity}">{source.title}</a>')
             self.html.addLine('</td></tr>')
@@ -560,7 +560,7 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('</p>')
                 self.html.addLine('<table style="background-color: white; border: 1px solid black;">')
                 for census in individual.census:
-                    self.html.add('<tr><td>')
+                    self.html.add('<tr><td style="white-space: nowrap;">')
                     if census.date is not None:
                         self.html.add(f'{census.date.toLongString()[3:]}</td><td>')
                         if individual.birth.date is not None:
@@ -581,7 +581,7 @@ class Render(walton.toolbar.IToolbar):
                             if fact.type == 'NOTE':
                                 if fact.information.startswith('Living with'):
                                     self.html.add(f' {fact.information[11:]}')
-                    self.html.add('</td><td>')
+                    self.html.add('</td><td style="text-align: right;">')
                     for source in census.sources:
                         self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
                     self.html.addLine('</td></tr>')
@@ -1030,13 +1030,16 @@ class Render(walton.toolbar.IToolbar):
                 for rows in grid:
                     if count > 0:
                         self.html.add('<tr>')
-                        self.html.add(f'<td>{rows[0]}</td>')
+                        if rows[1] == '':
+                            self.html.add(f'<td>{rows[0]}</td>')
+                        else:
+                            self.html.add(f'<td><a href="app:individual?id={rows[1]}">{rows[0]}</a></td>')
                         if len(rows) > 2:
+                            self.html.add(f'<td>{rows[3]}</td>')
                             self.html.add(f'<td>{rows[2]}</td>')
-                            self.html.add(f'<td>{rows[1]}</td>')
                             if len(rows) > 4:
-                                self.html.add(f'<td>{rows[3]}</td>')
                                 self.html.add(f'<td>{rows[4]}</td>')
+                                self.html.add(f'<td>{rows[5]}</td>')
                         self.html.addLine('</tr>')
                     count += 1
                 self.html.addLine('</table>')
