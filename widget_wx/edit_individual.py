@@ -190,10 +190,10 @@ class EditIndividual(wx.Dialog):
         ''' Populate the dialog from the individual. '''
         self.textGivenName.SetValue(self.individual.givenName)
         self.textSurname.SetValue(self.individual.surname)
-        if self.individual.birthDate is not None:
-            self.textDoB.SetValue(self.individual.birthDate.toGedCom())
-        if self.individual.deathDate is not None:
-            self.textDoD.SetValue(self.individual.deathDate.toGedCom())
+        if self.individual.birth.date is not None:
+            self.textDoB.SetValue(self.individual.birth.date.toGedCom())
+        if self.individual.death is not None and self.individual.death.date is not None:
+            self.textDoD.SetValue(self.individual.death.date.toGedCom())
         if self.individual.isMale():
             self.comboxboxSex.SetSelection(0)
         else:
@@ -201,11 +201,11 @@ class EditIndividual(wx.Dialog):
 
         self.generalSources = copy.copy(self.individual.sources)
         self.nameSources = copy.copy(self.individual.nameSources)
-        self.dobSources = copy.copy(self.individual.birthDate.sources)
-        if self.individual.deathDate is None:
+        self.dobSources = copy.copy(self.individual.birth.date.sources)
+        if self.individual.death is None or self.individual.death.date is None:
             self.dodSources = []
         else:
-            self.dodSources = copy.copy(self.individual.deathDate.sources)
+            self.dodSources = copy.copy(self.individual.death.date.sources)
 
 
 
