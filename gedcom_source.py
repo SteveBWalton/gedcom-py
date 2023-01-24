@@ -50,6 +50,7 @@ class GedComSource:
         self.identity = None
         self.title = ''
         self.type = GedComSourceType.GENERAL
+        self.repository = ''
         self.date = None
         self.place = None
         self.facts = None
@@ -82,7 +83,8 @@ class GedComSource:
             elif tags[1] == 'PLAC':
                 self.place = GedComPlace(block)
             elif tags[1] == 'REPO':
-                pass
+                self.repository = block[0][7:]
+                self.repository = self.repository[1:-1]
             elif tags[1] == 'CHAN':
                 self.change = GedComChange(block)
             else:
@@ -145,6 +147,9 @@ class GedComSource:
         if self.facts is not None:
             for fact in self.facts:
                 gedcom.extend(fact.toGedCom())
+        # Repository
+        if self.repository != '':
+            gedcom.append(f'1 REPO @{self.repository}@')
         # Change.
         gedcom.extend(self.change.toGedCom(1))
 
