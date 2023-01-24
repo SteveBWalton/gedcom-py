@@ -161,3 +161,11 @@ class GedComSource:
     def getName(self):
         ''' Return the name of the source. '''
         return self.title
+
+
+
+    def byChange(self, source):
+        ''' Key for a list sort of sources by change date order. '''
+        if source.change is None:
+            return datetime.datetime(1980, 1, 1)
+        return source.change.datetime

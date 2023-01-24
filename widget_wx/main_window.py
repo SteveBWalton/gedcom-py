@@ -476,6 +476,7 @@ class WxMainWindow(wx.Frame):
         dialog = widget_wx.edit_individual.EditIndividual(self)
         if dialog.editIndividual(self.application.gedcom, identity):
             print(f'Update {identity}')
+            self.followLocalLink(f'individual?id={identity}', False)
         else:
             print('Cancel changes.')
 

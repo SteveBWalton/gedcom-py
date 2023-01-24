@@ -16,11 +16,9 @@ import sys
 import copy
 
 # Import my own libraries.
-#import modEntryCalendar
-#import dialogEditDriver
-#import dialogEditTeam
-#import dialogEditLocation
-
+from gedcom_fact import GedComFact
+# from gedcom_date import GedComDate
+from gedcom_individual import IndividualSex
 
 
 class EditIndividual(wx.Dialog):
@@ -116,8 +114,8 @@ class EditIndividual(wx.Dialog):
         self.listboxSources = wx.ListBox(self.groupSources.GetStaticBox(), wx.ID_ANY)
         self.groupSources.Add(self.listboxSources, 0, wx.ALL | wx.EXPAND, 2)
         boxsizerNewSource = wx.BoxSizer(wx.HORIZONTAL)
-        comboxboxNewSource = wx.ComboBox(self.groupSources.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=[])
-        boxsizerNewSource.Add(comboxboxNewSource, 0, wx.ALL | wx.ALIGN_LEFT | wx.EXPAND, 2)
+        self.comboxboxNewSource = wx.ComboBox(self.groupSources.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=[])
+        boxsizerNewSource.Add(self.comboxboxNewSource, 0, wx.ALL | wx.ALIGN_LEFT | wx.EXPAND, 2)
         buttonAddSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_OK, 'Add')
         boxsizerNewSource.Add(buttonAddSource, 0, wx.ALL | wx.ALIGN_LEFT, 2)
         buttonRemoveSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_OK, 'Remove')
@@ -148,7 +146,7 @@ class EditIndividual(wx.Dialog):
         self.listboxSources.Clear()
         for sourceIdentity in self.generalSources:
             source = self.gedcom.sources[sourceIdentity]
-            self.listboxSources.Append(source.title)
+            self.listboxSources.Append(source.title, source)
         self.panel.Layout()
 
 
@@ -159,7 +157,7 @@ class EditIndividual(wx.Dialog):
         self.listboxSources.Clear()
         for sourceIdentity in self.nameSources:
             source = self.gedcom.sources[sourceIdentity]
-            self.listboxSources.Append(source.title)
+            self.listboxSources.Append(source.title, source)
         self.panel.Layout()
 
 
@@ -170,7 +168,7 @@ class EditIndividual(wx.Dialog):
         self.listboxSources.Clear()
         for sourceIdentity in self.dobSources:
             source = self.gedcom.sources[sourceIdentity]
-            self.listboxSources.Append(source.title)
+            self.listboxSources.Append(source.title, source)
         self.panel.Layout()
 
 
@@ -181,12 +179,12 @@ class EditIndividual(wx.Dialog):
         self.listboxSources.Clear()
         for sourceIdentity in self.dodSources:
             source = self.gedcom.sources[sourceIdentity]
-            self.listboxSources.Append(source.title)
+            self.listboxSources.Append(source.title, source)
         self.panel.Layout()
 
 
 
-    def populateDialog(self,):
+    def populateDialog(self):
         ''' Populate the dialog from the individual. '''
         self.textGivenName.SetValue(self.individual.givenName)
         self.textSurname.SetValue(self.individual.surname)
@@ -209,6 +207,30 @@ class EditIndividual(wx.Dialog):
 
 
 
+    def writeChanges(self):
+        ''' Populate the individual with values from the dialog. '''
+        self.individual.givenName = self.textGivenName.GetValue()
+        self.individual.surname = self.textSurname.GetValue()
+        birthDate = self.textDoB.GetValue()
+        if birthDate != '':
+            self.individual.birth.date.parse(birthDate)
+            self.individual.birth.date.sources = []
+            for source in self.dobSources:
+                self.individual.birth.date.sources.append(source)
+        deathDate = self.textDoD.GetValue()
+        if deathDate == '':
+            self.individual.death = None
+        else:
+            self.individual.death = GedComFact(self.individual, ['1 DEAT Y', f'2 DATE {deathDate}'])
+            for source in self.dodSources:
+                self.individual.death.date.sources.append(source)
+        if self.comboxboxSex.GetSelection() == 0:
+            self.individual.sex = IndividualSex.MALE
+        else:
+            self.individual.sex = IndividualSex.FEMALE
+
+
+
     def editIndividual(self, gedcom, identity):
         '''
         Show the dialog with an initial individual to edit.
@@ -217,8 +239,19 @@ class EditIndividual(wx.Dialog):
         :param int seasonIndex: Specify the year of the initial race.
         :param int locationIndex: Specify the ID the initial location.
         '''
+        # Initialise member variables.
         self.gedcom = gedcom
         self.individual = gedcom.individuals[identity]
+
+        # Add sources to combobox in reverse change order.
+        sources = []
+        for source in gedcom.sources.values():
+            sources.append(source)
+        sources.sort(key=source.byChange, reverse=True)
+        for source in sources:
+            self.comboxboxNewSource.Append(source.title, source)
+
+        # Populate the dialog with the individual settings.
         self.populateDialog()
 
         # Default function result.
@@ -226,6 +259,8 @@ class EditIndividual(wx.Dialog):
 
         # Show the dialog and wait for a response.
         if self.ShowModal() == wx.ID_OK:
+            self.writeChanges()
             isResult = True
 
+        # Return the result.
         return isResult
