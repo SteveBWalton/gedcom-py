@@ -269,6 +269,10 @@ class GedComIndividual:
         if self.media is not None:
             for identity in self.media:
                 gedcom.append(f'1 OBJE @{identity}@')
+        # ToDos
+        if self.todos is not None:
+            for todo in self.todos:
+                gedcom.append(f'1 _TODO {todo.rank} {todo.description}')
         # General sources.
         for source in self.sources:
             gedcom.append(f'1 SOUR @{source}@')
