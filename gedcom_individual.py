@@ -145,6 +145,7 @@ class GedComIndividual:
         self.firstName = names[0]
 
 
+
     def parse(self, gedcomFile):
         ''' Build the individual from the specified gedcomFile settings. '''
         self.gedcomFile = gedcomFile
@@ -364,6 +365,14 @@ class GedComIndividual:
         if individual.birth.date is None:
             return None
         return individual.birth.date.theDate
+
+
+
+    def byChange(self, individual):
+        ''' Key for a list sort of individuals by last change. '''
+        if individual.change is None:
+            return datetime.datetime(1980, 1, 1)
+        return individual.change.datetime
 
 
 

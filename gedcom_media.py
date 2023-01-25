@@ -6,6 +6,7 @@ This module implements the :py:class:`GedComMedia` class.
 '''
 # System Libraries.
 from enum import Enum
+import datetime
 
 # Application Librariess.
 from gedcom_fact import GedComFact
@@ -73,6 +74,7 @@ class GedComMedia:
         self.type = None
         self.isPrimary = None
         self.isThumbnail = None
+        self.change = None
         if gedcomFile is None:
             return
         if len(gedcomFile) == 0:
@@ -171,3 +173,11 @@ class GedComMedia:
     def getName(self):
         ''' Return the name of the source. '''
         return self.title
+
+
+
+    def byChange(self, family):
+        ''' Key for a list sort of families by last change. '''
+        if family.change is None:
+            return datetime.datetime(1980, 1, 1)
+        return family.change.datetime

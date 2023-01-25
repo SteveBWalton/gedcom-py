@@ -249,8 +249,149 @@ class Render(walton.toolbar.IToolbar):
 
     def showHome(self, parameters):
         ''' Render the home page. '''
-        if self.application.gedcom.defaultIdentity is not None:
-            self.showIndividual({'person': self.application.gedcom.defaultIdentity})
+        #if self.application.gedcom.defaultIdentity is not None:
+        #    self.showIndividual({'person': self.application.gedcom.defaultIdentity})
+        self.html.clear()
+        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.html.addLine('<h1>Home</h1>')
+
+        self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
+        self.html.addLine(f'<legend>Individuals</legend>')
+        self.html.addLine(f'<table>')
+        isFirst = True
+        count = 0
+        individuals = []
+        for individual in self.application.gedcom.individuals.values():
+            if isFirst:
+                isFirst = False
+                self.html.add('<tr>')
+                self.html.add('<td>First</td>')
+                self.html.add(f'<td>{individual.identity}</td>')
+                self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
+                self.html.addLine('</tr>')
+                lastChange = individual
+            individuals.append(individual)
+        self.html.add('<td>Last</td>')
+        self.html.add(f'<td>{individual.identity}</td>')
+        self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
+        self.html.addLine('</tr>')
+
+        # Recent.
+        individuals.sort(key=individual.byChange, reverse=True)
+        for index in range(10):
+            individual = individuals[index]
+            self.html.add('<tr>')
+            self.html.add(f'<td>Recent {index + 1}</td>')
+            self.html.add(f'<td>{individual.identity}</td>')
+            self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
+            self.html.addLine('</tr>')
+
+        self.html.add('</table>')
+        self.html.addLine(f'<p>There are {len(individuals)} individuals in this gedcom.</p>')
+        self.html.addLine('</fieldset>')
+
+        self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
+        self.html.addLine(f'<legend>Families</legend>')
+        self.html.addLine(f'<table>')
+        isFirst = True
+        families = []
+        for family in self.application.gedcom.families.values():
+            if isFirst:
+                isFirst = False
+                self.html.add('<tr>')
+                self.html.add('<td>First</td>')
+                self.html.add(f'<td>{family.identity}</td>')
+                self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
+                self.html.addLine('</tr>')
+            families.append(family)
+        self.html.add('<tr>')
+        self.html.add('<td>Last</td>')
+        self.html.add(f'<td>{family.identity}</td>')
+        self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
+        self.html.addLine('</tr>')
+
+        # Recent.
+        families.sort(key=family.byChange, reverse=True)
+        for index in range(10):
+            family = families[index]
+            self.html.add('<tr>')
+            self.html.add(f'<td>Recent {index + 1}</td>')
+            self.html.add(f'<td>{family.identity}</td>')
+            self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
+            self.html.addLine('</tr>')
+
+        self.html.add('</table>')
+        self.html.addLine(f'<p>There are {len(families)} families in this gedcom.</p>')
+        self.html.addLine('</fieldset>')
+
+        self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
+        self.html.addLine(f'<legend>Sources</legend>')
+        self.html.addLine(f'<table>')
+        isFirst = True
+        sources = []
+        for source in self.application.gedcom.sources.values():
+            if isFirst:
+                isFirst = False
+                self.html.add('<tr>')
+                self.html.add('<td>First</td>')
+                self.html.add(f'<td>{source.identity}</td>')
+                self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
+                self.html.addLine('</tr>')
+                self.html.add('<tr>')
+            sources.append(source)
+        self.html.add('<td>Last</td>')
+        self.html.add(f'<td>{source.identity}</td>')
+        self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
+        self.html.addLine('</tr>')
+
+        # Recent.
+        sources.sort(key=source.byChange, reverse=True)
+        for index in range(10):
+            source = sources[index]
+            self.html.add('<tr>')
+            self.html.add(f'<td>Recent {index + 1}</td>')
+            self.html.add(f'<td>{source.identity}</td>')
+            self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
+            self.html.addLine('</tr>')
+
+        self.html.add('</table>')
+        self.html.addLine(f'<p>There are {len(sources)} sources in this gedcom.</p>')
+        self.html.addLine('</fieldset>')
+
+        self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
+        self.html.addLine(f'<legend>Media</legend>')
+        self.html.addLine(f'<table>')
+        isFirst = True
+        mediaObjects = []
+        for media in self.application.gedcom.media.values():
+            if isFirst:
+                isFirst = False
+                self.html.add('<tr>')
+                self.html.add('<td>First</td>')
+                self.html.add(f'<td>{media.identity}</td>')
+                self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
+                self.html.addLine('</tr>')
+                self.html.add('<tr>')
+            mediaObjects.append(media)
+        self.html.add('<td>Last</td>')
+        self.html.add(f'<td>{media.identity}</td>')
+        self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
+        self.html.addLine('</tr>')
+
+        # Recent.
+        sources.sort(key=media.byChange, reverse=True)
+        for index in range(10):
+            media = mediaObjects[index]
+            self.html.add('<tr>')
+            self.html.add(f'<td>Recent {index + 1}</td>')
+            self.html.add(f'<td>{media.identity}</td>')
+            self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
+            self.html.addLine('</tr>')
+
+        self.html.add('</table>')
+        self.html.addLine(f'<p>There are {len(mediaObjects)} media in this gedcom.</p>')
+        self.html.addLine('</fieldset>')
+
 
 
 

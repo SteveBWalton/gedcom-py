@@ -7,6 +7,7 @@ This module implements the :py:class:`GedComFamily` class.
 
 # System libraries.
 from enum import Enum
+import datetime
 
 # Application libraries.
 from gedcom_date import GedComDate
@@ -136,3 +137,12 @@ class GedComFamily:
             wifeName = wife.getName()
 
         return f'{husbandName} & {wifeName}'
+
+
+
+    def byChange(self, family):
+        ''' Key for a list sort of families by last change. '''
+        if family.change is None:
+            return datetime.datetime(1980, 1, 1)
+        return family.change.datetime
+
