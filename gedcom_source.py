@@ -95,7 +95,7 @@ class GedComSource:
             block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
-        print(f'\'{self.identity}\'')
+        # print(f'\'{self.identity}\'')
 
 
 

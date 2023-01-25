@@ -7,6 +7,9 @@ This module implements the :py:class:`GedComPlace` class.
 # System Libraries.
 from enum import Enum
 
+# Application Libraries.
+from place import Place
+
 
 
 class GedComPlaceAccuracy(Enum):
@@ -14,6 +17,7 @@ class GedComPlaceAccuracy(Enum):
     ABOUT = 2
     ESTIMATED = 3
     CALCULATED = 4
+
 
 
 class GedComPlace:
@@ -69,10 +73,15 @@ class GedComPlace:
                 # Unknown.
                 print(f'Place unrecogised tag \'{tags[1]}\'')
 
+        if self.address == '':
+            place = Place.getPlace(self.place, self.address, self.country)
+        else:
+            place = Place.getPlace(f'{self.address}, {self.place}', self.address, self.country)
+
 
 
     def toLongString(self):
-        ''' Returns the GedCom date as a long string. '''
+        ''' Returns the GedCom place as a long string. '''
         result = ''
 
         if self.place is not None:
@@ -85,14 +94,22 @@ class GedComPlace:
             if not self.country in result:
                 result = result + ', ' + self.country
 
+        placeNames = result.strip().split(', ')
+        result = ''
+        for place in placeNames:
+            if result == '':
+                result = f'<a href="app:place?id={place}">{place}</a>'
+            else:
+                result = f'{result}, <a href="app:place?id={place}">{place}</a>'
+
         # Return the calculated value.
-        return result.strip()
+        return result
 
 
 
 
     def toShortString(self):
-        ''' Returns the GedCom date as a short string. '''
+        ''' Returns the GedCom place as a short string. '''
         result = ''
 
         if self.place is not None:

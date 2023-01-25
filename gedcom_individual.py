@@ -226,7 +226,7 @@ class GedComIndividual:
             block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
-        print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\'')
+        # print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\'')
 
 
 

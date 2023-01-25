@@ -14,7 +14,7 @@ import html
 # The program libraries.
 import walton.html
 import walton.toolbar
-
+from place import Place
 
 
 def firstCap(text):
@@ -75,6 +75,8 @@ class Render(walton.toolbar.IToolbar):
             'media'             : self.showMedia,
             'todo'              : self.showToDo,
             'all'               : self.showAll,
+            'all_places'        : self.showAllPlaces,
+            'place'             : self.showPlace,
         }
 
 
@@ -392,6 +394,10 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine(f'<p>There are {len(mediaObjects)} media in this gedcom.</p>')
         self.html.addLine('</fieldset>')
 
+        self.html.addLine(f'<p>There are {len(Place.allPlaces)} places in this gedcom.</p>')
+        for place in Place.allPlaces.values():
+            self.html.addLine(f'<p>{place.toLongString()}</p>')
+
 
 
 
@@ -404,6 +410,7 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('<ul>')
         self.html.addLine('<li><a href="app:todo">ToDos</a></li>')
         self.html.addLine('<li><a href="app:all">All Elements</a></li>')
+        self.html.addLine('<li><a href="app:all_places">All Places</a></li>')
         self.html.addLine('</ul>')
 
 
@@ -1430,3 +1437,45 @@ class Render(walton.toolbar.IToolbar):
             self.html.addLine('</tr>')
         self.html.add('</table>')
         self.html.addLine('</fieldset>')
+
+
+
+    def displayAllPlacesWithParent(self, parent):
+        ''' Show all places with the specified parent. '''
+        childPlaces = []
+        if parent is None:
+            for place in Place.allPlaces.values():
+                if place.parent is None:
+                    childPlaces.append(place)
+        else:
+            for place in Place.allPlaces.values():
+                if place.parent == parent:
+                    childPlaces.append(place)
+        childPlaces.sort(key=Place.byName)
+        for place in childPlaces:
+            self.html.addLine(f'<p><a href="app:place?id={place.name}">{place.name}</a></p>')
+
+
+
+    def showAllPlaces(self, parameters):
+        ''' Show all places. '''
+        self.html.clear()
+        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.html.addLine(f'<h1>All Elements</h1>')
+
+        self.displayAllPlacesWithParent(None)
+
+
+
+    def showPlace(self, parameters):
+        ''' Show a single place. '''
+        placeName = parameters['id'] if 'id' in parameters else None
+        placeName = placeName.replace('%20', ' ')
+
+        place = Place.allPlaces[placeName]
+
+        self.html.clear()
+        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.html.addLine(f'<h1>{place.name}</h1>')
+
+        self.displayAllPlacesWithParent(place)

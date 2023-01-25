@@ -88,12 +88,12 @@ class GedComFamily:
             block, start = self.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
-        childrenName = ''
-        for childIdentity in self.childrenIdentities:
-            child = self.gedcom.individuals[childIdentity]
-            childrenName += f', \'{child.givenName}\'';
+        #childrenName = ''
+        #for childIdentity in self.childrenIdentities:
+        #    child = self.gedcom.individuals[childIdentity]
+        #    childrenName += f', \'{child.givenName}\'';
 
-        print(f'\'{self.identity}\', \'{self.getName()}\', \'{childrenName}')
+        #print(f'\'{self.identity}\', \'{self.getName()}\', \'{childrenName}')
 
 
 
