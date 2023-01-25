@@ -73,7 +73,7 @@ class GedComPlace:
                 # Unknown.
                 print(f'Place unrecogised tag \'{tags[1]}\'')
 
-        if self.address == '':
+        if self.address is None or self.address == '':
             place = Place.getPlace(self.place, self.address, self.country)
         else:
             place = Place.getPlace(f'{self.address}, {self.place}', self.address, self.country)
@@ -94,17 +94,43 @@ class GedComPlace:
             if not self.country in result:
                 result = result + ', ' + self.country
 
-        placeNames = result.strip().split(', ')
+        placeName = result.strip()
         result = ''
-        for place in placeNames:
+        while ', ' in placeName:
+            place = Place.getPlace(placeName)
             if result == '':
-                result = f'<a href="app:place?id={place}">{place}</a>'
+                result = f'<a href="app:place?id={place.identity}">{place.name}</a>'
             else:
-                result = f'{result}, <a href="app:place?id={place}">{place}</a>'
+                result = f'{result}, <a href="app:place?id={place.identity}">{place.name}</a>'
+
+            # Remove first comma.
+            placeName = placeName[placeName.index(', ') + 2:]
+
+        # Add the final place.
+        place = Place.getPlace(placeName)
+        if result == '':
+            result = f'<a href="app:place?id={place.identity}">{place.name}</a>'
+        else:
+            result = f'{result}, <a href="app:place?id={place.identity}">{place.name}</a>'
 
         # Return the calculated value.
         return result
 
+
+
+    def toIdentityCheck(self):
+        ''' Returns the GedCom place as a string for identity checks. '''
+        result = ''
+
+        if self.place is not None:
+            result = self.place
+
+        if self.address is not None:
+            if not self.address in result:
+                result = self.address + ', ' + result
+
+        # Return the calculated value.
+        return result.strip()
 
 
 

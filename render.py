@@ -394,9 +394,7 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine(f'<p>There are {len(mediaObjects)} media in this gedcom.</p>')
         self.html.addLine('</fieldset>')
 
-        self.html.addLine(f'<p>There are {len(Place.allPlaces)} places in this gedcom.</p>')
-        for place in Place.allPlaces.values():
-            self.html.addLine(f'<p>{place.toLongString()}</p>')
+        self.html.addLine(f'<p>There are <a href="app:all_places">{len(Place.allPlaces)} places</a> in this gedcom.</p>')
 
 
 
@@ -1276,6 +1274,11 @@ class Render(walton.toolbar.IToolbar):
                         facts += 'Death Place, '
                 if identity in individual.death.sources:
                     facts += 'Death, '
+            if individual.census is not None:
+                for census in individual.census:
+                    if census.sources is not None:
+                        if identity in census.sources:
+                            facts += f'Census {census.date.theDate.year}, '
             if facts != '':
                 self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{facts[:-2]}</td></tr>')
         self.html.addLine('</table>')
@@ -1453,7 +1456,7 @@ class Render(walton.toolbar.IToolbar):
                     childPlaces.append(place)
         childPlaces.sort(key=Place.byName)
         for place in childPlaces:
-            self.html.addLine(f'<p><a href="app:place?id={place.name}">{place.name}</a></p>')
+            self.html.addLine(f'<p><a href="app:place?id={place.identity}">{place.name}</a></p>')
 
 
 
@@ -1476,6 +1479,45 @@ class Render(walton.toolbar.IToolbar):
 
         self.html.clear()
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
-        self.html.addLine(f'<h1>{place.name}</h1>')
+        self.html.addLine(f'<h1>{place.toLongString()}</h1>')
 
         self.displayAllPlacesWithParent(place)
+
+        # Show the people that reference this place.
+        self.html.addLine('<p>Individuals</p>')
+        self.html.addLine('<table class="reference">')
+        for individual in self.application.gedcom.individuals.values():
+            facts = ''
+            # print(f'{individual.identity} {individual.getName()}')
+
+            if individual.birth is not None:
+                if individual.birth.place is not None:
+                    if place.identity in individual.birth.place.toIdentityCheck():
+                        facts += 'Birth Place, '
+            if individual.death is not None:
+                if individual.death.place is not None:
+                    if place.identity in individual.death.place.toIdentityCheck():
+                        facts += 'Death Place, '
+            if individual.census is not None:
+                for census in individual.census:
+                    if census.place is not None:
+                        if place.identity in census.place.toIdentityCheck():
+                            facts += f'Census {census.date.theDate.year}, '
+            if facts != '':
+                self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{facts[:-2]}</td></tr>')
+        self.html.addLine('</table>')
+
+        # Show the families that reference this source.
+        self.html.addLine('<p>Families</p>')
+        self.html.addLine('<table class="reference">')
+        for family in self.application.gedcom.families.values():
+            facts = ''
+            if family.marriage is not None:
+                if family.marriage.place is not None:
+                    if place.identity in family.marriage.place.toIdentityCheck():
+                        facts += 'Marriage Place, '
+            if facts != '':
+                self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.getName()}</a></td><td>{facts[:-2]}</td></tr>')
+        self.html.addLine('</table>')
+
+

@@ -29,7 +29,13 @@ class Place:
 
     def getPlace(placeName, address = None, country = None):
         ''' Get the place object for the specified name. '''
-        print(f'getPlace({placeName})')
+        # print(f'getPlace({placeName})')
+        # Return the existing place.
+        if placeName in Place.allPlaces:
+            # print(f'\'{placeName}\' already exists.')
+            return Place.allPlaces[placeName]
+        # print(f'\'{placeName}\' does not exist.  Creating now.')
+
         if ', ' in placeName:
             parent = placeName[placeName.index(', ') + 2:]
             name = placeName[0: placeName.index(', ')]
@@ -37,12 +43,8 @@ class Place:
             parent = None
             name = placeName
 
-        # Return the existing place.
-        if name in Place.allPlaces:
-            return Place.allPlaces[name]
-
         # Return a new place.
-        return Place(placeName, address, country)
+        return Place(name, placeName, address, country)
 
 
 
@@ -52,83 +54,40 @@ class Place:
 
 
 
-    def __init__(self, gedcomFile = None, address = None, country = None):
+    def __init__(self, name, identity, address = None, country = None):
         ''' Class constructor for the :py:class:`Place` class. '''
-        self.parse(gedcomFile, address, country)
+        self.parse(name, identity, address, country)
 
 
 
-    def parse(self, gedcom = None, address = None, country = None):
+    def parse(self, name, identity, address = None, country = None):
         ''' Update the object to the date specified in the string. '''
+        self.identity = identity
         self.placeType = PlaceType.PLACE
         self.parent = None
-        self.name = ''
+        self.name = name
 
-        if ', ' in gedcom:
-            parent = gedcom[gedcom.index(', ') + 2:]
+        if ', ' in identity:
+            parent = identity[identity.index(', ') + 2:]
             self.parent = Place.getPlace(parent)
-            self.name = gedcom[0: gedcom.index(', ')]
-        else:
-            self.name = gedcom
 
         if self.name == country:
             self.placeType = PlaceType.COUNTRY
         if self.name == address:
             self.placeType = PlaceType.ADDRESS
-        Place.allPlaces[self.name] = self
-        print(f'name = {self.name}')
+
+        Place.allPlaces[self.identity] = self
+        # print(f'name = {self.name}, identity={self.identity}')
 
 
 
     def toLongString(self):
-        ''' Returns the GedCom date as a long string. '''
-        result = ''
-
-        if self.name is not None:
-            result = self.name
-
-        if self.parent is not None:
-            result = f'{result}, {self.parent.toLongString()}'
-
-        # Return the calculated value.
-        return result.strip()
+        ''' Returns the place as a long string. '''
+        return self.identity
 
 
 
 
     def toShortString(self):
-        ''' Returns the GedCom date as a short string. '''
-        result = ''
-
-        if self.place is not None:
-            result = self.place
-
-        if ',' in result:
-            result = result[0:result.index(',')]
-
-        # Return the calculated value.
-        return result.strip()
-
-
-
-    def toGedCom(self, level = 1):
-        '''
-        Return the object in GedCom format.
-        '''
-        result = []
-        result.append(f'{level} PLAC {self.place}')
-        if self.address is not None:
-            result.append(f'{level + 1} ADDR {self.address}')
-        if self.latitude is not None or self.longitude is not None:
-            result.append(f'{level + 1} MAP')
-        if self.latitude is not None:
-            result.append(f'{level + 2} LATI {self.latitude}')
-        if self.longitude is not None:
-            result.append(f'{level + 2} LONG {self.longitude}')
-        if self.country is not None:
-            result.append(f'{level + 1} CTRY {self.country}')
-        for source in self.sources:
-            result.append(f'{level + 1} SOUR @{source}@')
-
-        # Return the calculated value.
-        return result
+        ''' Returns the place as a short string. '''
+        return self.name
