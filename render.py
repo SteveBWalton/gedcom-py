@@ -465,9 +465,40 @@ class Render(walton.toolbar.IToolbar):
 
 
 
+    def drawFamilyTree(self, identity):
+        ''' Draw a small tree for the specified family. '''
+        # Find the family.
+        family = self.application.gedcom.families[identity]
 
-    def drawSmallTree(self, identity):
-        ''' Draw a small family tree for the specified person. '''
+        width = 345
+        if len(family.childrenIdentities) > 2:
+            width = 5 + 170 * len(family.childrenIdentities)
+
+        # Draw the people.
+        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 130px; background-color: white;" viewBox="0 0 {width} 130" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+
+        x = 5
+        y = 5
+        if family.husbandIdentity is not None:
+            self.drawIndividual(family.husbandIdentity, x, y)
+            x += 170
+        if family.wifeIdentity is not None:
+            self.drawIndividual(family.wifeIdentity, x, y)
+            x += 170
+
+        x = 5
+        y += 70
+        for childIdentity in family.childrenIdentities:
+            self.drawIndividual(childIdentity, x, y)
+            x += 170
+
+        # Close the diagram.
+        self.html.addLine('</svg>')
+
+
+
+    def drawIndividualTree(self, identity):
+        ''' Draw a small tree for the specified individual. '''
 
         # Setup a grid to add people to.
         rows = [ [], [], [], [] ]
@@ -601,8 +632,8 @@ class Render(walton.toolbar.IToolbar):
         self.displayToolbar(True, f'edit_individual?id={identity}', None, None, False, False, False, '', self.host)
         self.html.addLine(f"<h1>{individual.getName()}</h1>")
 
-        # Draw a small family tree for the person.
-        self.drawSmallTree(identity)
+        # Draw a small family tree for the individual.
+        self.drawIndividualTree(identity)
 
         # Person Description.
         self.html.addLine('<p>')
@@ -869,6 +900,9 @@ class Render(walton.toolbar.IToolbar):
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
         # self.html.addLine(f"<h1>{family.identity} {family.getName()}</h1>")
         self.html.addLine(f"<h1>{family.getName()}</h1>")
+
+        # Draw a small family tree for the family.
+        self.drawFamilyTree(identity)
 
         # Show a description of this family.
         self.html.add('<p>')
