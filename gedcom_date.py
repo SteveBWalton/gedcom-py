@@ -372,3 +372,9 @@ class GedComDate:
 
         # Return the calculated value.
         return result.strip()
+
+
+
+    def getYear(self):
+        ''' Get the year from the GedComDate. '''
+        return self.theDate.year

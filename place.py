@@ -94,10 +94,8 @@ class Place:
             parent = identity[identity.index(', ') + 2:]
             self.parent = Place.getPlace(parent, None, country)
 
-        print(f'\'{self.name}\' == \'{country}\'')
         if self.name == country:
             self.placeType = PlaceType.COUNTRY
-            print(f'Make \'{self.name}\' into a country.')
         if self.name == address:
             self.placeType = PlaceType.ADDRESS
 

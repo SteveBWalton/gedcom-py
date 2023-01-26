@@ -190,6 +190,11 @@ def main():
         wxApp = widget_wx.main_window.WxApp(application)
         application.postRenderPage = wxApp.frame.displayCurrentPage
         application.actions = wxApp.frame.actions
+
+        # Inspection debugging.
+        # import wx.lib.inspection
+        # wx.lib.inspection.InspectionTool().Show()
+
         # wxPython loop.
         wxApp.runMainLoop()
     else:

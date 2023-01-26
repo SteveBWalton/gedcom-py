@@ -907,7 +907,7 @@ class Render(walton.toolbar.IToolbar):
         localSources = []
 
         self.html.clear()
-        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.displayToolbar(True, f'edit_family?id={identity}', None, None, False, False, False, '', self.host)
         # self.html.addLine(f"<h1>{family.identity} {family.getName()}</h1>")
         self.html.addLine(f"<h1>{family.getName()}</h1>")
 

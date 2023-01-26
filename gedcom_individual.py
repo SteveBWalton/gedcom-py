@@ -291,6 +291,20 @@ class GedComIndividual:
 
 
 
+    def toLongString(self):
+        ''' Return the long name of the individual. '''
+        longName = self.givenName + ' ' + self.surname
+        if self.death is not None:
+            if self.death.date is not None:
+                longName = f'{longName} ({self.birth.date.getYear()}-{self.death.date.getYear() % 100})'
+            else:
+                longName = f'{longName} ({self.birth.date.getYear()}-XX)'
+        else:
+            longName = f'{longName} ({self.birth.date.getYear()}-)'
+        return longName
+
+
+
     def isMale(self):
         ''' Returns True for males. '''
         if self.sex == IndividualSex.FEMALE:

@@ -23,6 +23,7 @@ import wx.html2     # Try package python3-wxpython4-webview or apt package pytho
 #import render
 #import walton.year_range
 import widget_wx.edit_individual
+import widget_wx.edit_family
 
 
 
@@ -59,8 +60,11 @@ class WxMainWindow(wx.Frame):
 
         # Intialise the application.
         self.application = application
+
+        # The actions that this class can handle.
         self.actions = {
-            'edit_individual'         : self.editIndividual,
+            'edit_individual'       : self.editIndividual,
+            'edit_family'           : self.editFamily,
         }
 
         # Build the menu bar.
@@ -477,6 +481,21 @@ class WxMainWindow(wx.Frame):
         if dialog.editIndividual(self.application.gedcom, identity):
             print(f'Update {identity}')
             self.followLocalLink(f'individual?id={identity}', False)
+        else:
+            print('Cancel changes.')
+
+
+
+    def editFamily(self, parameters):
+        ''' Display the dialog to edit the specified family. '''
+        identity = parameters['id'] if 'id' in parameters else identity
+
+        print(f'Edit {identity}')
+
+        dialog = widget_wx.edit_family.EditFamily(self)
+        if dialog.editFamily(self.application.gedcom, identity):
+            print(f'Update {identity}')
+            self.followLocalLink(f'family?id={identity}', False)
         else:
             print('Cancel changes.')
 

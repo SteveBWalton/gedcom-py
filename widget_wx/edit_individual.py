@@ -21,6 +21,7 @@ from gedcom_fact import GedComFact
 from gedcom_individual import IndividualSex
 
 
+
 class EditIndividual(wx.Dialog):
     ''' Class to represent the dialog to edit an individual in gedcom. '''
 
@@ -80,33 +81,39 @@ class EditIndividual(wx.Dialog):
 
         # Details group box.
         groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Details')
-        groupDetailsSizer = wx.GridSizer(3, 4, 5, 5)
-        labelSurname = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Surname')
-        groupDetailsSizer.Add(labelSurname, 0, wx.ALL | wx.ALIGN_RIGHT, 2)
+        # wx.GridSizer() all cells are the same size!
+        # groupDetailsSizer = wx.GridSizer(3, 4, 5, 5)
+        groupDetailsSizer = wx.FlexGridSizer(3, 4, 5, 5)
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Surname')
+        groupDetailsSizer.Add(label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 2)
         self.textSurname = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(140,-1))
         self.textSurname.Bind(wx.EVT_SET_FOCUS, self.onFocusName)
         groupDetailsSizer.Add(self.textSurname, 0, wx.ALL | wx.ALIGN_LEFT, 2)
-        labelDoB = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Date of Birth')
-        groupDetailsSizer.Add(labelDoB, 0, wx.ALL | wx.ALIGN_RIGHT, 2)
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Date of Birth')
+        groupDetailsSizer.Add(label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 2)
         self.textDoB = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
         self.textDoB.Bind(wx.EVT_SET_FOCUS, self.onFocusDoB)
         groupDetailsSizer.Add(self.textDoB, 0, wx.ALL | wx.ALIGN_LEFT, 2)
-        labelGivenName = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Given Names')
-        groupDetailsSizer.Add(labelGivenName, 0, wx.ALL | wx.ALIGN_RIGHT)
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Given Names')
+        groupDetailsSizer.Add(label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
         self.textGivenName = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(140,-1))
         self.textGivenName.Bind(wx.EVT_SET_FOCUS, self.onFocusName)
         groupDetailsSizer.Add(self.textGivenName)
-        labelDoD = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Date of Death')
-        groupDetailsSizer.Add(labelDoD, 0, wx.ALL | wx.ALIGN_RIGHT, 2)
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Date of Death')
+        groupDetailsSizer.Add(label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 2)
         self.textDoD = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
         self.textDoD.Bind(wx.EVT_SET_FOCUS, self.onFocusDoD)
         groupDetailsSizer.Add(self.textDoD)
-        labelSex = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Sex')
-        groupDetailsSizer.Add(labelSex, 0, wx.ALL | wx.ALIGN_RIGHT, 2)
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Sex')
+        groupDetailsSizer.Add(label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 2)
         self.comboxboxSex = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=['Male', 'Female'])
         self.comboxboxSex.Bind(wx.EVT_SET_FOCUS, self.onFocusGeneral)
         groupDetailsSizer.Add(self.comboxboxSex, 0, wx.ALL | wx.ALIGN_LEFT)
         groupDetails.Add(groupDetailsSizer, 0, wx.EXPAND | wx.ALL, 2)
+        self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
+
+        # Facts group box.
+        groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
         # Sources group box.
@@ -116,9 +123,9 @@ class EditIndividual(wx.Dialog):
         boxsizerNewSource = wx.BoxSizer(wx.HORIZONTAL)
         self.comboxboxNewSource = wx.ComboBox(self.groupSources.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=[])
         boxsizerNewSource.Add(self.comboxboxNewSource, 0, wx.ALL | wx.ALIGN_LEFT | wx.EXPAND, 2)
-        buttonAddSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_OK, 'Add')
+        buttonAddSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_ANY, 'Add')
         boxsizerNewSource.Add(buttonAddSource, 0, wx.ALL | wx.ALIGN_LEFT, 2)
-        buttonRemoveSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_OK, 'Remove')
+        buttonRemoveSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_ANY, 'Remove')
         boxsizerNewSource.Add(buttonRemoveSource, 0, wx.ALL | wx.ALIGN_LEFT, 2)
         self.groupSources.Add(boxsizerNewSource, 0, wx.ALL | wx.EXPAND, 2)
         self.boxsizer.Add(self.groupSources, 0, wx.ALL | wx.EXPAND, 2)
@@ -204,6 +211,7 @@ class EditIndividual(wx.Dialog):
             self.dodSources = []
         else:
             self.dodSources = copy.copy(self.individual.death.date.sources)
+        self.panel.Layout()
 
 
 
