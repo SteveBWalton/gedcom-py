@@ -74,9 +74,9 @@ class GedComPlace:
                 print(f'Place unrecogised tag \'{tags[1]}\'')
 
         if self.address is None or self.address == '':
-            place = Place.getPlace(self.place, self.address, self.country)
+            place = Place.getPlace(self.place, self.address, self.country, self.latitude, self.longitude)
         else:
-            place = Place.getPlace(f'{self.address}, {self.place}', self.address, self.country)
+            place = Place.getPlace(f'{self.address}, {self.place}', self.address, self.country, self.latitude, self.longitude)
 
 
 

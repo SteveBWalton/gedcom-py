@@ -14,8 +14,7 @@ import html
 # The program libraries.
 import walton.html
 import walton.toolbar
-from place import Place
-
+from place import Place, PlaceType
 
 def firstCap(text):
     ''' Returns the text with the first character capitalised. '''
@@ -1455,8 +1454,24 @@ class Render(walton.toolbar.IToolbar):
                 if place.parent == parent:
                     childPlaces.append(place)
         childPlaces.sort(key=Place.byName)
+        self.html.addLine('<p>Child Locations</p>')
+        self.html.addLine('<table class="reference">')
         for place in childPlaces:
-            self.html.addLine(f'<p><a href="app:place?id={place.identity}">{place.name}</a></p>')
+            self.html.add(f'<tr><td><a href="app:place?id={place.identity}">{place.name}</a></td>')
+            if place.placeType == PlaceType.ADDRESS:
+                self.html.add('<td>Address</td>')
+            else:
+                self.html.add('<td>Place</td>')
+            if place.latitude is not None:
+                self.html.add(f'<td style="text-align: center;">{place.latitude}</td>')
+            else:
+                self.html.add('<td></td>')
+            if place.longitude is not None:
+                self.html.add(f'<td style="text-align: center;">{place.longitude}</td>')
+            else:
+                self.html.add('<td></td>')
+            self.html.addLine('</p>')
+        self.html.addLine('</table>')
 
 
 
@@ -1479,7 +1494,16 @@ class Render(walton.toolbar.IToolbar):
 
         self.html.clear()
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
-        self.html.addLine(f'<h1>{place.toLongString()}</h1>')
+        self.html.addLine(f'<h1>{place.name}</h1>')
+        self.html.addLine(f'<p>Parent: \'{place.parent.toLongString()}\'</p>')
+        if place.placeType == PlaceType.ADDRESS:
+            self.html.addLine(f'<p>Type: Address</p>')
+        else:
+            self.html.addLine(f'<p>Type: Place</p>')
+        if place.latitude is not None:
+            self.html.addLine(f'<p>Latitude: {place.latitude}</p>')
+        if place.longitude is not None:
+            self.html.addLine(f'<p>Longitude: {place.longitude}</p>')
 
         self.displayAllPlacesWithParent(place)
 
