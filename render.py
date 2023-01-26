@@ -550,24 +550,30 @@ class Render(walton.toolbar.IToolbar):
         # Parents family.
         if individual.parentFamilyIdentity is not None:
             parentFamily = self.application.gedcom.families[individual.parentFamilyIdentity]
+            connectionCode = 10
             if parentFamily.husbandIdentity is not None:
-                rows[1].append((parentFamily.husbandIdentity, 11))
                 father = self.application.gedcom.individuals[parentFamily.husbandIdentity]
                 if father.parentFamilyIdentity is not None:
+                    rows[1].append((parentFamily.husbandIdentity, connectionCode + 1))
+                    connectionCode += 10
                     fatherFamily = self.application.gedcom.families[father.parentFamilyIdentity]
                     if fatherFamily.husbandIdentity is not None:
                         rows[0].append((fatherFamily.husbandIdentity, 1))
                     if fatherFamily.wifeIdentity is not None:
                         rows[0].append((fatherFamily.wifeIdentity, 0))
+                else:
+                    rows[1].append((parentFamily.husbandIdentity, 1))
             if parentFamily.wifeIdentity is not None:
-                rows[1].append((parentFamily.wifeIdentity, 21))
                 mother = self.application.gedcom.individuals[parentFamily.wifeIdentity]
                 if mother.parentFamilyIdentity is not None:
+                    rows[1].append((parentFamily.wifeIdentity, connectionCode + 1))
                     motherFamily = self.application.gedcom.families[mother.parentFamilyIdentity]
                     if motherFamily.husbandIdentity is not None:
                         rows[0].append((motherFamily.husbandIdentity, 2))
                     if motherFamily.wifeIdentity is not None:
                         rows[0].append((motherFamily.wifeIdentity, 0))
+                else:
+                    rows[1].append((parentFamily.wifeIdentity, 1))
         width = 0
         # Decide the required width.
         for columns in rows:
@@ -1460,6 +1466,8 @@ class Render(walton.toolbar.IToolbar):
             self.html.add(f'<tr><td><a href="app:place?id={place.identity}">{place.name}</a></td>')
             if place.placeType == PlaceType.ADDRESS:
                 self.html.add('<td>Address</td>')
+            elif place.placeType == PlaceType.COUNTRY:
+                self.html.add('<td>Country</td>')
             else:
                 self.html.add('<td>Place</td>')
             if place.latitude is not None:
@@ -1495,9 +1503,12 @@ class Render(walton.toolbar.IToolbar):
         self.html.clear()
         self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
         self.html.addLine(f'<h1>{place.name}</h1>')
-        self.html.addLine(f'<p>Parent: \'{place.parent.toLongString()}\'</p>')
+        if place.parent is not None:
+            self.html.addLine(f'<p>Parent: \'{place.parent.toLongString()}\'</p>')
         if place.placeType == PlaceType.ADDRESS:
             self.html.addLine(f'<p>Type: Address</p>')
+        elif place.placeType == PlaceType.COUNTRY:
+            self.html.addLine(f'<p>Type: Country</p>')
         else:
             self.html.addLine(f'<p>Type: Place</p>')
         if place.latitude is not None:
