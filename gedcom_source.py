@@ -36,6 +36,14 @@ class GedComSource:
 
 
 
+    def byChange(source):
+        ''' Key for a list sort of sources by change date order. '''
+        if source.change is None:
+            return datetime.datetime(1980, 1, 1)
+        return source.change.datetime
+
+
+
     def __init__(self, gedcom, gedcomFile = None):
         '''
         Class constructor for the :py:class:`GedComSource` class.
@@ -167,8 +175,4 @@ class GedComSource:
 
 
 
-    def byChange(self, source):
-        ''' Key for a list sort of sources by change date order. '''
-        if source.change is None:
-            return datetime.datetime(1980, 1, 1)
-        return source.change.datetime
+

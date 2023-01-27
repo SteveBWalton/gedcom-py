@@ -171,7 +171,15 @@ class EditFamily(wx.Dialog):
 
     def writeChanges(self):
         ''' Populate the family with values from the dialog. '''
-        pass
+        # Get the husband.
+        index = self.comboboxHusband.GetSelection()
+        newHusband = self.comboboxHusband.GetClientData(index)
+        if newHusband.identity != self.family.husbandIdentity:
+            print(f'The husband identity has changed from {self.family.husbandIdentity} to {newHusband.identity}.')
+        index = self.comboboxWife.GetSelection()
+        newWife = self.comboboxWife.GetClientData(index)
+        if newWife.identity != self.family.wifeIdentity:
+            print(f'The wife identity has changed from {self.family.wifeIdentity} to {newWife.identity}.')
 
 
 

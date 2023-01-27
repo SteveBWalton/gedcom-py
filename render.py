@@ -15,6 +15,12 @@ import html
 import walton.html
 import walton.toolbar
 from place import Place, PlaceType
+from gedcom_individual import GedComIndividual
+from gedcom_family import GedComFamily
+from gedcom_source import GedComSource
+from gedcom_media import GedComMedia
+
+
 
 def firstCap(text):
     ''' Returns the text with the first character capitalised. '''
@@ -262,6 +268,7 @@ class Render(walton.toolbar.IToolbar):
         isFirst = True
         count = 0
         individuals = []
+        individual = None
         for individual in self.application.gedcom.individuals.values():
             if isFirst:
                 isFirst = False
@@ -270,22 +277,23 @@ class Render(walton.toolbar.IToolbar):
                 self.html.add(f'<td>{individual.identity}</td>')
                 self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
                 self.html.addLine('</tr>')
-                lastChange = individual
             individuals.append(individual)
-        self.html.add('<td>Last</td>')
-        self.html.add(f'<td>{individual.identity}</td>')
-        self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
-        self.html.addLine('</tr>')
-
-        # Recent.
-        individuals.sort(key=individual.byChange, reverse=True)
-        for index in range(10):
-            individual = individuals[index]
-            self.html.add('<tr>')
-            self.html.add(f'<td>Recent {index + 1}</td>')
+        if individual is not None:
+            self.html.add('<td>Last</td>')
             self.html.add(f'<td>{individual.identity}</td>')
             self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
             self.html.addLine('</tr>')
+
+        # Recent.
+        individuals.sort(key=GedComIndividual.byChange, reverse=True)
+        for index in range(10):
+            if index < len(individuals):
+                individual = individuals[index]
+                self.html.add('<tr>')
+                self.html.add(f'<td>Recent {index + 1}</td>')
+                self.html.add(f'<td>{individual.identity}</td>')
+                self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
+                self.html.addLine('</tr>')
 
         self.html.add('</table>')
         self.html.addLine(f'<p>There are {len(individuals)} individuals in this gedcom.</p>')
@@ -296,6 +304,7 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine(f'<table>')
         isFirst = True
         families = []
+        family = None
         for family in self.application.gedcom.families.values():
             if isFirst:
                 isFirst = False
@@ -305,21 +314,23 @@ class Render(walton.toolbar.IToolbar):
                 self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
                 self.html.addLine('</tr>')
             families.append(family)
-        self.html.add('<tr>')
-        self.html.add('<td>Last</td>')
-        self.html.add(f'<td>{family.identity}</td>')
-        self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
-        self.html.addLine('</tr>')
-
-        # Recent.
-        families.sort(key=family.byChange, reverse=True)
-        for index in range(10):
-            family = families[index]
+        if family is not None:
             self.html.add('<tr>')
-            self.html.add(f'<td>Recent {index + 1}</td>')
+            self.html.add('<td>Last</td>')
             self.html.add(f'<td>{family.identity}</td>')
             self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
             self.html.addLine('</tr>')
+
+        # Recent.
+        families.sort(key=GedComFamily.byChange, reverse=True)
+        for index in range(10):
+            if index < len(families):
+                family = families[index]
+                self.html.add('<tr>')
+                self.html.add(f'<td>Recent {index + 1}</td>')
+                self.html.add(f'<td>{family.identity}</td>')
+                self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
+                self.html.addLine('</tr>')
 
         self.html.add('</table>')
         self.html.addLine(f'<p>There are {len(families)} families in this gedcom.</p>')
@@ -330,6 +341,7 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine(f'<table>')
         isFirst = True
         sources = []
+        source = None
         for source in self.application.gedcom.sources.values():
             if isFirst:
                 isFirst = False
@@ -340,20 +352,22 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('</tr>')
                 self.html.add('<tr>')
             sources.append(source)
-        self.html.add('<td>Last</td>')
-        self.html.add(f'<td>{source.identity}</td>')
-        self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
-        self.html.addLine('</tr>')
-
-        # Recent.
-        sources.sort(key=source.byChange, reverse=True)
-        for index in range(10):
-            source = sources[index]
-            self.html.add('<tr>')
-            self.html.add(f'<td>Recent {index + 1}</td>')
+        if source is not None:
+            self.html.add('<td>Last</td>')
             self.html.add(f'<td>{source.identity}</td>')
             self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
             self.html.addLine('</tr>')
+
+        # Recent.
+        sources.sort(key=GedComSource.byChange, reverse=True)
+        for index in range(10):
+            if index < len(sources):
+                source = sources[index]
+                self.html.add('<tr>')
+                self.html.add(f'<td>Recent {index + 1}</td>')
+                self.html.add(f'<td>{source.identity}</td>')
+                self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
+                self.html.addLine('</tr>')
 
         self.html.add('</table>')
         self.html.addLine(f'<p>There are {len(sources)} sources in this gedcom.</p>')
@@ -364,6 +378,7 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine(f'<table>')
         isFirst = True
         mediaObjects = []
+        media = None
         for media in self.application.gedcom.media.values():
             if isFirst:
                 isFirst = False
@@ -374,20 +389,22 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('</tr>')
                 self.html.add('<tr>')
             mediaObjects.append(media)
-        self.html.add('<td>Last</td>')
-        self.html.add(f'<td>{media.identity}</td>')
-        self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
-        self.html.addLine('</tr>')
-
-        # Recent.
-        sources.sort(key=media.byChange, reverse=True)
-        for index in range(10):
-            media = mediaObjects[index]
-            self.html.add('<tr>')
-            self.html.add(f'<td>Recent {index + 1}</td>')
+        if media is not None:
+            self.html.add('<td>Last</td>')
             self.html.add(f'<td>{media.identity}</td>')
             self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
             self.html.addLine('</tr>')
+
+        # Recent.
+        sources.sort(key=GedComMedia.byChange, reverse=True)
+        for index in range(10):
+            if index < len(mediaObjects):
+                media = mediaObjects[index]
+                self.html.add('<tr>')
+                self.html.add(f'<td>Recent {index + 1}</td>')
+                self.html.add(f'<td>{media.identity}</td>')
+                self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
+                self.html.addLine('</tr>')
 
         self.html.add('</table>')
         self.html.addLine(f'<p>There are {len(mediaObjects)} media in this gedcom.</p>')

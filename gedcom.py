@@ -33,6 +33,7 @@ class GedComObjects(Enum):
     MEDIA = 3
     SOURCE = 4
     REPOSITORY = 5
+    HEADER = 6
     UNKNOWN = 99
 
 
@@ -56,6 +57,7 @@ class GedCom:
         self.individuals = {}
         self.families = {}
         self.media = {}
+        self.sources = {}
 
 
 
@@ -110,9 +112,14 @@ class GedCom:
                 elif objectType == GedComObjects.MEDIA:
                     media = GedComMedia(self, objectLines)
                     self.media[media.identity] = media
-                else:
+                elif objectType == GedComObjects.REPOSITORY:
                     pass
-                    # print('Unknown Gedcom object.')
+                elif objectType == GedComObjects.HEADER:
+                    pass
+                else:
+                    if len(objectLines) > 0:
+                        print('Unknown Gedcom object.')
+                        print(f'\t{objectLines[0]}')
 
                 # Start a new object.
                 if line[-4:] == 'INDI':
@@ -125,6 +132,12 @@ class GedCom:
                     objectType = GedComObjects.SOURCE
                 elif line[-4:] == 'REPO':
                     objectType = GedComObjects.REPOSITORY
+                elif line[-4:] == 'HEAD':
+                    # Gedcom Header, tag at the start of a gedcom file.
+                    objectType = GedComObjects.HEADER
+                elif line[-4:] == 'TRLR':
+                    # Gedcom Trailer, tag at the end of a gedcom file.
+                    objectType = GedComObjects.UNKNOWN
                 else:
                     print(line[-4:])
                     objectType = GedComObjects.UNKNOWN

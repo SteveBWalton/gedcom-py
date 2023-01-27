@@ -35,6 +35,14 @@ class GedComFamily:
 
 
 
+    def byChange(family):
+        ''' Key for a list sort of families by last change. '''
+        if family.change is None:
+            return datetime.datetime(1980, 1, 1)
+        return family.change.datetime
+
+
+
     def __init__(self, gedcom, gedcomFile = None):
         ''' Class constructor for a family in a gedcom file. '''
         GedComFamily.gedcom = gedcom
@@ -143,9 +151,5 @@ class GedComFamily:
 
 
 
-    def byChange(self, family):
-        ''' Key for a list sort of families by last change. '''
-        if family.change is None:
-            return datetime.datetime(1980, 1, 1)
-        return family.change.datetime
+
 

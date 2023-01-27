@@ -37,6 +37,14 @@ class GedComMedia:
 
 
 
+    def byChange(media):
+        ''' Key for a list sort of media by last change. '''
+        if media.change is None:
+            return datetime.datetime(1980, 1, 1)
+        return media.change.datetime
+
+
+
     def __init__(self, gedcom, gedcomFile = None):
         '''
         Class constructor for the :py:class:`GedComSource` class.
@@ -179,8 +187,3 @@ class GedComMedia:
 
 
 
-    def byChange(self, family):
-        ''' Key for a list sort of families by last change. '''
-        if family.change is None:
-            return datetime.datetime(1980, 1, 1)
-        return family.change.datetime

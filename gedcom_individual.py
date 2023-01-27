@@ -94,6 +94,16 @@ class GedComIndividual:
     # Connection to the single gedcom.
     gedcom = None
 
+
+
+    def byChange(individual):
+        ''' Key for a list sort of individuals by last change. '''
+        if individual.change is None:
+            return datetime.datetime(1980, 1, 1)
+        return individual.change.datetime
+
+
+
     def __init__(self, gedcom, gedcomFile = None):
         ''' Class constructor for an individual in a gedcom file. '''
         GedComIndividual.gedcom = gedcom
@@ -380,14 +390,6 @@ class GedComIndividual:
         if individual.birth.date is None:
             return None
         return individual.birth.date.theDate
-
-
-
-    def byChange(self, individual):
-        ''' Key for a list sort of individuals by last change. '''
-        if individual.change is None:
-            return datetime.datetime(1980, 1, 1)
-        return individual.change.datetime
 
 
 
