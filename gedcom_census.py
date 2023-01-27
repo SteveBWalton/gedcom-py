@@ -65,7 +65,7 @@ class GedComCensus:
             elif tags[1] == 'OCCU' or tags[1] == 'NOTE':
                 if self.facts is None:
                     self.facts = []
-                self.facts.append(GedComFact(self.individual, block))
+                self.facts.append(GedComFact(block))
             else:
                 # Unknown.
                 print(f'CENS unrecogised tag \'{tags[1]}\'')

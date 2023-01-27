@@ -740,11 +740,11 @@ class Render(walton.toolbar.IToolbar):
             if True:
                 # Census as table.
                 self.html.addLine('</p>')
-                self.html.addLine('<table style="background-color: white; border: 1px solid black;">')
+                self.html.addLine('<table class="reference" style="background-color: white; border: 1px solid black;" align="center">')
                 for census in individual.census:
-                    self.html.add('<tr><td style="white-space: nowrap;">')
+                    self.html.add('<tr><td style="text-align: center; white-space: nowrap;">')
                     if census.date is not None:
-                        self.html.add(f'{census.date.toLongString()[3:]}</td><td>')
+                        self.html.add(f'{census.date.toLongString()[3:]}</td><td style="text-align: center;">')
                         if individual.birth.date is not None:
                             self.html.add(f'{individual.getYears(census.date)}')
                     else:
@@ -1461,25 +1461,41 @@ class Render(walton.toolbar.IToolbar):
                     childPlaces.append(place)
         childPlaces.sort(key=Place.byName)
         self.html.addLine('<p>Child Locations</p>')
-        self.html.addLine('<table class="reference">')
+        self.html.addLine('<table class="reference" style="display: inline-block; vertical-align:top;">')
         for place in childPlaces:
-            self.html.add(f'<tr><td><a href="app:place?id={place.identity}">{place.name}</a></td>')
-            if place.placeType == PlaceType.ADDRESS:
-                self.html.add('<td>Address</td>')
-            elif place.placeType == PlaceType.COUNTRY:
-                self.html.add('<td>Country</td>')
-            else:
-                self.html.add('<td>Place</td>')
-            if place.latitude is not None:
-                self.html.add(f'<td style="text-align: center;">{place.latitude}</td>')
-            else:
-                self.html.add('<td></td>')
-            if place.longitude is not None:
-                self.html.add(f'<td style="text-align: center;">{place.longitude}</td>')
-            else:
-                self.html.add('<td></td>')
-            self.html.addLine('</p>')
+            if place.placeType != PlaceType.ADDRESS:
+                self.html.add(f'<tr><td><a href="app:place?id={place.identity}">{place.name}</a></td>')
+                if place.placeType == PlaceType.COUNTRY:
+                    self.html.add('<td>Country</td>')
+                else:
+                    self.html.add('<td>Place</td>')
+                if place.latitude is not None:
+                    self.html.add(f'<td style="text-align: center;">{place.latitude}</td>')
+                else:
+                    self.html.add('<td></td>')
+                if place.longitude is not None:
+                    self.html.add(f'<td style="text-align: center;">{place.longitude}</td>')
+                else:
+                    self.html.add('<td></td>')
+                self.html.addLine('</tr>')
         self.html.addLine('</table>')
+
+        self.html.addLine('<table class="reference" style="display: inline-block; vertical-align:top;">')
+        for place in childPlaces:
+            if place.placeType == PlaceType.ADDRESS:
+                self.html.add(f'<tr><td><a href="app:place?id={place.identity}">{place.name}</a></td>')
+                self.html.add('<td>Address</td>')
+                if place.latitude is not None:
+                    self.html.add(f'<td style="text-align: center;">{place.latitude}</td>')
+                else:
+                    self.html.add('<td></td>')
+                if place.longitude is not None:
+                    self.html.add(f'<td style="text-align: center;">{place.longitude}</td>')
+                else:
+                    self.html.add('<td></td>')
+                self.html.addLine('</tr>')
+        self.html.addLine('</table>')
+
 
 
 

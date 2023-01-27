@@ -23,6 +23,7 @@ from gedcom_individual import GedComIndividual
 from gedcom_family import GedComFamily
 from gedcom_source import GedComSource
 from gedcom_media import GedComMedia
+from gedcom_fact import GedComFact
 
 
 
@@ -81,6 +82,7 @@ class GedCom:
 
     def open(self, fileName):
         ''' Open the specified gedcom file. '''
+        GedComFact.gedcom = self
         file = open(fileName, 'r')
         objectType = GedComObjects.UNKNOWN
         objectLines = []

@@ -31,13 +31,16 @@ class GedComSource:
     :ivar GedComDateStatus status: The status of the date, EMPTY, ON, BEFORE, AFTER.
     :ivar GedComDateAccuracy accuracy: The accuracy of the date, KNOWN, ABOUT, ESTIMATED, CALCULATED
     '''
+    # Connection to the single gedcom.
+    gedcom = None
+
 
 
     def __init__(self, gedcom, gedcomFile = None):
         '''
         Class constructor for the :py:class:`GedComSource` class.
         '''
-        self.gedcom = gedcom
+        GedComSource.gedcom = gedcom
         self.parse(gedcomFile)
 
 
@@ -66,7 +69,7 @@ class GedComSource:
             self.identity = tags[1][1:-1]
 
         # Fetch the first block.
-        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
+        block, start = GedComSource.gedcom.getNextBlock(gedcomFile, 1)
         while len(block) > 0:
             #for line in block:
             #    print(line)
@@ -79,7 +82,7 @@ class GedComSource:
             elif tags[1] == 'NOTE':
                 if self.facts is None:
                     self.facts = []
-                self.facts.append(GedComFact(self, block))
+                self.facts.append(GedComFact(block))
             elif tags[1] == 'PLAC':
                 self.place = GedComPlace(block)
             elif tags[1] == 'REPO':
@@ -92,7 +95,7 @@ class GedComSource:
                 print(f'Source unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')
 
             # Fetch the next block.
-            block, start = self.gedcom.getNextBlock(gedcomFile, start)
+            block, start = GedComSource.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
         # print(f'\'{self.identity}\'')

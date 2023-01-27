@@ -32,13 +32,16 @@ class GedComMedia:
     :ivar GedComDateStatus status: The status of the date, EMPTY, ON, BEFORE, AFTER.
     :ivar GedComDateAccuracy accuracy: The accuracy of the date, KNOWN, ABOUT, ESTIMATED, CALCULATED
     '''
+    # Connection to the single gedcom.
+    gedcom = None
+
 
 
     def __init__(self, gedcom, gedcomFile = None):
         '''
         Class constructor for the :py:class:`GedComSource` class.
         '''
-        self.gedcom = gedcom
+        GedComMedia.gedcom = gedcom
         self.parse(gedcomFile)
 
 
@@ -86,7 +89,7 @@ class GedComMedia:
             self.identity = tags[1][1:-1]
 
         # Fetch the first block.
-        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
+        block, start = GedComMedia.gedcom.getNextBlock(gedcomFile, 1)
         while len(block) > 0:
             #for line in block:
             #    print(line)
@@ -109,7 +112,7 @@ class GedComMedia:
                 print(f'Media unrecogised tag \'{tags[1]}\' \'{block[0]}\'.')
 
             # Fetch the next block.
-            block, start = self.gedcom.getNextBlock(gedcomFile, start)
+            block, start = GedComMedia.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
         # print(f'\'{self.identity}\'')
@@ -165,8 +168,8 @@ class GedComMedia:
     def toImage(self, height=0):
         ''' Return the media object as a html image. '''
         if height == 0:
-            return f'<img src="file://{self.gedcom.mediaFolder}{self.file}" />'
-        return f'<img src="file://{self.gedcom.mediaFolder}{self.file}" height="{height}" />'
+            return f'<img src="file://{GedComMedia.gedcom.mediaFolder}{self.file}" />'
+        return f'<img src="file://{GedComMedia.gedcom.mediaFolder}{self.file}" height="{height}" />'
 
 
 

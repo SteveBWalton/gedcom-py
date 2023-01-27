@@ -25,13 +25,15 @@ class GedComFact:
     :ivar GedComPlace place: The place of the fact.
     '''
 
+    # Connection to the gedcom.
+    gedcom = None
 
-    def __init__(self, parent, block = None):
+
+
+    def __init__(self, block = None):
         '''
         Class constructor for the :py:class:`GedComDate` class.
         '''
-        # Individual, family or source.  Must have .gedcom member.
-        self.parent = parent
         self.parse(block)
 
 
@@ -66,7 +68,7 @@ class GedComFact:
             self.information.append(line.split(': '))
 
         # Fetch the first block.
-        block, start = self.parent.gedcom.getNextBlock(gedcomFile, 1)
+        block, start = GedComFact.gedcom.getNextBlock(gedcomFile, 1)
         while len(block) > 0:
             # Split into tags.
             tags = block[0].split()
@@ -86,13 +88,13 @@ class GedComFact:
             elif tags[1] == 'CAUS' or tags[1] == 'TYPE':
                 if self.facts is None:
                     self.facts = []
-                self.facts.append(GedComFact(self.parent, block))
+                self.facts.append(GedComFact(block))
             else:
                 # Unknown.
                 print(f'FACT unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
 
             # Fetch the next block.
-            block, start = self.parent.gedcom.getNextBlock(gedcomFile, start)
+            block, start = GedComFact.gedcom.getNextBlock(gedcomFile, start)
 
 
 

@@ -229,7 +229,7 @@ class EditIndividual(wx.Dialog):
         if deathDate == '':
             self.individual.death = None
         else:
-            self.individual.death = GedComFact(self.individual, ['1 DEAT Y', f'2 DATE {deathDate}'])
+            self.individual.death = GedComFact(['1 DEAT Y', f'2 DATE {deathDate}'])
             for source in self.dodSources:
                 self.individual.death.date.sources.append(source)
         if self.comboxboxSex.GetSelection() == 0:

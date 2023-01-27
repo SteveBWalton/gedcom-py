@@ -91,11 +91,12 @@ class GedComIndividual:
     :ivar string surname: The surname of the individual.
     '''
 
-
+    # Connection to the single gedcom.
+    gedcom = None
 
     def __init__(self, gedcom, gedcomFile = None):
         ''' Class constructor for an individual in a gedcom file. '''
-        self.gedcom = gedcom
+        GedComIndividual.gedcom = gedcom
         self.parse(gedcomFile)
 
 
@@ -176,7 +177,7 @@ class GedComIndividual:
             self.identity = tags[1][1:-1]
 
         # Fetch the first block.
-        block, start = self.gedcom.getNextBlock(gedcomFile, 1)
+        block, start = GedComIndividual.gedcom.getNextBlock(gedcomFile, 1)
         while len(block) > 0:
             #for line in block:
             #    print(line)
@@ -188,10 +189,10 @@ class GedComIndividual:
                 self.parseSex(block)
             elif tags[1] == 'BIRT':
                 # self.parseBirth(block)
-                self.birth = GedComFact(self, block)
+                self.birth = GedComFact(block)
             elif tags[1] == 'DEAT':
                 # self.parseDeath(block)
-                self.death = GedComFact(self, block)
+                self.death = GedComFact(block)
             elif tags[1] == 'FAMS':
                 # Family spouse.
                 self.familyIdentities.append(IdentitySources(block))
@@ -201,7 +202,7 @@ class GedComIndividual:
             elif tags[1] == 'OCCU' or tags[1] == 'EDUC' or tags[1] == 'NOTE':
                 if self.facts is None:
                     self.facts = []
-                self.facts.append(GedComFact(self, block))
+                self.facts.append(GedComFact(block))
             elif tags[1] == 'SOUR':
                 self.sources.append(tags[2][1:-1])
             elif tags[1] == 'OBJE':
@@ -223,7 +224,7 @@ class GedComIndividual:
                 print(f'Individual unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
 
             # Fetch the next block.
-            block, start = self.gedcom.getNextBlock(gedcomFile, start)
+            block, start = GedComIndividual.gedcom.getNextBlock(gedcomFile, start)
 
         # Debug output.
         # print(f'\'{self.identity}\', \'{self.givenName}\', \'{self.surname}\'')
@@ -360,7 +361,7 @@ class GedComIndividual:
     def byDateOfMarriage(self, identitySource):
         ''' Key for a list sort of families by start date order. '''
         identity = identitySource.identity
-        family = self.gedcom.families[identity]
+        family = GedComIndividual.gedcom.families[identity]
         if family.marriage is None:
             return datetime.date.today()
         if family.marriage.date is None:
@@ -371,7 +372,7 @@ class GedComIndividual:
 
     def byDateOfBirth(self, identity):
         ''' Key for a list sort of individuals by date of birth order. '''
-        individual = self.gedcom.individuals[identity]
+        individual = GedComIndividual.gedcom.individuals[identity]
         #if individual.birthDate is None:
         #    return None
         if individual.birth is None:
@@ -394,15 +395,15 @@ class GedComIndividual:
         ''' Returns the identities of siblings of the individual. '''
         siblings = []
         if self.parentFamilyIdentity is not None:
-            family = self.gedcom.families[self.parentFamilyIdentity]
+            family = GedComIndividual.gedcom.families[self.parentFamilyIdentity]
             if family.husbandIdentity is not None:
-                father = self.gedcom.individuals[family.husbandIdentity]
+                father = GedComIndividual.gedcom.individuals[family.husbandIdentity]
                 fatherChildren = father.getChildren()
                 for child in fatherChildren:
                     if not child in siblings and not child == self.identity:
                         siblings.append(child)
             if family.wifeIdentity is not None:
-                mother = self.gedcom.individuals[family.wifeIdentity]
+                mother = GedComIndividual.gedcom.individuals[family.wifeIdentity]
                 motherChildren = mother.getChildren()
                 for child in motherChildren:
                     if not child in siblings and not child == self.identity:
@@ -420,7 +421,7 @@ class GedComIndividual:
         ''' Returns the identities of children of the individual. '''
         children = []
         for familyIdentity in self.familyIdentities:
-            family = self.gedcom.families[familyIdentity.identity]
+            family = GedComIndividual.gedcom.families[familyIdentity.identity]
             for childIdentity in family.childrenIdentities:
                 children.append(childIdentity)
 

@@ -23,11 +23,14 @@ class GedComDateStatus(Enum):
     GUESS = 102
     UNKNOWN = 103
 
+
+
 class GedComDateAccuracy(Enum):
     KNOWN = 1
     ABOUT = 2
     ESTIMATED = 3
     CALCULATED = 4
+
 
 
 class GedComDate:
