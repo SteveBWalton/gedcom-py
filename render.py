@@ -296,7 +296,7 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('</tr>')
 
         self.html.add('</table>')
-        self.html.addLine(f'<p>There are {len(individuals)} individuals in this gedcom.</p>')
+        self.html.addLine(f'<p>There are <a href="app:all">{len(individuals)} individuals</a> in this gedcom.</p>')
         self.html.addLine('</fieldset>')
 
         self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
@@ -333,7 +333,7 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('</tr>')
 
         self.html.add('</table>')
-        self.html.addLine(f'<p>There are {len(families)} families in this gedcom.</p>')
+        self.html.addLine(f'<p>There are <a href="app:all">{len(families)} families</a> in this gedcom.</p>')
         self.html.addLine('</fieldset>')
 
         self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
@@ -370,7 +370,7 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('</tr>')
 
         self.html.add('</table>')
-        self.html.addLine(f'<p>There are {len(sources)} sources in this gedcom.</p>')
+        self.html.addLine(f'<p>There are <a href="app:all">{len(sources)} sources</a> in this gedcom.</p>')
         self.html.addLine('</fieldset>')
 
         self.html.add('<fieldset style="display: inline-block; vertical-align:top;">')
@@ -407,7 +407,7 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('</tr>')
 
         self.html.add('</table>')
-        self.html.addLine(f'<p>There are {len(mediaObjects)} media in this gedcom.</p>')
+        self.html.addLine(f'<p>There are <a href="app:all">{len(mediaObjects)} media</a> in this gedcom.</p>')
         self.html.addLine('</fieldset>')
 
         self.html.addLine(f'<p>There are <a href="app:all_places">{len(Place.allPlaces)} places</a> in this gedcom.</p>')
