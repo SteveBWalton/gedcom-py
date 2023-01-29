@@ -19,6 +19,7 @@ import copy
 # from gedcom_fact import GedComFact
 # from gedcom_date import GedComDate
 from gedcom_individual import IndividualSex
+from gedcom_source import GedComSource
 
 
 
@@ -213,7 +214,7 @@ class EditFamily(wx.Dialog):
         sources = []
         for source in gedcom.sources.values():
             sources.append(source)
-        sources.sort(key=source.byChange, reverse=True)
+        sources.sort(key=GedComSource.byChange, reverse=True)
         for source in sources:
             self.comboboxNewSource.Append(source.title, source)
 
