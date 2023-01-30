@@ -58,6 +58,10 @@ class IdentitySources:
         self.sources = None
         if block is None:
             return
+        if isinstance(block, str):
+            # Simply an identity.
+            self.identity = block
+            return
         if not isinstance(block, list):
             return
 

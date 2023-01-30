@@ -18,7 +18,7 @@ import copy
 # Import my own libraries.
 # from gedcom_fact import GedComFact
 # from gedcom_date import GedComDate
-from gedcom_individual import IndividualSex
+from gedcom_individual import GedComIndividual, IdentitySources, IndividualSex
 from gedcom_source import GedComSource
 
 
@@ -174,13 +174,39 @@ class EditFamily(wx.Dialog):
         ''' Populate the family with values from the dialog. '''
         # Get the husband.
         index = self.comboboxHusband.GetSelection()
-        newHusband = self.comboboxHusband.GetClientData(index)
-        if newHusband.identity != self.family.husbandIdentity:
-            print(f'The husband identity has changed from {self.family.husbandIdentity} to {newHusband.identity}.')
+        if index >= 0:
+            newHusband = self.comboboxHusband.GetClientData(index)
+            if newHusband.identity != self.family.husbandIdentity:
+                print(f'The husband identity has changed from {self.family.husbandIdentity} to {newHusband.identity}.')
+                # Remove the family from the old husband.
+                if self.family.husbandIdentity is not None:
+                    husband = GedComIndividual.gedcom.individuals[self.family.husbandIdentity]
+                    for spouse in husband.familyIdentities:
+                        if spouse.identity == self.family.identity:
+                            print('Remove')
+                            husband.familyIdentities.remove(spouse)
+                # Add the family to the new husband.
+                if newHusband.identity is not None:
+                    husband = GedComIndividual.gedcom.individuals[newHusband.identity]
+                    husband.familyIdentities.append(IdentitySources(self.family.identity))
+                    self.family.husbandIdentity = newHusband.identity
+        # Get the wife.
         index = self.comboboxWife.GetSelection()
-        newWife = self.comboboxWife.GetClientData(index)
-        if newWife.identity != self.family.wifeIdentity:
-            print(f'The wife identity has changed from {self.family.wifeIdentity} to {newWife.identity}.')
+        if index >= 0:
+            newWife = self.comboboxWife.GetClientData(index)
+            if newWife.identity != self.family.wifeIdentity:
+                print(f'The wife identity has changed from {self.family.wifeIdentity} to {newWife.identity}.')
+                # Remove the family from the old wife.
+                if self.family.wifeIdentity is not None:
+                    wife = GedComIndividual.gedcom.individuals[self.family.wifeIdentity]
+                    for spouse in wife.familyIdentities:
+                        if spouse.identity == self.family.identity:
+                            wife.familyIdentities.remove(spouse)
+                # Add the family to the new wife.
+                if newWife.identity is not None:
+                    wife = GedComIndividual.gedcom.individuals[newWife.identity]
+                    wife.familyIdentities.append(IdentitySources([f'0 FAMS @{self.family.identity}@', '1 ignore ignore']))
+                    self.family.wifeIdentity = newWife.identity
 
 
 
