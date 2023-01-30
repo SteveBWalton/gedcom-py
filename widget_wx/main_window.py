@@ -70,6 +70,9 @@ class WxMainWindow(wx.Frame):
         # Build the menu bar.
         menuBar = wx.MenuBar()
         menuFile = wx.Menu()
+        menuFileNew = menuFile.Append(wx.ID_NEW, 'New', 'Start a new gedcom.')
+        menuFileOpen = menuFile.Append(wx.ID_OPEN, 'Open...', 'Open an existing gedcom file.')
+        menuFileSave = menuFile.Append(wx.ID_SAVE, 'Save', 'Save the gedcom.')
         menuFileSaveAs = menuFile.Append(wx.ID_SAVEAS, 'Save As...', 'Save the gedcom with new file name.')
         menuFileHome = menuFile.Append(wx.ID_HOME, 'Home', 'Goto home page.')
         menuFileIndex = menuFile.Append(wx.ID_ANY, 'Index', 'Goto index page.')
@@ -77,6 +80,9 @@ class WxMainWindow(wx.Frame):
         menuFileExit = menuFile.Append(wx.ID_EXIT, 'Quit', 'Quit application.')
         menuBar.Append(menuFile, '&File')
         self.SetMenuBar(menuBar)
+        self.Bind(wx.EVT_MENU, self._fileNew, menuFileNew)
+        self.Bind(wx.EVT_MENU, self._fileOpen, menuFileOpen)
+        self.Bind(wx.EVT_MENU, self._fileSave, menuFileSave)
         self.Bind(wx.EVT_MENU, self._fileSaveAs, menuFileSaveAs)
         self.Bind(wx.EVT_MENU, self._fileHome, menuFileHome)
         self.Bind(wx.EVT_MENU, self._fileIndex, menuFileIndex)
@@ -135,27 +141,42 @@ class WxMainWindow(wx.Frame):
 
 
 
-    def _FileOpen(self, widget):
+    def _fileOpen(self, widget):
         ''' Signal handler for the 'File' → 'Open' menu point. '''
-        dialogSelectFile = gtk.FileChooserDialog('Select File', None, gtk.FILE_CHOOSER_ACTION_OPEN, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-        dialogSelectFile.set_default_response(gtk.RESPONSE_OK)
+        # Check if the current gedcom is dirty.
+        if wx.MessageBox("Current content has not been saved! Proceed?", "Please confirm", wx.ICON_QUESTION | wx.YES_NO, self) == wx.NO:
+            return
 
-        oFilter = gtk.FileFilter()
-        oFilter.set_name('All files')
-        oFilter.add_pattern('*')
-        dialogSelectFile.add_filter(oFilter)
+        # Prompt the user for gedcom file.
+        fileName = None
+        with wx.FileDialog(self, "Open Gedcom file", wildcard="Gedcom files (*.ged)|*.ged",
+                       style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
 
-        oFilter = gtk.FileFilter()
-        oFilter.set_name('html files')
-        oFilter.add_pattern('*.html')
-        dialogSelectFile.add_filter(oFilter)
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                # the user changed their mind.
+                return
 
-        nResponse = dialogSelectFile.run()
-        if nResponse == gtk.RESPONSE_OK:
-            self.application.render.html.Open(dialogSelectFile.get_filename())
+            # Proceed loading the file chosen by the user
+            fileName = fileDialog.GetPath()
 
-        dialogSelectFile.destroy()
-        self.displayCurrentPage()
+        if fileName is not None:
+            self.application.gedcom.open(fileName)
+            # Display the home page.
+            self.followLocalLink('home', True)
+
+
+
+    def _fileNew(self, widget):
+        ''' Signal handler for the 'File' → 'New' menu item. '''
+        # Check if the current gedcom is dirty.
+        if wx.MessageBox("Current content has not been saved! Proceed?", "Please confirm", wx.ICON_QUESTION | wx.YES_NO, self) == wx.NO:
+            return
+
+        # Start a new gedcom.
+        self.application.gedcom.new()
+
+        # Display the home page.
+        self.followLocalLink('home', True)
 
 
 

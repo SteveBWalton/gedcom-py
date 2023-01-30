@@ -112,6 +112,6 @@ class GedComCensus:
                     result.append(line)
         if self.sources is not None:
             for source in self.sources:
-                result.append(f'{level + 1} SOUR {source}')
+                result.append(f'{level + 1} SOUR @{source}@')
         # Return the calculated value.
         return result

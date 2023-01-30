@@ -25,6 +25,7 @@ from gedcom_family import GedComFamily
 from gedcom_source import GedComSource
 from gedcom_media import GedComMedia
 from gedcom_fact import GedComFact
+from place import Place
 
 
 
@@ -52,13 +53,25 @@ class GedCom:
 
     def __init__(self):
         ''' Class constructor for GedCom objects. '''
-        objectType = GedComObjects.UNKNOWN
-        objectLines = []
         self.defaultIdentity = None
         self.individuals = {}
         self.families = {}
         self.media = {}
         self.sources = {}
+        self.fileName = None
+        Place.allPlaces = {}
+
+
+
+    def new(self):
+        ''' Start a new empty gedcom. '''
+        self.defaultIdentity = None
+        self.individuals = {}
+        self.families = {}
+        self.media = {}
+        self.sources = {}
+        self.fileName = None
+        Place.allPlaces = {}
 
 
 
@@ -96,6 +109,7 @@ class GedCom:
         self.families = {}
         self.media = {}
         self.sources = {}
+        Place.allPlaces = {}
         line = file.readline().rstrip('\n')
         while line != '':
             if line[:1] == '0':
