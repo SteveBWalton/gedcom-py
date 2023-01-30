@@ -127,8 +127,9 @@ class GedComFamily:
         # General sources.
         for source in self.sources:
             gedcom.append(f'1 SOUR @{source}@')
-        # Change
-        gedcom.extend(self.change.toGedCom(1))
+        # Change.
+        if self.change is not None:
+            gedcom.extend(self.change.toGedCom(1))
 
         # Return calculated gedcom.
         return gedcom

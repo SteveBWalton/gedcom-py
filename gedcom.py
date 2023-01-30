@@ -11,6 +11,7 @@ import os
 import argparse
 import platform
 import subprocess
+import datetime
 from enum import Enum
 
 # Application libraries.
@@ -88,6 +89,7 @@ class GedCom:
         file = open(fileName, 'r')
         objectType = GedComObjects.UNKNOWN
         objectLines = []
+        self.fileName = fileName
         self.mediaFolder = '/home/steve/Documents/Waltons/Family Tree/'
         self.defaultIdentity = None
         self.individuals = {}
@@ -156,6 +158,66 @@ class GedCom:
 
         print(f'There are {len(self.individuals)} individuals, {len(self.families)} families, {len(self.media)} media and {len(self.sources)} sources.')
 
+
+
+    def save(self):
+        ''' Save the current gedcom with with current file name. '''
+        return self.saveAs(self.fileName)
+
+
+
+
+    def writeLines(self, file, lines):
+        ''' Write lines into the specified file with line feeds. '''
+        for line in lines:
+            file.write(f'{line}\n')
+
+
+
+
+    def saveAs(self, fileName):
+        ''' Save the current gedcom with the specified file name. '''
+        print(f'Save gedcom as {fileName}')
+        file = open(fileName, 'w')
+
+        # Write the file header.
+        file.write('0 HEAD\n')
+        file.write('1 SOUR gedcom-py\n')
+        file.write('2 NAME gedcom-py\n')
+        file.write('2 VERS 1.0.0\n')
+        file.write('1 DEST DISKETTE\n')
+        now = datetime.datetime.now()
+        file.write(f'1 DATE {now.day} {now.strftime("%b").upper()} {now.year}\n')
+        file.write(f'2 TIME {now.strftime("%H:%M:%S")}\n')
+        file.write('1 CHAR UTF-8\n')
+        file.write(f'1 FILE {os.path.basename(fileName)}\n')
+
+        # Write the individuals.
+        for individual in self.individuals.values():
+            self.writeLines(file, individual.toGedCom())
+
+        # Write the familes.
+        for family in self.families.values():
+            self.writeLines(file, family.toGedCom())
+
+        # Write the sources.
+        for source in self.sources.values():
+            self.writeLines(file, source.toGedCom())
+
+        # Write the media.
+        for media in self.media.values():
+            self.writeLines(file, media.toGedCom())
+
+        # Write the repositories.
+        file.write('0 @R0001@ REPO\n')
+        file.write('1 NAME Steve Walton\n')
+        file.write('0 @R0002@ REPO\n')
+        file.write('1 NAME Genes Reunited\n')
+        file.write('1 WWW www.genesreunited.co.uk\n')
+
+        # Close the file.
+        file.write('0 TRLR\n')
+        file.close()
 
 
 

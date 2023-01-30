@@ -162,7 +162,8 @@ class GedComSource:
         if self.repository != '':
             gedcom.append(f'1 REPO @{self.repository}@')
         # Change.
-        gedcom.extend(self.change.toGedCom(1))
+        if self.change is not None:
+            gedcom.extend(self.change.toGedCom(1))
 
         # Return the calculated value.
         return gedcom

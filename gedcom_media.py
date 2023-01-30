@@ -168,6 +168,8 @@ class GedComMedia:
                 gedcom.append(f'1 _THUM Y')
             else:
                 gedcom.append(f'1 _THUM N')
+        if self.change is not None:
+            gedcom.extend(self.change.toGedCom(1))
         # Return the calculated value.
         return gedcom
 

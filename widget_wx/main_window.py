@@ -70,12 +70,14 @@ class WxMainWindow(wx.Frame):
         # Build the menu bar.
         menuBar = wx.MenuBar()
         menuFile = wx.Menu()
+        menuFileSaveAs = menuFile.Append(wx.ID_SAVEAS, 'Save As...', 'Save the gedcom with new file name.')
         menuFileHome = menuFile.Append(wx.ID_HOME, 'Home', 'Goto home page.')
         menuFileIndex = menuFile.Append(wx.ID_ANY, 'Index', 'Goto index page.')
         menuFileBack = menuFile.Append(wx.ID_ANY, 'Back', 'Go back one page.')
         menuFileExit = menuFile.Append(wx.ID_EXIT, 'Quit', 'Quit application.')
         menuBar.Append(menuFile, '&File')
         self.SetMenuBar(menuBar)
+        self.Bind(wx.EVT_MENU, self._fileSaveAs, menuFileSaveAs)
         self.Bind(wx.EVT_MENU, self._fileHome, menuFileHome)
         self.Bind(wx.EVT_MENU, self._fileIndex, menuFileIndex)
         self.Bind(wx.EVT_MENU, self._fileBack, menuFileBack)
@@ -157,32 +159,26 @@ class WxMainWindow(wx.Frame):
 
 
 
-    def _FileSave(self, widget):
+    def _fileSave(self, widget):
         ''' Signal handler for the 'File' → 'Save' menu item. '''
-        self.saveDocument('formulaone.html')
+        self.application.gedcom.save()
 
 
 
-    def _FileSaveAs(self, widget):
+    def _fileSaveAs(self, widget):
         ''' Signal handler for the 'File' → 'Save As' menu item. '''
-        dialogSelectFile = gtk.FileChooserDialog('Select File', None, gtk.FILE_CHOOSER_ACTION_SAVE, (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_SAVE, gtk.RESPONSE_OK))
-        dialogSelectFile.set_default_response(gtk.RESPONSE_OK)
+        fileName = None
+        with wx.FileDialog(self, "Save gedcom file", wildcard="Gedcom files (*.ged)|*.ged|All files (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
 
-        oFilter = gtk.FileFilter()
-        oFilter.set_name('All files')
-        oFilter.add_pattern('*')
-        dialogSelectFile.add_filter(oFilter)
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                # The user changed their mind.
+                return
 
-        oFilter = gtk.FileFilter()
-        oFilter.set_name('html files')
-        oFilter.add_pattern('*.html')
-        dialogSelectFile.add_filter(oFilter)
+            # Save the selected file name.
+            fileName = fileDialog.GetPath()
 
-        nResponse = dialogSelectFile.run()
-        if nResponse == gtk.RESPONSE_OK:
-            self.saveDocument(dialogSelectFile.get_filename())
-
-        dialogSelectFile.destroy()
+        if fileName is not None:
+            self.application.gedcom.saveAs(fileName)
 
 
 

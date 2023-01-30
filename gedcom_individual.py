@@ -289,7 +289,8 @@ class GedComIndividual:
         for source in self.sources:
             gedcom.append(f'1 SOUR @{source}@')
         # Change.
-        gedcom.extend(self.change.toGedCom(1))
+        if self.change is not None:
+            gedcom.extend(self.change.toGedCom(1))
 
         # Return calculated gedcom.
         return gedcom
