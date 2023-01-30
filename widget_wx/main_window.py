@@ -25,6 +25,7 @@ import wx.html2     # Try package python3-wxpython4-webview or apt package pytho
 import widget_wx.edit_individual
 import widget_wx.edit_family
 from gedcom_individual import GedComIndividual
+from gedcom_family import GedComFamily
 
 
 
@@ -96,6 +97,7 @@ class WxMainWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self._fileBack, menuFileBack)
         self.Bind(wx.EVT_MENU, self._fileQuit, menuFileExit)
         self.Bind(wx.EVT_MENU, self._editAddIndividual, menuEditAddIndividual)
+        self.Bind(wx.EVT_MENU, self._editAddFamily, menuEditAddFamily)
 
         # Build the toolbar.
         #oToolbar = self.CreateToolBar()
@@ -243,11 +245,15 @@ class WxMainWindow(wx.Frame):
 
 
 
-    def _EditAddTrack(self, widget):
-        ''' Signal handler for the 'Edit' → 'Add Track' menu item. '''
-        # print('Edit Add Track')
-        dialog = dialogEditLocation.dialogEditLocation(self.window)
-        return dialog.EditTrack(self.application.database, None, 2014)
+    def _editAddFamily(self, widget):
+        ''' Signal handler for the 'Edit' → 'Add Family' menu item. '''
+        # Add a new family.
+        family = GedComFamily()
+        GedComIndividual.gedcom.families[family.identity] = family
+
+        # Display the home page.
+        self.followLocalLink('home', True)
+
 
 
 

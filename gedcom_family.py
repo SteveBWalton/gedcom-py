@@ -43,9 +43,22 @@ class GedComFamily:
 
 
 
-    def __init__(self, gedcom, gedcomFile = None):
+    def __init__(self, gedcomFile = None):
         ''' Class constructor for a family in a gedcom file. '''
-        GedComFamily.gedcom = gedcom
+        if gedcomFile is None:
+            # New empty family.
+            self.identity = f'F{len(GedComFamily.gedcom.families) + 1:04d}'
+            self.gedcomFile = ''
+            self.husbandIdentity = None
+            self.wifeIdentity = None
+            self.childrenIdentities = []
+            self.marriage = None
+            self.divorce = None
+            self.change = None
+            self.sources = []
+            return
+
+        # Load the existing family from the gedcom.
         self.parse(gedcomFile)
 
 

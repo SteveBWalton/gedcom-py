@@ -114,7 +114,7 @@ class GedComIndividual:
             self.surname = 'Individual'
             self.nameSources = []
             self.sex = IndividualSex.MALE
-            self.birth = GedComFact(['1 BIRTH Y', '2 DATE ABT 30 JAN 2023'])
+            self.birth = GedComFact(['1 BIRT Y', '2 DATE ABT 30 JAN 2023'])
             self.death = None
             # Families of own marrages.
             self.familyIdentities = []
@@ -332,8 +332,10 @@ class GedComIndividual:
                 longName = f'{longName} ({self.birth.date.getYear()}-{self.death.date.getYear() % 100})'
             else:
                 longName = f'{longName} ({self.birth.date.getYear()}-XX)'
-        else:
+        elif self.birth is not None:
             longName = f'{longName} ({self.birth.date.getYear()}-)'
+        else:
+            longName = f'{longName}'
         return longName
 
 

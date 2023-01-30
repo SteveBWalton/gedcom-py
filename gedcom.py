@@ -61,6 +61,7 @@ class GedCom:
         self.fileName = None
         Place.allPlaces = {}
         GedComIndividual.gedcom = self
+        GedComFamily.gedcom = self
 
 
 
@@ -121,7 +122,7 @@ class GedCom:
                         self.defaultIdentity = individual.identity
                     self.individuals[individual.identity] = individual
                 elif objectType == GedComObjects.FAMILY:
-                    family = GedComFamily(self, objectLines)
+                    family = GedComFamily(objectLines)
                     self.families[family.identity] = family
                 elif objectType == GedComObjects.SOURCE:
                     source = GedComSource(self, objectLines)
