@@ -24,6 +24,7 @@ import wx.html2     # Try package python3-wxpython4-webview or apt package pytho
 #import walton.year_range
 import widget_wx.edit_individual
 import widget_wx.edit_family
+from gedcom_individual import GedComIndividual
 
 
 
@@ -74,11 +75,17 @@ class WxMainWindow(wx.Frame):
         menuFileOpen = menuFile.Append(wx.ID_OPEN, 'Open...', 'Open an existing gedcom file.')
         menuFileSave = menuFile.Append(wx.ID_SAVE, 'Save', 'Save the gedcom.')
         menuFileSaveAs = menuFile.Append(wx.ID_SAVEAS, 'Save As...', 'Save the gedcom with new file name.')
+        menuFile.AppendSeparator()
         menuFileHome = menuFile.Append(wx.ID_HOME, 'Home', 'Goto home page.')
         menuFileIndex = menuFile.Append(wx.ID_ANY, 'Index', 'Goto index page.')
         menuFileBack = menuFile.Append(wx.ID_ANY, 'Back', 'Go back one page.')
         menuFileExit = menuFile.Append(wx.ID_EXIT, 'Quit', 'Quit application.')
         menuBar.Append(menuFile, '&File')
+        menuEdit = wx.Menu()
+        menuEditEdit = menuEdit.Append(wx.ID_EDIT, 'Edit', 'Edit this record.')
+        menuEditAddIndividual = menuEdit.Append(wx.ID_ANY, 'Add New Individual', 'Add a new individual to this gedcom.')
+        menuEditAddFamily = menuEdit.Append(wx.ID_ANY, 'Add New Family', 'Add a new family to this gedcom.')
+        menuBar.Append(menuEdit, '&Edit')
         self.SetMenuBar(menuBar)
         self.Bind(wx.EVT_MENU, self._fileNew, menuFileNew)
         self.Bind(wx.EVT_MENU, self._fileOpen, menuFileOpen)
@@ -88,6 +95,7 @@ class WxMainWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self._fileIndex, menuFileIndex)
         self.Bind(wx.EVT_MENU, self._fileBack, menuFileBack)
         self.Bind(wx.EVT_MENU, self._fileQuit, menuFileExit)
+        self.Bind(wx.EVT_MENU, self._editAddIndividual, menuEditAddIndividual)
 
         # Build the toolbar.
         #oToolbar = self.CreateToolBar()
@@ -224,10 +232,14 @@ class WxMainWindow(wx.Frame):
 
 
 
-    def _EditAddRace(self, widget):
-        ''' Signal handler for the 'Edit' → 'Add Race' menu item. '''
-        dialog = dialogEditRace.CEditRace(self.window)
-        return dialog.EditNewRace(self.application.database)
+    def _editAddIndividual(self, widget):
+        ''' Signal handler for the 'Edit' → 'Add Individual' menu item. '''
+        # Add a new individual.
+        individual = GedComIndividual()
+        GedComIndividual.gedcom.individuals[individual.identity] = individual
+
+        # Display the home page.
+        self.followLocalLink('home', True)
 
 
 

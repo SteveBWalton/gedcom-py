@@ -52,7 +52,7 @@ class ToDo:
 
 class IdentitySources:
     ''' Class to represent a identity and sources. '''
-    def __init__(self, block):
+    def __init__(self, block = None):
         ''' Class constructor for a identity sources object. '''
         self.identity = None
         self.sources = None
@@ -104,9 +104,30 @@ class GedComIndividual:
 
 
 
-    def __init__(self, gedcom, gedcomFile = None):
+    def __init__(self, gedcomFile = None):
         ''' Class constructor for an individual in a gedcom file. '''
-        GedComIndividual.gedcom = gedcom
+        if gedcomFile is None:
+            self.identity = f'I{len(GedComIndividual.gedcom.individuals) + 1:04d}'
+            self.gedcomFile = ''
+            self.sources = []
+            self.givenName = 'New'
+            self.surname = 'Individual'
+            self.nameSources = []
+            self.sex = IndividualSex.MALE
+            self.birth = GedComFact(['1 BIRTH Y', '2 DATE ABT 30 JAN 2023'])
+            self.death = None
+            # Families of own marrages.
+            self.familyIdentities = []
+            # Family of parents marrage.
+            self.parentFamilyIdentity = None
+            self.todos = None
+            self.facts = None
+            self.census = None
+            self.media = None
+            self.change = None
+            return
+
+        # Build an individual from the input block.
         self.parse(gedcomFile)
 
 

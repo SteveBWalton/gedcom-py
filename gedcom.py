@@ -60,6 +60,7 @@ class GedCom:
         self.sources = {}
         self.fileName = None
         Place.allPlaces = {}
+        GedComIndividual.gedcom = self
 
 
 
@@ -115,7 +116,7 @@ class GedCom:
             if line[:1] == '0':
                 if objectType == GedComObjects.INDIVIDUAL:
                     # Add a new individual.
-                    individual = GedComIndividual(self, objectLines)
+                    individual = GedComIndividual(objectLines)
                     if len(self.individuals) == 0:
                         self.defaultIdentity = individual.identity
                     self.individuals[individual.identity] = individual
