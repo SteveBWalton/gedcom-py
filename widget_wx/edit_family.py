@@ -70,6 +70,22 @@ class EditFamily(wx.Dialog):
 
         # Facts group box.
         groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
+        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100))
+        groupDetails.Add(self.treeFacts, 0, wx.ALL | wx.EXPAND, 2)
+        panelButtons = wx.BoxSizer(wx.HORIZONTAL)
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Fact')
+        panelButtons.Add(label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 2)
+        comboboxFact = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=['Married', 'Divorced'])
+        panelButtons.Add(comboboxFact)
+        buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
+        panelButtons.Add(buttonAdd)
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Additional')
+        panelButtons.Add(label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 2)
+        comboboxFact = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=['Date', 'Place'])
+        panelButtons.Add(comboboxFact)
+        buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
+        panelButtons.Add(buttonAdd)
+        groupDetails.Add(panelButtons)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
         # Children group box.
@@ -165,6 +181,14 @@ class EditFamily(wx.Dialog):
                 if individual.identity == self.family.wifeIdentity:
                     self.comboboxWife.SetSelection(index)
                     break
+
+        # Add the one and only root.
+        root = self.treeFacts.AddRoot('Facts')
+        first = self.treeFacts.AppendItem(root, 'Married')
+        self.treeFacts.AppendItem(first, 'World')
+        root2 = self.treeFacts.AppendItem(root, 'Divorced')
+        self.treeFacts.AppendItem(root2, 'Date')
+        self.treeFacts.AppendItem(root2, 'Place')
 
         self.panel.Layout()
 
