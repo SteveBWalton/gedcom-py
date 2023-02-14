@@ -62,6 +62,7 @@ class GedCom:
         Place.allPlaces = {}
         GedComIndividual.gedcom = self
         GedComFamily.gedcom = self
+        GedComFact.gedcom = self
 
 
 
