@@ -150,9 +150,7 @@ class GedComPlace:
 
 
     def toGedCom(self, level = 1):
-        '''
-        Return the object in GedCom format.
-        '''
+        ''' Return the object in GedCom format. '''
         result = []
         result.append(f'{level} PLAC {self.place}')
         if self.address is not None:

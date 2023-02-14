@@ -182,13 +182,20 @@ class EditFamily(wx.Dialog):
                     self.comboboxWife.SetSelection(index)
                     break
 
-        # Add the one and only root.
+        # Add the facts tp the one and only root.
         root = self.treeFacts.AddRoot('Facts')
-        first = self.treeFacts.AppendItem(root, 'Married')
-        self.treeFacts.AppendItem(first, 'World')
-        root2 = self.treeFacts.AppendItem(root, 'Divorced')
-        self.treeFacts.AppendItem(root2, 'Date')
-        self.treeFacts.AppendItem(root2, 'Place')
+        if self.family.marriage is not None:
+            married = self.treeFacts.AppendItem(root, 'Married Yes')
+            if self.family.marriage.date is not None:
+                self.treeFacts.AppendItem(married, f'Date {self.family.marriage.date.toGedCom()}')
+            if self.family.marriage.place is not None:
+                self.treeFacts.AppendItem(married, f'Place {self.family.marriage.place.toIdentityCheck()}')
+        if self.family.divorce is not None:
+            divorce = self.treeFacts.AppendItem(root, 'Divorce Yes')
+            if self.family.divorce.date is not None:
+                self.treeFacts.AppendItem(divorce, f'Date {self.family.divorce.date.toGedCom()}')
+            if self.family.divorce.place is not None:
+                self.treeFacts.AppendItem(divorce, f'Place {self.family.divorce.place.toIdentityCheck()}')
 
         self.panel.Layout()
 
