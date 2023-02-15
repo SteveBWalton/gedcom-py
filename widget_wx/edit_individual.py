@@ -115,6 +115,8 @@ class EditIndividual(wx.Dialog):
 
         # Facts group box.
         groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
+        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100))
+        groupDetails.Add(self.treeFacts, 0, wx.ALL | wx.EXPAND, 2)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
         # Sources group box.
@@ -204,6 +206,12 @@ class EditIndividual(wx.Dialog):
             self.comboxboxSex.SetSelection(0)
         else:
             self.comboxboxSex.SetSelection(1)
+
+        # Add the facts to the one and only root.
+        root = self.treeFacts.AddRoot('Facts')
+        if self.individual.facts is not None:
+            for fact in self.individual.facts:
+                self.treeFacts.AppendItem(root, f'{fact.type} {fact.information}')
 
         self.generalSources = copy.copy(self.individual.sources)
         self.nameSources = copy.copy(self.individual.nameSources)

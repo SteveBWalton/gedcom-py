@@ -31,9 +31,7 @@ class GedComFact:
 
 
     def __init__(self, block = None):
-        '''
-        Class constructor for the :py:class:`GedComDate` class.
-        '''
+        ''' Class constructor for the :py:class:`GedComDate` class. '''
         self.parse(block)
 
 
@@ -46,8 +44,11 @@ class GedComFact:
         self.type = ''
         self.information = ''
         self.sources = []
+        # The date associated with this fact.
         self.date = None
+        # The place associated with this fact.
         self.place = None
+        # List of sub facts of this fact.
         self.facts = None
         if gedcomFile is None:
             return

@@ -182,7 +182,7 @@ class EditFamily(wx.Dialog):
                     self.comboboxWife.SetSelection(index)
                     break
 
-        # Add the facts tp the one and only root.
+        # Add the facts to the one and only root.
         root = self.treeFacts.AddRoot('Facts')
         if self.family.marriage is not None:
             married = self.treeFacts.AppendItem(root, 'Married Yes')
