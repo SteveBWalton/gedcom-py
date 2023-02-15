@@ -20,6 +20,7 @@ from gedcom_fact import GedComFact
 # from gedcom_date import GedComDate
 from gedcom_individual import IndividualSex
 from gedcom_source import GedComSource
+import widget_wx.gedcom_fact as wxfact
 
 
 
@@ -115,7 +116,7 @@ class EditIndividual(wx.Dialog):
 
         # Facts group box.
         groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
-        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100))
+        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100), style = wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS)
         groupDetails.Add(self.treeFacts, 0, wx.ALL | wx.EXPAND, 2)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
@@ -209,9 +210,12 @@ class EditIndividual(wx.Dialog):
 
         # Add the facts to the one and only root.
         root = self.treeFacts.AddRoot('Facts')
+        wxfact.addFactToTree(self.treeFacts, root, self.individual.birth)
+        if self.individual.death is not None:
+            wxfact.addFactToTree(self.treeFacts, root, self.individual.death)
         if self.individual.facts is not None:
             for fact in self.individual.facts:
-                self.treeFacts.AppendItem(root, f'{fact.type} {fact.information}')
+                wxfact.addFactToTree(self.treeFacts, root, fact)
 
         self.generalSources = copy.copy(self.individual.sources)
         self.nameSources = copy.copy(self.individual.nameSources)

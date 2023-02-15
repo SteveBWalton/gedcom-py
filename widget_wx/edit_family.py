@@ -20,6 +20,7 @@ import copy
 # from gedcom_date import GedComDate
 from gedcom_individual import GedComIndividual, IdentitySources, IndividualSex
 from gedcom_source import GedComSource
+import widget_wx.gedcom_fact as wxfact
 
 
 
@@ -70,7 +71,7 @@ class EditFamily(wx.Dialog):
 
         # Facts group box.
         groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
-        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100))
+        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100), style = wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS)
         groupDetails.Add(self.treeFacts, 0, wx.ALL | wx.EXPAND, 2)
         panelButtons = wx.BoxSizer(wx.HORIZONTAL)
         label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Fact')
@@ -185,17 +186,9 @@ class EditFamily(wx.Dialog):
         # Add the facts to the one and only root.
         root = self.treeFacts.AddRoot('Facts')
         if self.family.marriage is not None:
-            married = self.treeFacts.AppendItem(root, 'Married Yes')
-            if self.family.marriage.date is not None:
-                self.treeFacts.AppendItem(married, f'Date {self.family.marriage.date.toGedCom()}')
-            if self.family.marriage.place is not None:
-                self.treeFacts.AppendItem(married, f'Place {self.family.marriage.place.toIdentityCheck()}')
+            wxfact.addFactToTree(self.treeFacts, root, self.family.marriage)
         if self.family.divorce is not None:
-            divorce = self.treeFacts.AppendItem(root, 'Divorce Yes')
-            if self.family.divorce.date is not None:
-                self.treeFacts.AppendItem(divorce, f'Date {self.family.divorce.date.toGedCom()}')
-            if self.family.divorce.place is not None:
-                self.treeFacts.AppendItem(divorce, f'Place {self.family.divorce.place.toIdentityCheck()}')
+            wxfact.addFactToTree(self.treeFacts, root, self.family.divorce)
 
         self.panel.Layout()
 
