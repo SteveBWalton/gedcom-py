@@ -38,9 +38,7 @@ class GedComPlace:
 
 
     def parse(self, gedcomFile = None):
-        '''
-        Update the object to the date specified in the string.
-        '''
+        ''' Update the object to the date specified in the string. '''
         self.place = None
         self.address = None
         self.country = None

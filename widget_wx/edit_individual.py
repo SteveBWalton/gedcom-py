@@ -117,6 +117,8 @@ class EditIndividual(wx.Dialog):
         # Facts group box.
         groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
         self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100), style = wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS)
+        self.treeFacts.Bind(wx.EVT_SET_FOCUS, self.onFocusTree)
+        self.treeFacts.Bind(wx.EVT_TREE_SEL_CHANGED, self.onTreeSelectionChange)
         groupDetails.Add(self.treeFacts, 0, wx.ALL | wx.EXPAND, 2)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
@@ -195,6 +197,21 @@ class EditIndividual(wx.Dialog):
 
 
 
+    def onFocusTree(self, event):
+        ''' Event handler for the tree control getting focus. '''
+        self.groupSources.GetStaticBox().SetLabel('Sources for Tree Control.')
+        self.listboxSources.Clear()
+
+
+
+    def onTreeSelectionChange(self, event):
+        ''' Event handler for the tree control selection changing. '''
+        self.listboxSources.Clear()
+        treeItemId = self.treeFacts.GetSelection()
+        treeItemText = self.treeFacts.GetItemText(treeItemId)
+        self.groupSources.GetStaticBox().SetLabel(treeItemText)
+
+
     def populateDialog(self):
         ''' Populate the dialog from the individual. '''
         self.textGivenName.SetValue(self.individual.givenName)
@@ -230,6 +247,7 @@ class EditIndividual(wx.Dialog):
 
     def writeChanges(self):
         ''' Populate the individual with values from the dialog. '''
+        print('writeChanges()')
         self.individual.givenName = self.textGivenName.GetValue()
         self.individual.surname = self.textSurname.GetValue()
         birthDate = self.textDoB.GetValue()
@@ -249,6 +267,15 @@ class EditIndividual(wx.Dialog):
             self.individual.sex = IndividualSex.MALE
         else:
             self.individual.sex = IndividualSex.FEMALE
+
+        # Loop through the facts.
+        print('Loop through facts')
+        root = self.treeFacts.GetRootItem()
+        item, cookie = self.treeFacts.GetFirstChild(root)
+        while item.IsOk():
+            wxfact.getFactFromTree(self.treeFacts, root, item)
+            # Get the next fact.
+            item, cookie = self.treeFacts.GetNextChild(root, cookie)
 
 
 
@@ -279,7 +306,9 @@ class EditIndividual(wx.Dialog):
         isResult = False
 
         # Show the dialog and wait for a response.
+        print('ShowModal()')
         if self.ShowModal() == wx.ID_OK:
+            print('ID_OK')
             self.writeChanges()
             isResult = True
 

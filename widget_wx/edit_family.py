@@ -232,7 +232,14 @@ class EditFamily(wx.Dialog):
                     wife.familyIdentities.append(IdentitySources([f'0 FAMS @{self.family.identity}@', '1 ignore ignore']))
                     self.family.wifeIdentity = newWife.identity
 
-
+        # Loop through the facts.
+        print('Loop through facts')
+        root = self.treeFacts.GetRootItem()
+        item, cookie = self.treeFacts.GetFirstChild(root)
+        while item.IsOk():
+            wxfact.getFactFromTree(self.treeFacts, root, item)
+            # Get the next fact.
+            item, cookie = self.treeFacts.GetNextChild(root, cookie)
 
     def editFamily(self, gedcom, identity):
         '''

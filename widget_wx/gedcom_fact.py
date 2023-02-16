@@ -27,6 +27,21 @@ def addFactToTree(tree, root, fact):
     elif isinstance(fact, GedComDate):
         parent = tree.AppendItem(root, f'DATE: {fact.toGedCom()}')
     elif isinstance(fact, GedComPlace):
-        parent = tree.AppendItem(root, f'PLACE: {fact.toIdentityCheck()}')
+        parent = tree.AppendItem(root, f'PLACE: {fact.place}')
+        if fact.address is not None:
+            tree.AppendItem(parent, f'ADDRESS: {fact.address}')
     else:
         parent = tree.AppendItem(root, 'Unknown Type')
+
+
+
+def getFactFromTree(tree, root, item, level=0):
+    ''' Get a gedcom fact from a tree control item. '''
+    itemText = tree.GetItemText(item)
+    print(f'{level * "    "}{itemText}')
+    if tree.ItemHasChildren(item):
+        child, cookie = tree.GetFirstChild(item)
+        while child.IsOk():
+            getFactFromTree(tree, item, child, level+1)
+            # Get the next child.
+            child, cookie = tree.GetNextChild(item, cookie)
