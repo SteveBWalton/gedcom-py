@@ -123,10 +123,14 @@ class EditIndividual(wx.Dialog):
         panelButtons = wx.BoxSizer(wx.HORIZONTAL)
         label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Fact')
         panelButtons.Add(label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 2)
-        comboboxFact = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=['Married', 'Divorced'])
-        panelButtons.Add(comboboxFact)
+        self.comboboxFact = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=wxfact.getNewFactIndividualOptions())
+        panelButtons.Add(self.comboboxFact)
         buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
+        buttonAdd.Bind(wx.EVT_BUTTON, self.onAddFact)
         panelButtons.Add(buttonAdd)
+        buttonEdit = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Edit')
+        buttonEdit.Bind(wx.EVT_BUTTON, self.onEditFact)
+        panelButtons.Add(buttonEdit)
         buttonRemove = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Remove')
         panelButtons.Add(buttonRemove)
         groupDetails.Add(panelButtons)
@@ -226,8 +230,35 @@ class EditIndividual(wx.Dialog):
             for sourceIdentity in sources:
                 source = self.gedcom.sources[sourceIdentity]
                 self.listboxSources.Append(source.title, source)
+        # Update the possible child facts.
+        if treeItemId == self.treeFacts.GetRootItem():
+            newFactOptions = wxfact.getNewFactIndividualOptions()
+        else:
+            newFactOptions = wxfact.getNewFactIndividualOptions(treeItemId)
+        self.comboboxFact.Clear()
+        for option in newFactOptions:
+            self.comboboxFact.Append(option)
+
         # Update the layout.
         self.panel.Layout()
+
+
+
+    def onAddFact(self, event):
+        ''' Event handler for the add fact button click. '''
+        # Get the fact type.
+        factType = self.comboboxFact.GetStringSelection()
+
+        if factType != '':
+            # Get the parent fact.
+            treeItemId = self.treeFacts.GetSelection()
+            self.treeFacts.AppendItem(treeItemId, f'{factType}: New information')
+
+
+
+    def onEditFact(self, event):
+        ''' Event handler for the edit fact button click. '''
+        wxfact.editFact(self.treeFacts, self)
 
 
 
