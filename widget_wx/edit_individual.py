@@ -116,10 +116,20 @@ class EditIndividual(wx.Dialog):
 
         # Facts group box.
         groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
-        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100), style = wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS)
+        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 150), style = wx.TR_HAS_BUTTONS | wx.TR_EDIT_LABELS)
         self.treeFacts.Bind(wx.EVT_SET_FOCUS, self.onFocusTree)
         self.treeFacts.Bind(wx.EVT_TREE_SEL_CHANGED, self.onTreeSelectionChange)
         groupDetails.Add(self.treeFacts, 0, wx.ALL | wx.EXPAND, 2)
+        panelButtons = wx.BoxSizer(wx.HORIZONTAL)
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Fact')
+        panelButtons.Add(label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 2)
+        comboboxFact = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=['Married', 'Divorced'])
+        panelButtons.Add(comboboxFact)
+        buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
+        panelButtons.Add(buttonAdd)
+        buttonRemove = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Remove')
+        panelButtons.Add(buttonRemove)
+        groupDetails.Add(panelButtons)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
         # Sources group box.
@@ -199,17 +209,26 @@ class EditIndividual(wx.Dialog):
 
     def onFocusTree(self, event):
         ''' Event handler for the tree control getting focus. '''
-        self.groupSources.GetStaticBox().SetLabel('Sources for Tree Control.')
-        self.listboxSources.Clear()
+        self.onTreeSelectionChange(event)
 
 
 
     def onTreeSelectionChange(self, event):
         ''' Event handler for the tree control selection changing. '''
-        self.listboxSources.Clear()
         treeItemId = self.treeFacts.GetSelection()
+        # Label the sources.
         treeItemText = self.treeFacts.GetItemText(treeItemId)
         self.groupSources.GetStaticBox().SetLabel(treeItemText)
+        # Update the sources.
+        self.listboxSources.Clear()
+        sources = self.treeFacts.GetItemData(treeItemId)
+        if sources is not None:
+            for sourceIdentity in sources:
+                source = self.gedcom.sources[sourceIdentity]
+                self.listboxSources.Append(source.title, source)
+        # Update the layout.
+        self.panel.Layout()
+
 
 
     def populateDialog(self):
@@ -226,14 +245,16 @@ class EditIndividual(wx.Dialog):
             self.comboxboxSex.SetSelection(1)
 
         # Add the facts to the one and only root.
-        root = self.treeFacts.AddRoot('Facts')
+        root = self.treeFacts.AddRoot(self.individual.getName())
         wxfact.addFactToTree(self.treeFacts, root, self.individual.birth)
         if self.individual.death is not None:
             wxfact.addFactToTree(self.treeFacts, root, self.individual.death)
         if self.individual.facts is not None:
             for fact in self.individual.facts:
                 wxfact.addFactToTree(self.treeFacts, root, fact)
+        self.treeFacts.Toggle(root)
 
+        # Initialise the non fact sources.
         self.generalSources = copy.copy(self.individual.sources)
         self.nameSources = copy.copy(self.individual.nameSources)
         self.dobSources = copy.copy(self.individual.birth.date.sources)
@@ -241,6 +262,7 @@ class EditIndividual(wx.Dialog):
             self.dodSources = []
         else:
             self.dodSources = copy.copy(self.individual.death.date.sources)
+        # Update the layout.
         self.panel.Layout()
 
 

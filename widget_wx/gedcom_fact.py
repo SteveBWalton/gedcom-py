@@ -5,6 +5,7 @@ Module to support gedcom facts in the wxPython library.
 '''
 
 # System libraries.
+import copy
 
 # Application libraries.
 from gedcom_date import GedComDate
@@ -16,7 +17,7 @@ from gedcom_fact import GedComFact
 def addFactToTree(tree, root, fact):
     ''' Adds a gedcom fact to tree under the specified node. '''
     if isinstance(fact, GedComFact):
-        parent = tree.AppendItem(root, f'{fact.type}: {fact.information}')
+        parent = tree.AppendItem(root, f'{fact.type}: {fact.information}', data=copy.copy(fact.sources))
         if fact.date is not None:
             addFactToTree(tree, parent, fact.date)
         if fact.place is not None:
@@ -25,9 +26,9 @@ def addFactToTree(tree, root, fact):
             for childFact in fact.facts:
                 addFactToTree(tree, parent, childFact)
     elif isinstance(fact, GedComDate):
-        parent = tree.AppendItem(root, f'DATE: {fact.toGedCom()}')
+        parent = tree.AppendItem(root, f'DATE: {fact.toGedCom()}', data = copy.copy(fact.sources))
     elif isinstance(fact, GedComPlace):
-        parent = tree.AppendItem(root, f'PLACE: {fact.place}')
+        parent = tree.AppendItem(root, f'PLACE: {fact.place}', data = copy.copy(fact.sources))
         if fact.address is not None:
             tree.AppendItem(parent, f'ADDRESS: {fact.address}')
     else:
