@@ -161,8 +161,9 @@ class GedComFact:
             result.append(f'{level} {self.type} {self.information}')
         if self.date is not None:
             result.append(f'{level + 1} DATE {self.date.toGedCom()}')
-            for source in self.date.sources:
-                result.append(f'{level + 2} SOUR @{source}@')
+            if self.date.sources is not None:
+                for source in self.date.sources:
+                    result.append(f'{level + 2} SOUR @{source}@')
         if self.place is not None:
             result.extend(self.place.toGedCom(level + 1))
         if self.facts is not None:

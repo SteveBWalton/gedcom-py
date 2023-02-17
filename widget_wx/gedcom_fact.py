@@ -37,17 +37,52 @@ def addFactToTree(tree, root, fact):
 
 
 
-def getFactFromTree(tree, root, item, level=0):
+def getFactFromTree(tree, root, item, parent=None):
     ''' Get a gedcom fact from a tree control item. '''
     itemTag, itemValue = getTagsFromTreeItem(tree, item)
-    # print(f'{level * "    "}{itemText}')
-    print(f'{level * "    "}{itemTag} {itemValue}')
+    # print(f'{itemTag} {itemValue}')
+    if parent is None:
+        print(f'GedComFact(\'{itemTag}\', \'{itemValue}\')')
+        fact = GedComFact()
+        fact.type = itemTag
+        fact.information = itemValue
+        fact.sources = getSourcesFromTreeItem(tree, item)
+    else:
+        if itemTag == 'DATE':
+            print(f'\tGedComDate(\'{itemTag}\', \'{itemValue}\')')
+            parent.date = GedComDate(itemValue)
+            fact = parent.date
+            fact.sources = getSourcesFromTreeItem(tree, item)
+        elif itemTag == 'PLAC':
+            print(f'\tGedComPlace(\'{itemTag}\', \'{itemValue}\')')
+            parent.place = GedComPlace()
+            parent.place.place = itemValue
+            fact = parent.place
+            fact.sources = getSourcesFromTreeItem(tree, item)
+        elif itemTag == 'ADDR':
+            print('\tAdd the address to parent for now')
+            parent.address = itemValue
+            fact = None
+        else:
+            print(f'\tGedComFact(\'{itemTag}\', \'{itemValue}\')')
+            fact = GedComFact()
+            fact.type = itemTag
+            fact.information = itemValue
+            fact.sources = getSourcesFromTreeItem(tree, item)
+            if parent.facts is None:
+                parent.facts = []
+            parent.facts.append(fact)
+
+    # Add addition information to this fact.
     if tree.ItemHasChildren(item):
         child, cookie = tree.GetFirstChild(item)
         while child.IsOk():
-            getFactFromTree(tree, item, child, level+1)
+            getFactFromTree(tree, item, child, fact)
             # Get the next child.
             child, cookie = tree.GetNextChild(item, cookie)
+
+    # Return the gedcom fact.
+    return fact
 
 
 
@@ -59,6 +94,15 @@ def getTagsFromTreeItem(tree, item):
     itemValue = itemText[index+1:].strip()
     itemTag = ItemLabelToTag(itemTag)
     return itemTag, itemValue
+
+
+
+def getSourcesFromTreeItem(tree, item):
+    ''' Return the sources from a tree item. '''
+    sources = tree.GetItemData(item)
+    if sources is None:
+        sources = []
+    return sources
 
 
 
@@ -74,7 +118,7 @@ def editFact(tree, parentWindow):
     editFactDialog = EditFact(parentWindow)
     itemValue = editFactDialog.editFact(itemTag, itemValue)
     if itemValue is not None:
-        tree.SetItemText(treeItem, f'{itemTag}: {itemValue}')
+        tree.SetItemText(treeItem, f'{tagToItemLabel(itemTag)}: {itemValue}')
 
 
 
@@ -101,6 +145,8 @@ def tagToItemLabel(tag):
         return 'Date'
     if tag == 'PLAC':
         return 'Place'
+    if tag == 'ADDR':
+        return 'Address'
     if tag == 'BIRT':
         return 'Birth'
     if tag == 'DEAT':
@@ -120,7 +166,9 @@ def ItemLabelToTag(itemLabel):
     if itemLabel == 'Date':
         return 'DATE'
     if itemLabel == 'Place':
-        return 'PLACE'
+        return 'PLAC'
+    if itemLabel == 'Address':
+        return 'ADDR'
     if itemLabel == 'Birth':
         return 'BIRT'
     if itemLabel == 'Death':
@@ -183,7 +231,7 @@ class EditFact(wx.Dialog):
 
 
     def editFact(self, factTag, factValue):
-        ''' ssdsds '''
+        ''' Show the edit fact dialog and allow the user to edit the fact on the tree control. '''
         self.textValue.SetValue(factValue)
         if self.ShowModal() == wx.ID_OK:
             newValue = self.textValue.GetValue()

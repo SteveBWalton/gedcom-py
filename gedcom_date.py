@@ -100,6 +100,9 @@ class GedComDate:
             self.status = GedComDateStatus.EMPTY
             return
 
+        # Only deal with upper case.
+        dateString = dateString.upper()
+
         # If FROM .. TO or BET ... AND then deal with each half separately.
         if 'BET' in dateString:
             index = dateString.index('AND')

@@ -323,10 +323,28 @@ class EditIndividual(wx.Dialog):
 
         # Loop through the facts.
         print('Loop through facts')
+        self.individual.facts = None
         root = self.treeFacts.GetRootItem()
         item, cookie = self.treeFacts.GetFirstChild(root)
         while item.IsOk():
-            wxfact.getFactFromTree(self.treeFacts, root, item)
+            fact = wxfact.getFactFromTree(self.treeFacts, root, item)
+            if fact is None:
+                print('Not expecting this.')
+
+            for line in fact.toGedCom():
+                print(line)
+
+            if fact.type == 'BIRT':
+                print('Ignore birth fact')
+                if fact.place is not None:
+                    self.individual.birth.place = fact.place
+            elif fact.type=='DEAT':
+                print('Ignore death fact')
+            else:
+                if self.individual.facts is None:
+                    self.individual.facts = []
+                self.individual.facts.append(fact)
+
             # Get the next fact.
             item, cookie = self.treeFacts.GetNextChild(root, cookie)
 

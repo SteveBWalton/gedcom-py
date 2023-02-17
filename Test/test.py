@@ -24,7 +24,7 @@ import gedcom_date
 def testGedComDate(dateString):
     ''' Test the GedComDate object with the specified value. '''
     gedComDate = gedcom_date.GedComDate(dateString)
-    print(f'\'{dateString}\' => [\'{gedComDate.toLongString()}\', \'{gedComDate.toShortString()}\', \'{gedComDate.toGedComDate()}\']')
+    print(f'\'{dateString}\' => [\'{gedComDate.toLongString()}\', \'{gedComDate.toShortString()}\', \'{gedComDate.toGedCom()}\']')
 
 
 
@@ -49,6 +49,7 @@ def testDates():
     testGedComDate('EST 10 APR 2022')
     testGedComDate('CAL BEF MAY 2021')
     testGedComDate('BET APR 1967 AND JUN 1967')
+    testGedComDate('bet 1981 and 1987')
     testGedComDate('ABT BET APR 1967 AND JUN 1967')
     testGedComDate('FROM APR 1967 TO JUN 1967')
     testGedComDate('ABT FROM APR 1967 TO JUN 1967')
