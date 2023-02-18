@@ -131,6 +131,7 @@ def getNewFactIndividualOptions(item = None):
         options.append('Occupation')
         options.append('Education')
         options.append('Note')
+        options.append('ToDo')
     else:
         # Special options.
         options.append('Date')
@@ -157,6 +158,8 @@ def tagToItemLabel(tag):
         return 'Education'
     if tag == 'NOTE':
         return 'Note'
+    if tag == '_TODO':
+        return 'ToDo'
     return tag
 
 
@@ -179,6 +182,8 @@ def ItemLabelToTag(itemLabel):
         return 'EDUC'
     if itemLabel == 'Note':
         return 'NOTE'
+    if itemLabel == 'ToDo':
+        return '_TODO'
     return itemLabel
 
 

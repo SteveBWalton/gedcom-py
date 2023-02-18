@@ -19,6 +19,7 @@ import copy
 from gedcom_fact import GedComFact
 # from gedcom_date import GedComDate
 from gedcom_individual import IndividualSex
+from gedcom_individual import ToDo
 from gedcom_source import GedComSource
 from gedcom_change import GedComChange
 import widget_wx.gedcom_fact as wxfact
@@ -284,6 +285,10 @@ class EditIndividual(wx.Dialog):
         if self.individual.facts is not None:
             for fact in self.individual.facts:
                 wxfact.addFactToTree(self.treeFacts, root, fact)
+        # Add the ToDo to the root as if they were facts.
+        if self.individual.todos is not None:
+            for todo in self.individual.todos:
+                self.treeFacts.AppendItem(root, f'ToDo: {todo.rank} {todo.description}')
         self.treeFacts.Toggle(root)
 
         # Initialise the non fact sources.
@@ -325,6 +330,7 @@ class EditIndividual(wx.Dialog):
         # Loop through the facts.
         print('Loop through facts')
         self.individual.facts = None
+        self.individual.todos = None
         root = self.treeFacts.GetRootItem()
         item, cookie = self.treeFacts.GetFirstChild(root)
         while item.IsOk():
@@ -339,8 +345,14 @@ class EditIndividual(wx.Dialog):
                 print('Ignore birth fact')
                 if fact.place is not None:
                     self.individual.birth.place = fact.place
-            elif fact.type=='DEAT':
+            elif fact.type == 'DEAT':
                 print('Ignore death fact')
+            elif fact.type == '_TODO':
+                print('Ignore ToDo')
+                if self.individual.todos is None:
+                    self.individual.todos = []
+                todo = ToDo(self.individual, [f'1 _TODO {fact.information}'])
+                self.individual.todos.append(todo)
             else:
                 if self.individual.facts is None:
                     self.individual.facts = []
