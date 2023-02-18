@@ -274,13 +274,13 @@ class Render(walton.toolbar.IToolbar):
                 isFirst = False
                 self.html.add('<tr>')
                 self.html.add('<td>First</td>')
-                self.html.add(f'<td>{individual.identity}</td>')
+                self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.identity}</a></td>')
                 self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
                 self.html.addLine('</tr>')
             individuals.append(individual)
         if individual is not None:
             self.html.add('<td>Last</td>')
-            self.html.add(f'<td>{individual.identity}</td>')
+            self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.identity}</a></td>')
             self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
             self.html.addLine('</tr>')
 
@@ -291,7 +291,7 @@ class Render(walton.toolbar.IToolbar):
                 individual = individuals[index]
                 self.html.add('<tr>')
                 self.html.add(f'<td>Recent {index + 1}</td>')
-                self.html.add(f'<td>{individual.identity}</td>')
+                self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.identity}</a></td>')
                 self.html.add(f'<td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td>')
                 self.html.addLine('</tr>')
 
@@ -310,14 +310,14 @@ class Render(walton.toolbar.IToolbar):
                 isFirst = False
                 self.html.add('<tr>')
                 self.html.add('<td>First</td>')
-                self.html.add(f'<td>{family.identity}</td>')
+                self.html.add(f'<td><a href="app:family?id={family.identity}">{family.identity}</a></td>')
                 self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
                 self.html.addLine('</tr>')
             families.append(family)
         if family is not None:
             self.html.add('<tr>')
             self.html.add('<td>Last</td>')
-            self.html.add(f'<td>{family.identity}</td>')
+            self.html.add(f'<td><a href="app:family?id={family.identity}">{family.identity}</a></td>')
             self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
             self.html.addLine('</tr>')
 
@@ -328,7 +328,7 @@ class Render(walton.toolbar.IToolbar):
                 family = families[index]
                 self.html.add('<tr>')
                 self.html.add(f'<td>Recent {index + 1}</td>')
-                self.html.add(f'<td>{family.identity}</td>')
+                self.html.add(f'<td><a href="app:family?id={family.identity}">{family.identity}</a></td>')
                 self.html.add(f'<td><a href="app:family?id={family.identity}">{family.getName()}</a></td>')
                 self.html.addLine('</tr>')
 
@@ -347,14 +347,14 @@ class Render(walton.toolbar.IToolbar):
                 isFirst = False
                 self.html.add('<tr>')
                 self.html.add('<td>First</td>')
-                self.html.add(f'<td>{source.identity}</td>')
+                self.html.add(f'<td><a href="app:source?id={source.identity}">{source.identity}</a></td>')
                 self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
                 self.html.addLine('</tr>')
                 self.html.add('<tr>')
             sources.append(source)
         if source is not None:
             self.html.add('<td>Last</td>')
-            self.html.add(f'<td>{source.identity}</td>')
+            self.html.add(f'<td><a href="app:source?id={source.identity}">{source.identity}</a></td>')
             self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
             self.html.addLine('</tr>')
 
@@ -365,7 +365,7 @@ class Render(walton.toolbar.IToolbar):
                 source = sources[index]
                 self.html.add('<tr>')
                 self.html.add(f'<td>Recent {index + 1}</td>')
-                self.html.add(f'<td>{source.identity}</td>')
+                self.html.add(f'<td><a href="app:source?id={source.identity}">{source.identity}</a></td>')
                 self.html.add(f'<td><a href="app:source?id={source.identity}">{source.getName()}</a></td>')
                 self.html.addLine('</tr>')
 
@@ -384,14 +384,14 @@ class Render(walton.toolbar.IToolbar):
                 isFirst = False
                 self.html.add('<tr>')
                 self.html.add('<td>First</td>')
-                self.html.add(f'<td>{media.identity}</td>')
+                self.html.add(f'<td><a href="app:media?id={media.identity}">{media.identity}</a></td>')
                 self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
                 self.html.addLine('</tr>')
                 self.html.add('<tr>')
             mediaObjects.append(media)
         if media is not None:
             self.html.add('<td>Last</td>')
-            self.html.add(f'<td>{media.identity}</td>')
+            self.html.add(f'<td><a href="app:media?id={media.identity}">{media.identity}</a></td>')
             self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
             self.html.addLine('</tr>')
 
@@ -402,7 +402,7 @@ class Render(walton.toolbar.IToolbar):
                 media = mediaObjects[index]
                 self.html.add('<tr>')
                 self.html.add(f'<td>Recent {index + 1}</td>')
-                self.html.add(f'<td>{media.identity}</td>')
+                self.html.add(f'<td><a href="app:media?id={media.identity}">{media.identity}</a></td>')
                 self.html.add(f'<td><a href="app:media?id={media.identity}">{media.getName()}</a></td>')
                 self.html.addLine('</tr>')
 
@@ -1027,7 +1027,7 @@ class Render(walton.toolbar.IToolbar):
         source = self.application.gedcom.sources[identity]
 
         self.html.clear()
-        self.displayToolbar(True, None, None, None, False, False, False, '', self.host)
+        self.displayToolbar(True, f'edit_source?id={identity}', None, None, False, False, False, '', self.host)
         self.html.addLine(f'<h1>{source.title}</h1>')
 
         isUseStandardRender = True

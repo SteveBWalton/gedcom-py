@@ -63,6 +63,7 @@ class GedCom:
         Place.allPlaces = {}
         GedComIndividual.gedcom = self
         GedComFamily.gedcom = self
+        GedComSource.gedcom = self
         GedComFact.gedcom = self
 
 
@@ -103,7 +104,7 @@ class GedCom:
 
     def open(self, fileName):
         ''' Open the specified gedcom file. '''
-        GedComFact.gedcom = self
+        print(f'open(\'{fileName}\')')
         file = open(fileName, 'r')
         objectType = GedComObjects.UNKNOWN
         objectLines = []
@@ -128,7 +129,7 @@ class GedCom:
                     family = GedComFamily(objectLines)
                     self.families[family.identity] = family
                 elif objectType == GedComObjects.SOURCE:
-                    source = GedComSource(self, objectLines)
+                    source = GedComSource(objectLines)
                     self.sources[source.identity] = source
                 elif objectType == GedComObjects.MEDIA:
                     media = GedComMedia(self, objectLines)

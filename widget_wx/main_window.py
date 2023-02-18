@@ -18,14 +18,12 @@ import wx           # Try package python3-wxpython4 or apt package python3-wxgtk
 import wx.html2     # Try package python3-wxpython4-webview or apt package python3-wxgtk-webview4.0
 
 # Application libraries.
-#import configuration
-#import database
-#import render
-#import walton.year_range
 import widget_wx.edit_individual
 import widget_wx.edit_family
+import widget_wx.edit_source
 from gedcom_individual import GedComIndividual
 from gedcom_family import GedComFamily
+from gedcom_source import GedComSource
 
 
 
@@ -67,6 +65,7 @@ class WxMainWindow(wx.Frame):
         self.actions = {
             'edit_individual'       : self.editIndividual,
             'edit_family'           : self.editFamily,
+            'edit_source'           : self.editSource,
         }
 
         # Build the menu bar.
@@ -86,6 +85,7 @@ class WxMainWindow(wx.Frame):
         menuEditEdit = menuEdit.Append(wx.ID_EDIT, 'Edit', 'Edit this record.')
         menuEditAddIndividual = menuEdit.Append(wx.ID_ANY, 'Add New Individual', 'Add a new individual to this gedcom.')
         menuEditAddFamily = menuEdit.Append(wx.ID_ANY, 'Add New Family', 'Add a new family to this gedcom.')
+        menuEditAddSource = menuEdit.Append(wx.ID_ANY, 'Add New Source', 'Add a new source to this gedcom.')
         menuBar.Append(menuEdit, '&Edit')
         self.SetMenuBar(menuBar)
         self.Bind(wx.EVT_MENU, self._fileNew, menuFileNew)
@@ -98,6 +98,7 @@ class WxMainWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self._fileQuit, menuFileExit)
         self.Bind(wx.EVT_MENU, self._editAddIndividual, menuEditAddIndividual)
         self.Bind(wx.EVT_MENU, self._editAddFamily, menuEditAddFamily)
+        self.Bind(wx.EVT_MENU, self._editAddSource, menuEditAddSource)
 
         # Build the toolbar.
         #oToolbar = self.CreateToolBar()
@@ -244,6 +245,7 @@ class WxMainWindow(wx.Frame):
         # Add a new individual.
         individual = GedComIndividual()
         GedComIndividual.gedcom.individuals[individual.identity] = individual
+        GedComIndividual.gedcom.isDirty = True
 
         # Display the home page.
         self.followLocalLink('home', True)
@@ -254,11 +256,22 @@ class WxMainWindow(wx.Frame):
         ''' Signal handler for the 'Edit' → 'Add Family' menu item. '''
         # Add a new family.
         family = GedComFamily()
-        GedComIndividual.gedcom.families[family.identity] = family
+        GedComFamily.gedcom.families[family.identity] = family
+        GedComFamily.gedcom.isDirty = True
 
         # Display the home page.
         self.followLocalLink('home', True)
 
+
+
+    def _editAddSource(self, widget):
+        ''' Signal handler for the 'Edit' -> 'Add Source' menu item. '''
+        # Add a new source.
+        source = GedComSource()
+        GedComSource.gedcom.sources[source.identity] = source
+        GedComSource.gedcom.isDirty = True
+        # Display the home page.
+        self.followLocalLink('home', True)
 
 
 
@@ -333,23 +346,6 @@ class WxMainWindow(wx.Frame):
 
 
 
-    def _ViewTextSize(self, widget):
-        '''
-        Signal handler for the 'View' → 'Text Size' → <sub menu> menu point click.
-        This handles the small, medium and large menu point clicks.
-        '''
-        if widget.get_active():
-            sTextSize = widget.get_label().lower()
-            # print 'Text Size "{}"'.format(sTextSize)
-            if self.application.database.debug:
-                print('file:{}{}textsize_{}.css'.format(os.path.dirname(os.path.realpath(__file__)), os.sep, sTextSize))
-            self.application.render.html.stylesheets[1] = 'file:{}{}textsize_{}.css'.format(os.path.dirname(os.path.realpath(__file__)), os.sep, sTextSize)
-            self.application.configuration.SetTextSize(sTextSize)
-            # Update the page.
-            self.OpenCurrentPage()
-
-
-
     def _ViewDebug(self, widget):
         ''' Signal handler for the 'View' -> 'Debug' menu point toggled event. '''
         self.application.database.debug = widget.get_active()
@@ -370,13 +366,6 @@ class WxMainWindow(wx.Frame):
     def _HelpAbout(self, widget):
         ''' Signal handler for the 'Help' → 'About' menu item. '''
         self.followLocalLink('about', False)
-
-
-
-    def _YearsClicked(self, widget):
-        ''' Signal handler for the years selector toolbar button. '''
-        self.followLocalLink('year_range', False)
-
 
 
 
@@ -536,6 +525,21 @@ class WxMainWindow(wx.Frame):
         if dialog.editFamily(self.application.gedcom, identity):
             print(f'Update {identity}')
             self.followLocalLink(f'family?id={identity}', False)
+        else:
+            print('Cancel changes.')
+
+
+
+    def editSource(self, parameters):
+        ''' Display the dialog to edit the specified source. '''
+        identity = parameters['id'] if 'id' in parameters else identity
+
+        print(f'Edit {identity}')
+
+        dialog = widget_wx.edit_source.EditSource(self)
+        if dialog.editSource(self.application.gedcom, identity):
+            print(f'Update {identity}')
+            self.followLocalLink(f'source?id={identity}', False)
         else:
             print('Cancel changes.')
 

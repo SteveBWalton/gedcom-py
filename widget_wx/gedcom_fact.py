@@ -18,14 +18,26 @@ from gedcom_fact import GedComFact
 def addFactToTree(tree, root, fact):
     ''' Adds a gedcom fact to tree under the specified node. '''
     if isinstance(fact, GedComFact):
-        parent = tree.AppendItem(root, f'{tagToItemLabel(fact.type)}: {fact.information}', data=copy.copy(fact.sources))
-        if fact.date is not None:
-            addFactToTree(tree, parent, fact.date)
-        if fact.place is not None:
-            addFactToTree(tree, parent, fact.place)
-        if fact.facts is not None:
-            for childFact in fact.facts:
-                addFactToTree(tree, parent, childFact)
+        if isinstance(fact.information, list):
+            # Special case of NOTE GRID
+            parent = None
+            for line in fact.information:
+                lineAsString = ': '.join(line)
+                # Really not sure about the tags to use here.
+                if parent is None:
+                    parent = tree.AppendItem(root, f'NOTE {lineAsString}')
+                else:
+                    tree.AppendItem(parent, f'CONT: {lineAsString}')
+        else:
+            # Normal fact, expect to come here.
+            parent = tree.AppendItem(root, f'{tagToItemLabel(fact.type)}: {fact.information}', data=copy.copy(fact.sources))
+            if fact.date is not None:
+                addFactToTree(tree, parent, fact.date)
+            if fact.place is not None:
+                addFactToTree(tree, parent, fact.place)
+            if fact.facts is not None:
+                for childFact in fact.facts:
+                    addFactToTree(tree, parent, childFact)
     elif isinstance(fact, GedComDate):
         parent = tree.AppendItem(root, f'Date: {fact.toGedCom()}', data = copy.copy(fact.sources))
     elif isinstance(fact, GedComPlace):
@@ -136,6 +148,21 @@ def getNewFactIndividualOptions(item = None):
         # Special options.
         options.append('Date')
         options.append('Place')
+    return options
+
+
+
+
+def getNewFactSourceOptions(item = None):
+    ''' Returns the list of possible new facts for the specified source fact item. '''
+    options = []
+    if item == None:
+        # Root options.
+        options.append('Note')
+        options.append('GRID')
+    else:
+        # Special options.
+        pass
     return options
 
 

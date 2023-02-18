@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to support the editing of individual in gedcom.
+Module to support the editing of an individual in gedcom.
 This uses the wx library.
 '''
 
@@ -16,13 +16,12 @@ import sys
 import copy
 
 # Import my own libraries.
+import widget_wx.gedcom_fact as wxfact
 from gedcom_fact import GedComFact
-# from gedcom_date import GedComDate
 from gedcom_individual import IndividualSex
 from gedcom_individual import ToDo
 from gedcom_source import GedComSource
 from gedcom_change import GedComChange
-import widget_wx.gedcom_fact as wxfact
 
 
 
@@ -37,7 +36,7 @@ class EditIndividual(wx.Dialog):
 
         Class constructor the :py:class:`EditIndividual` class.
         Construct the dialog but do not show it.
-        Call :py:func:`editIndividual` or :py:func:`editNewIndividual` to actually show the dialog.
+        Call :py:func:`editIndividual` to actually show the dialog.
         '''
         # Initialise the base class.
         wx.Dialog.__init__(self, parentWindow, title='Edit Individual', style = wx.RESIZE_BORDER)
@@ -54,34 +53,6 @@ class EditIndividual(wx.Dialog):
 
         # Add vertical zones to the panel.
         self.boxsizer = wx.BoxSizer(wx.VERTICAL)
-
-        ## Details Group box.
-        #groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Details')
-        #groupDetailsSizer = wx.GridSizer(2, 4, 5, 5)
-        ##groupDetails = wx.StaticBox(self.panel, wx.ID_ANY, 'Details')
-        ##groupDetailsSizer = wx.StaticBoxSizer(groupDetails, wx.HORIZONTAL)
-        #textSeason = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Season')
-        #groupDetailsSizer.Add(textSeason, 0, wx.ALL | wx.ALIGN_RIGHT)
-        #self._spinCtrlSeason = wx.SpinCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, min=1950, max=2020)
-        #groupDetailsSizer.Add(self._spinCtrlSeason, 0, wx.ALL | wx.ALIGN_LEFT)
-        #textLocation = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Location')
-        #groupDetailsSizer.Add(textLocation, 0, wx.ALL | wx.ALIGN_RIGHT)
-        #self._comboxboxLocation = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=[])
-        #groupDetailsSizer.Add(self._comboxboxLocation, 0, wx.ALL | wx.ALIGN_LEFT)
-        #textDate = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Date')
-        #groupDetailsSizer.Add(textDate, 0, wx.ALL | wx.ALIGN_RIGHT)
-        #self._datePicker = wx.adv.DatePickerCtrl(groupDetails.GetStaticBox(), wx.ID_ANY)
-        #groupDetailsSizer.Add(self._datePicker, 0, wx.ALL | wx.ALIGN_LEFT)
-        #textTrack = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Track')
-        #groupDetailsSizer.Add(textTrack, 0, wx.ALL | wx.ALIGN_RIGHT)
-        #self._comboxboxTrack = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=[])
-        #groupDetailsSizer.Add(self._comboxboxTrack, 0, wx.ALL | wx.ALIGN_LEFT)
-        #groupDetails.Add(groupDetailsSizer)
-        #self.boxsizer.Add(groupDetails)
-
-        ## Results Group box.
-        #groupResults = wx.StaticBox(self.panel, wx.ID_ANY, 'Results')
-        #self.boxsizer.Add(groupResults)
 
         # Details group box.
         groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Details')
@@ -134,6 +105,7 @@ class EditIndividual(wx.Dialog):
         buttonEdit.Bind(wx.EVT_BUTTON, self.onEditFact)
         panelButtons.Add(buttonEdit)
         buttonRemove = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Remove')
+        buttonRemove.Bind(wx.EVT_BUTTON, self.onRemoveFact)
         panelButtons.Add(buttonRemove)
         groupDetails.Add(panelButtons)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
@@ -264,6 +236,17 @@ class EditIndividual(wx.Dialog):
 
 
 
+    def onRemoveFact(self, event):
+        ''' Event handler for the remove fact button click. '''
+        treeItem = self.treeFacts.GetSelection()
+        if treeItem is None:
+            return
+        if treeItem == self.treeFacts.GetRootItem():
+            return
+        self.treeFacts.Delete(treeItem)
+
+
+
     def populateDialog(self):
         ''' Populate the dialog from the individual. '''
         self.textGivenName.SetValue(self.individual.givenName)
@@ -345,6 +328,8 @@ class EditIndividual(wx.Dialog):
                 print('Ignore birth fact')
                 if fact.place is not None:
                     self.individual.birth.place = fact.place
+                else:
+                    self.individual.birth.place = None
             elif fact.type == 'DEAT':
                 print('Ignore death fact')
             elif fact.type == '_TODO':
@@ -362,7 +347,7 @@ class EditIndividual(wx.Dialog):
             item, cookie = self.treeFacts.GetNextChild(root, cookie)
 
         # Update the change record.
-        self.individual.gedcom.isDirty = True
+        self.gedcom.isDirty = True
         if self.individual.change is None:
             self.individual.change = GedComChange()
         self.individual.change.setNow()
@@ -373,9 +358,8 @@ class EditIndividual(wx.Dialog):
         '''
         Show the dialog with an initial individual to edit.
 
-        :param Database database: Specify the Database object to fetch the tracks from.
-        :param int seasonIndex: Specify the year of the initial race.
-        :param int locationIndex: Specify the ID the initial location.
+        :param GedCom gedcom: Specify the gedcom that contains this individual.
+        :param str identity: Specify the identity of the individual.
         '''
         # Initialise member variables.
         self.gedcom = gedcom

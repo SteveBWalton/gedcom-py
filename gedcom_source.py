@@ -6,6 +6,7 @@ This module implements the :py:class:`GedComSource` class.
 '''
 # System Libraries.
 from enum import Enum
+import datetime
 
 # Application Librariess.
 from gedcom_fact import GedComFact
@@ -21,6 +22,7 @@ class GedComSourceType(Enum):
     BIRTH_CERTIFICATE = 2
     MARRIAGE_CERTIFICATE = 3
     DEATH_CERTIFICATE = 4
+    CENSUS = 5
 
 
 
@@ -44,19 +46,26 @@ class GedComSource:
 
 
 
-    def __init__(self, gedcom, gedcomFile = None):
-        '''
-        Class constructor for the :py:class:`GedComSource` class.
-        '''
-        GedComSource.gedcom = gedcom
+    def __init__(self, gedcomFile = None):
+        ''' Class constructor for the :py:class:`GedComSource` class. '''
+        if gedcomFile is None:
+            self.identity = f'S{len(GedComSource.gedcom.sources) + 1:04d}'
+            self.title = ''
+            self.type = GedComSourceType.GENERAL
+            self.repository = ''
+            self.date = None
+            self.place = None
+            self.facts = None
+            self.change = None
+            return
+
+        # Build the source from gedcom block.
         self.parse(gedcomFile)
 
 
 
     def parse(self, gedcomFile = None):
-        '''
-        Update the object to the date specified in the string.
-        '''
+        ''' Update the object to the date specified in the string. '''
         self.gedcomFile = gedcomFile
         self.identity = None
         self.title = ''
@@ -104,6 +113,9 @@ class GedComSource:
 
             # Fetch the next block.
             block, start = GedComSource.gedcom.getNextBlock(gedcomFile, start)
+
+        # Update the source type.
+        self.setTypeFromTitle()
 
         # Debug output.
         # print(f'\'{self.identity}\'')
@@ -176,4 +188,37 @@ class GedComSource:
 
 
 
+    def setTypeFromTitle(self):
+        ''' Update the source type from the title. '''
+        if self.title.startswith('Marriage'):
+            self.type = GedComSourceType.MARRIAGE_CERTIFICATE
+        elif self.title.startswith('Birth'):
+            self.type = GedComSourceType.BIRTH_CERTIFICATE
+        elif self.title.startswith('Death'):
+            self.type = GedComSourceType.DEATH_CERTIFICATE
+        elif self.title.startswith('Census'):
+            self.type = GedComSourceType.CENSUS
+        else:
+            self.type = GedComSourceType.GENERAL
+
+
+
+    def setTitleFromType(self):
+        ''' Update the title from the source type. '''
+        if self.type == GedComSourceType.GENERAL:
+            # Not sure about this.
+            return
+
+        if ':' in self.title:
+            index = self.title.index(': ')
+            self.title = self.title[index+2:]
+
+        if self.type == GedComSourceType.MARRIAGE_CERTIFICATE:
+            self.title = f'Marriage Certificate: {self.title}'
+        elif self.type == GedComSourceType.BIRTH_CERTIFICATE:
+            self.title = f'Birth Certificate: {self.title}'
+        elif self.type == GedComSourceType.DEATH_CERTIFICATE:
+            self.title = f'Death Certificate: {self.title}'
+        elif self.type == GedComSourceType.CENSUS:
+            self.title = f'Census: {self.title}'
 
