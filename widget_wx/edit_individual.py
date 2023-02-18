@@ -81,9 +81,9 @@ class EditIndividual(wx.Dialog):
         groupDetailsSizer.Add(self.textDoD)
         label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Sex')
         groupDetailsSizer.Add(label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 2)
-        self.comboxboxSex = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=['Male', 'Female'])
-        self.comboxboxSex.Bind(wx.EVT_SET_FOCUS, self.onFocusGeneral)
-        groupDetailsSizer.Add(self.comboxboxSex, 0, wx.ALL | wx.ALIGN_LEFT)
+        self.comboboxSex = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=['Male', 'Female'])
+        self.comboboxSex.Bind(wx.EVT_SET_FOCUS, self.onFocusGeneral)
+        groupDetailsSizer.Add(self.comboboxSex, 0, wx.ALL | wx.ALIGN_LEFT)
         groupDetails.Add(groupDetailsSizer, 0, wx.EXPAND | wx.ALL, 2)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
@@ -115,11 +115,13 @@ class EditIndividual(wx.Dialog):
         self.listboxSources = wx.ListBox(self.groupSources.GetStaticBox(), wx.ID_ANY)
         self.groupSources.Add(self.listboxSources, 0, wx.ALL | wx.EXPAND, 2)
         boxsizerNewSource = wx.BoxSizer(wx.HORIZONTAL)
-        self.comboxboxNewSource = wx.ComboBox(self.groupSources.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=[])
-        boxsizerNewSource.Add(self.comboxboxNewSource, 0, wx.ALL | wx.ALIGN_LEFT | wx.EXPAND, 2)
+        self.comboboxNewSource = wx.ComboBox(self.groupSources.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=[])
+        boxsizerNewSource.Add(self.comboboxNewSource, 0, wx.ALL | wx.ALIGN_LEFT | wx.EXPAND, 2)
         buttonAddSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_ANY, 'Add')
+        buttonAddSource.Bind(wx.EVT_BUTTON, self.onAddSource)
         boxsizerNewSource.Add(buttonAddSource, 0, wx.ALL | wx.ALIGN_LEFT, 2)
         buttonRemoveSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_ANY, 'Remove')
+        buttonRemoveSource.Bind(wx.EVT_BUTTON, self.onRemoveSource)
         boxsizerNewSource.Add(buttonRemoveSource, 0, wx.ALL | wx.ALIGN_LEFT, 2)
         self.groupSources.Add(boxsizerNewSource, 0, wx.ALL | wx.EXPAND, 2)
         self.boxsizer.Add(self.groupSources, 0, wx.ALL | wx.EXPAND, 2)
@@ -144,6 +146,7 @@ class EditIndividual(wx.Dialog):
     def onFocusGeneral(self, event):
         ''' Event handler for name getting focus. '''
         self.groupSources.GetStaticBox().SetLabel('General Sources')
+        self.activeSources = self.generalSources
         self.listboxSources.Clear()
         for sourceIdentity in self.generalSources:
             source = self.gedcom.sources[sourceIdentity]
@@ -155,6 +158,7 @@ class EditIndividual(wx.Dialog):
     def onFocusName(self, event):
         ''' Event handler for name getting focus. '''
         self.groupSources.GetStaticBox().SetLabel('Sources for Name')
+        self.activeSources = self.nameSources
         self.listboxSources.Clear()
         for sourceIdentity in self.nameSources:
             source = self.gedcom.sources[sourceIdentity]
@@ -166,6 +170,7 @@ class EditIndividual(wx.Dialog):
     def onFocusDoB(self, event):
         ''' Event handler for DoB getting focus. '''
         self.groupSources.GetStaticBox().SetLabel('Sources for DoB')
+        self.activeSources = self.dobSources
         self.listboxSources.Clear()
         for sourceIdentity in self.dobSources:
             source = self.gedcom.sources[sourceIdentity]
@@ -177,6 +182,7 @@ class EditIndividual(wx.Dialog):
     def onFocusDoD(self, event):
         ''' Event handler for DoB getting focus. '''
         self.groupSources.GetStaticBox().SetLabel('Sources for DoD')
+        self.activeSources = self.dodSources
         self.listboxSources.Clear()
         for sourceIdentity in self.dodSources:
             source = self.gedcom.sources[sourceIdentity]
@@ -201,9 +207,14 @@ class EditIndividual(wx.Dialog):
         self.listboxSources.Clear()
         sources = self.treeFacts.GetItemData(treeItemId)
         if sources is not None:
+            self.activeSources = sources
             for sourceIdentity in sources:
                 source = self.gedcom.sources[sourceIdentity]
                 self.listboxSources.Append(source.title, source)
+        else:
+            # Create a sources list.
+            print('Create a sources list')
+            self.activeSources = None
         # Update the possible child facts.
         if treeItemId == self.treeFacts.GetRootItem():
             newFactOptions = wxfact.getNewFactIndividualOptions()
@@ -247,6 +258,28 @@ class EditIndividual(wx.Dialog):
 
 
 
+    def onAddSource(self, event):
+        ''' Event handler for the add source button click. '''
+        # Get the new source.
+        sourceIndex = self.comboboxNewSource.GetSelection()
+        source = self.comboboxNewSource.GetClientData(sourceIndex)
+        # Add the source.
+        if self.activeSources is not None:
+            self.activeSources.append(source.identity)
+        self.listboxSources.Append(source.title, source)
+
+
+
+    def onRemoveSource(self,event):
+        ''' Event handler for the remove source button click. '''
+        # Get the source.
+        sourceIndex = self.listboxSources.GetSelection()
+        if self.activeSources is not None:
+            self.activeSources.pop(sourceIndex)
+            self.listboxSources.Delete(sourceIndex)
+
+
+
     def populateDialog(self):
         ''' Populate the dialog from the individual. '''
         self.textGivenName.SetValue(self.individual.givenName)
@@ -256,9 +289,9 @@ class EditIndividual(wx.Dialog):
         if self.individual.death is not None and self.individual.death.date is not None:
             self.textDoD.SetValue(self.individual.death.date.toGedCom())
         if self.individual.isMale():
-            self.comboxboxSex.SetSelection(0)
+            self.comboboxSex.SetSelection(0)
         else:
-            self.comboxboxSex.SetSelection(1)
+            self.comboboxSex.SetSelection(1)
 
         # Add the facts to the one and only root.
         root = self.treeFacts.AddRoot(self.individual.getName())
@@ -292,20 +325,24 @@ class EditIndividual(wx.Dialog):
         print('writeChanges()')
         self.individual.givenName = self.textGivenName.GetValue()
         self.individual.surname = self.textSurname.GetValue()
+        self.individual.nameSources = self.nameSources
+        self.individual.sources = self.generalSources
         birthDate = self.textDoB.GetValue()
         if birthDate != '':
             self.individual.birth.date.parse(birthDate)
-            self.individual.birth.date.sources = []
-            for source in self.dobSources:
-                self.individual.birth.date.sources.append(source)
+            self.individual.birth.date.sources = self.dobSources
+            #self.individual.birth.date.sources = []
+            #for source in self.dobSources:
+            #    self.individual.birth.date.sources.append(source)
         deathDate = self.textDoD.GetValue()
         if deathDate == '':
             self.individual.death = None
         else:
             self.individual.death = GedComFact(['1 DEAT Y', f'2 DATE {deathDate}'])
-            for source in self.dodSources:
-                self.individual.death.date.sources.append(source)
-        if self.comboxboxSex.GetSelection() == 0:
+            self.individual.death.date.sources = self.dodSources
+            #for source in self.dodSources:
+            #    self.individual.death.date.sources.append(source)
+        if self.comboboxSex.GetSelection() == 0:
             self.individual.sex = IndividualSex.MALE
         else:
             self.individual.sex = IndividualSex.FEMALE
@@ -371,7 +408,7 @@ class EditIndividual(wx.Dialog):
             sources.append(source)
         sources.sort(key=GedComSource.byChange, reverse=True)
         for source in sources:
-            self.comboxboxNewSource.Append(source.title, source)
+            self.comboboxNewSource.Append(source.title, source)
 
         # Populate the dialog with the individual settings.
         self.populateDialog()

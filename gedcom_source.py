@@ -50,6 +50,7 @@ class GedComSource:
         ''' Class constructor for the :py:class:`GedComSource` class. '''
         if gedcomFile is None:
             self.identity = f'S{len(GedComSource.gedcom.sources) + 1:04d}'
+            self.gedcomFile = ''
             self.title = ''
             self.type = GedComSourceType.GENERAL
             self.repository = ''
