@@ -20,6 +20,7 @@ from gedcom_fact import GedComFact
 # from gedcom_date import GedComDate
 from gedcom_individual import IndividualSex
 from gedcom_source import GedComSource
+from gedcom_change import GedComChange
 import widget_wx.gedcom_fact as wxfact
 
 
@@ -347,6 +348,12 @@ class EditIndividual(wx.Dialog):
 
             # Get the next fact.
             item, cookie = self.treeFacts.GetNextChild(root, cookie)
+
+        # Update the change record.
+        self.individual.gedcom.isDirty = True
+        if self.individual.change is None:
+            self.individual.change = GedComChange()
+        self.individual.change.setNow()
 
 
 

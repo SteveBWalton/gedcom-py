@@ -6,6 +6,7 @@ This module implements the :py:class:`GedComChange` class.
 '''
 # System Libraries.
 import datetime
+import os
 
 # Application libraries.
 
@@ -22,13 +23,18 @@ class GedComChange:
 
 
     def __init__(self, block = None):
-        '''
-        Class constructor for the :py:class:`GedComDate` class.
-        '''
+        ''' Class constructor for the :py:class:`GedComDate` class. '''
         # Individual or family.  Must have .gedcom member.
         self.datetime = None
         self.by = None
         self.parse(block)
+
+
+
+    def setNow(self):
+        ''' Update the GedComChange object to now. '''
+        self.datetime = datetime.datetime.now()
+        self.by = os.getlogin()
 
 
 
@@ -59,7 +65,7 @@ class GedComChange:
             elif tags[1] == 'TIME':
                 time = line[7:]
             elif tags[1] == '_PGVU':
-                self.by = line[7:]
+                self.by = line[8:]
             else:
                 # Unknown.
                 print(f'Change unrecogised tag \'{tags[1]}\' \'{line}\'')

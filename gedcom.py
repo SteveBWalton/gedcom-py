@@ -59,6 +59,7 @@ class GedCom:
         self.media = {}
         self.sources = {}
         self.fileName = None
+        self.isDirty = False
         Place.allPlaces = {}
         GedComIndividual.gedcom = self
         GedComFamily.gedcom = self
@@ -74,6 +75,7 @@ class GedCom:
         self.media = {}
         self.sources = {}
         self.fileName = None
+        self.isDirty = False
         Place.allPlaces = {}
 
 
@@ -173,6 +175,8 @@ class GedCom:
         for individual in self.individuals.values():
             individual.familyIdentities.sort(key=individual.byDateOfMarriage)
 
+        self.isDirty = False
+
         print(f'There are {len(self.individuals)} individuals, {len(self.families)} families, {len(self.media)} media and {len(self.sources)} sources.')
 
 
@@ -235,6 +239,8 @@ class GedCom:
         # Close the file.
         file.write('0 TRLR\n')
         file.close()
+
+        self.isDirty = False
 
 
 

@@ -128,6 +128,11 @@ class WxMainWindow(wx.Frame):
 
     def _fileQuit(self, widget):
         ''' Signal handler for the 'File' → 'Quit' menu point. '''
+        # Check if the current gedcom is dirty.
+        if self.application.gedcom.isDirty:
+            if wx.MessageBox("Current content has not been saved! Proceed?", "Please confirm", wx.ICON_QUESTION | wx.YES_NO, self) == wx.NO:
+                return
+
         # Close the main window and hence exit the wxPython loop.
         self.Close()
 
@@ -154,13 +159,13 @@ class WxMainWindow(wx.Frame):
     def _fileOpen(self, widget):
         ''' Signal handler for the 'File' → 'Open' menu point. '''
         # Check if the current gedcom is dirty.
-        if wx.MessageBox("Current content has not been saved! Proceed?", "Please confirm", wx.ICON_QUESTION | wx.YES_NO, self) == wx.NO:
-            return
+        if self.application.gedcom.isDirty:
+            if wx.MessageBox("Current content has not been saved! Proceed?", "Please confirm", wx.ICON_QUESTION | wx.YES_NO, self) == wx.NO:
+                return
 
         # Prompt the user for gedcom file.
         fileName = None
-        with wx.FileDialog(self, "Open Gedcom file", wildcard="Gedcom files (*.ged)|*.ged",
-                       style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+        with wx.FileDialog(self, "Open Gedcom file", wildcard="Gedcom files (*.ged)|*.ged", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
 
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 # the user changed their mind.
