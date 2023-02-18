@@ -69,6 +69,22 @@ class EditFamily(wx.Dialog):
         groupDetails.Add(groupDetailsSizer, 0, wx.EXPAND | wx.ALL, 2)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
+        # Children group box.
+        groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Children')
+        self.listboxChildren = wx.ListBox(groupDetails.GetStaticBox(), wx.ID_ANY)
+        groupDetails.Add(self.listboxChildren, 0, wx.ALL | wx.EXPAND, 2)
+        panelButtons = wx.BoxSizer(wx.HORIZONTAL)
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Child')
+        panelButtons.Add(label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 2)
+        self.comboboxChild = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1))
+        panelButtons.Add(self.comboboxChild)
+        buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
+        panelButtons.Add(buttonAdd)
+        buttonDelete = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Delete')
+        panelButtons.Add(buttonDelete)
+        groupDetails.Add(panelButtons)
+        self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
+
         # Facts group box.
         groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
         self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100), style = wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS)
@@ -87,10 +103,6 @@ class EditFamily(wx.Dialog):
         buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
         panelButtons.Add(buttonAdd)
         groupDetails.Add(panelButtons)
-        self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
-
-        # Children group box.
-        groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Children')
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
         # Sources group box.
@@ -120,7 +132,6 @@ class EditFamily(wx.Dialog):
         # Finish the panel.
         self.panel.SetSizer(self.boxsizer)
         self.boxsizer.Fit(self)
-
 
 
 
@@ -170,6 +181,33 @@ class EditFamily(wx.Dialog):
 
     def populateDialog(self):
         ''' Populate the dialog from the family. '''
+        # Add People to the husbands and wives.
+        husbands = []
+        wives = []
+        for individual in self.gedcom.individuals.values():
+            if individual.sex == IndividualSex.MALE:
+                husbands.append(individual)
+            else:
+                wives.append(individual)
+        # Sort the people.
+        for individual in husbands:
+            self.comboboxHusband.Append(individual.toLongString(), individual)
+        for individual in wives:
+            self.comboboxWife.Append(individual.toLongString(), individual)
+
+        # Add sources to combobox in reverse change order.
+        sources = []
+        for source in self.gedcom.sources.values():
+            sources.append(source)
+        sources.sort(key=GedComSource.byChange, reverse=True)
+        for source in sources:
+            self.comboboxNewSource.Append(source.title, source)
+
+        # Guess a range for the possible children.
+        childStartDate = datetime.date(1600, 1, 1)
+        childEndDate = datetime.date.today()
+
+        # Populate the actual husband and wife.
         if self.family.husbandIdentity is not None:
             for index in range(len(self.comboboxHusband.Items)):
                 individual = self.comboboxHusband.GetClientData(index)
@@ -182,6 +220,19 @@ class EditFamily(wx.Dialog):
                 if individual.identity == self.family.wifeIdentity:
                     self.comboboxWife.SetSelection(index)
                     break
+            mother = self.gedcom.individuals[self.family.wifeIdentity]
+            childStartDate = datetime.date(mother.birth.date.theDate.year + 16, 1, 1)
+            childEndDate = datetime.date(mother.birth.date.theDate.year + 50, 12, 31)
+
+        # Add the childrem.
+        for childIdentity in self.family.childrenIdentities:
+            child = self.gedcom.individuals[childIdentity]
+            self.listboxChildren.Append(child.toLongString(), child)
+
+        # Add the possible children.
+        for individual in self.gedcom.individuals.values():
+            if individual.birth.date.theDate >= childStartDate and individual.birth.date.theDate <= childEndDate:
+                self.comboboxChild.Append(individual.toLongString(), individual)
 
         # Add the facts to the one and only root.
         root = self.treeFacts.AddRoot('Facts')
@@ -241,6 +292,8 @@ class EditFamily(wx.Dialog):
             # Get the next fact.
             item, cookie = self.treeFacts.GetNextChild(root, cookie)
 
+
+
     def editFamily(self, gedcom, identity):
         '''
         Show the dialog with an initial individual to edit.
@@ -252,28 +305,6 @@ class EditFamily(wx.Dialog):
         # Initialise member variables.
         self.gedcom = gedcom
         self.family = gedcom.families[identity]
-
-        # Add People to the husbands and wives.
-        husbands = []
-        wives = []
-        for individual in gedcom.individuals.values():
-            if individual.sex == IndividualSex.MALE:
-                husbands.append(individual)
-            else:
-                wives.append(individual)
-        # Sort the people.
-        for individual in husbands:
-            self.comboboxHusband.Append(individual.toLongString(), individual)
-        for individual in wives:
-            self.comboboxWife.Append(individual.toLongString(), individual)
-
-        # Add sources to combobox in reverse change order.
-        sources = []
-        for source in gedcom.sources.values():
-            sources.append(source)
-        sources.sort(key=GedComSource.byChange, reverse=True)
-        for source in sources:
-            self.comboboxNewSource.Append(source.title, source)
 
         # Populate the dialog with the individual settings.
         self.populateDialog()
