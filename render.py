@@ -396,7 +396,7 @@ class Render(walton.toolbar.IToolbar):
             self.html.addLine('</tr>')
 
         # Recent.
-        sources.sort(key=GedComMedia.byChange, reverse=True)
+        mediaObjects.sort(key=GedComMedia.byChange, reverse=True)
         for index in range(10):
             if index < len(mediaObjects):
                 media = mediaObjects[index]
