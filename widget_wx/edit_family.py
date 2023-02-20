@@ -82,7 +82,8 @@ class EditFamily(wx.Dialog):
         buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
         buttonAdd.Bind(wx.EVT_BUTTON, self.onAddChild)
         panelButtons.Add(buttonAdd)
-        buttonDelete = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Delete')
+        buttonDelete = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Remove')
+        buttonDelete.Bind(wx.EVT_BUTTON, self.onRemoveChild)
         panelButtons.Add(buttonDelete)
         groupDetails.Add(panelButtons)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
@@ -188,6 +189,13 @@ class EditFamily(wx.Dialog):
         child = self.comboboxChild.GetClientData(childIndex)
         # Add the child.
         self.listboxChildren.Append(child.toLongString(), child)
+
+
+
+    def onRemoveChild(self, event):
+        ''' Event handler for the remove child button. '''
+        childIndex = self.listboxChildren.GetSelection()
+        self.listboxChildren.Delete(childIndex)
 
 
 

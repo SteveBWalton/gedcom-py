@@ -199,6 +199,8 @@ class WxMainWindow(wx.Frame):
     def _fileSave(self, widget):
         ''' Signal handler for the 'File' → 'Save' menu item. '''
         self.application.gedcom.save()
+        # Display the home page.
+        self.followLocalLink('home', True)
 
 
 
@@ -216,6 +218,8 @@ class WxMainWindow(wx.Frame):
 
         if fileName is not None:
             self.application.gedcom.saveAs(fileName)
+            # Display the home page.
+            self.followLocalLink('home', True)
 
 
 
