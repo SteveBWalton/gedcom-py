@@ -135,7 +135,7 @@ def editFact(tree, parentWindow):
 
 
 def getNewFactIndividualOptions(item = None):
-    ''' Returns the list of possible new facts for the speicifed fact item. '''
+    ''' Returns the list of possible new facts for the specified individual fact item. '''
     options = []
     if item == None:
         # Root options.
@@ -150,6 +150,21 @@ def getNewFactIndividualOptions(item = None):
         options.append('Place')
     return options
 
+
+
+def getNewFactFamilyOptions(item = None):
+    ''' Returns the list of possible new facts for the specified family fact item. '''
+    options = []
+    if item == None:
+        # Root options.
+        options.append('Marriage')
+        options.append('Divorce')
+        options.append('Note')
+    else:
+        # Special options.
+        options.append('Date')
+        options.append('Place')
+    return options
 
 
 
@@ -185,6 +200,10 @@ def tagToItemLabel(tag):
         return 'Education'
     if tag == 'NOTE':
         return 'Note'
+    if tag == 'MARR':
+        return 'Marriage'
+    if tag == 'DIV':
+        return 'Divorce'
     if tag == '_TODO':
         return 'ToDo'
     return tag
@@ -209,6 +228,10 @@ def ItemLabelToTag(itemLabel):
         return 'EDUC'
     if itemLabel == 'Note':
         return 'NOTE'
+    if itemLabel == 'Marriage':
+        return 'MARR'
+    if itemLabel == 'Divorce':
+        return 'DIV'
     if itemLabel == 'ToDo':
         return '_TODO'
     return itemLabel

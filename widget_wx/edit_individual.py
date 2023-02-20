@@ -199,13 +199,13 @@ class EditIndividual(wx.Dialog):
 
     def onTreeSelectionChange(self, event):
         ''' Event handler for the tree control selection changing. '''
-        treeItemId = self.treeFacts.GetSelection()
+        treeItem = self.treeFacts.GetSelection()
         # Label the sources.
-        treeItemText = self.treeFacts.GetItemText(treeItemId)
+        treeItemText = self.treeFacts.GetItemText(treeItem)
         self.groupSources.GetStaticBox().SetLabel(treeItemText)
         # Update the sources.
         self.listboxSources.Clear()
-        sources = self.treeFacts.GetItemData(treeItemId)
+        sources = self.treeFacts.GetItemData(treeItem)
         if sources is not None:
             self.activeSources = sources
             for sourceIdentity in sources:
@@ -214,12 +214,14 @@ class EditIndividual(wx.Dialog):
         else:
             # Create a sources list.
             print('Create a sources list')
-            self.activeSources = None
+            self.activeSources = []
+            self.treeFacts.SetItemData(treeItem, self.activeSources)
+
         # Update the possible child facts.
-        if treeItemId == self.treeFacts.GetRootItem():
+        if treeItem == self.treeFacts.GetRootItem():
             newFactOptions = wxfact.getNewFactIndividualOptions()
         else:
-            newFactOptions = wxfact.getNewFactIndividualOptions(treeItemId)
+            newFactOptions = wxfact.getNewFactIndividualOptions(treeItem)
         self.comboboxFact.Clear()
         for option in newFactOptions:
             self.comboboxFact.Append(option)

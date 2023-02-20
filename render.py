@@ -93,7 +93,7 @@ class Render(walton.toolbar.IToolbar):
         self.displayToolbar(True, None, None, None, False, False, False)
 
         self.html.addLine("<h1>About Gedcom Python</h1>")
-        self.html.addLine("<p>by Steven Walton 2023</p>")
+        self.html.addLine("<p>by Steven Walton 2022-2023</p>")
 
 
 
