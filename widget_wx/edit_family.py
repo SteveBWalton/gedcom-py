@@ -21,6 +21,7 @@ import copy
 from gedcom_individual import GedComIndividual, IdentitySources, IndividualSex
 from gedcom_source import GedComSource
 import widget_wx.gedcom_fact as wxfact
+from gedcom_change import GedComChange
 
 
 
@@ -79,6 +80,7 @@ class EditFamily(wx.Dialog):
         self.comboboxChild = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1))
         panelButtons.Add(self.comboboxChild)
         buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
+        buttonAdd.Bind(wx.EVT_BUTTON, self.onAddChild)
         panelButtons.Add(buttonAdd)
         buttonDelete = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Delete')
         panelButtons.Add(buttonDelete)
@@ -176,6 +178,16 @@ class EditFamily(wx.Dialog):
             source = self.gedcom.sources[sourceIdentity]
             self.listboxSources.Append(source.title, source)
         self.panel.Layout()
+
+
+
+    def onAddChild(self, event):
+        ''' Event handler for the add child button. '''
+        # Find the selected child.
+        childIndex = self.comboboxChild.GetSelection()
+        child = self.comboboxChild.GetClientData(childIndex)
+        # Add the child.
+        self.listboxChildren.Append(child.toLongString(), child)
 
 
 
@@ -283,6 +295,29 @@ class EditFamily(wx.Dialog):
                     wife.familyIdentities.append(IdentitySources([f'0 FAMS @{self.family.identity}@', '1 ignore ignore']))
                     self.family.wifeIdentity = newWife.identity
 
+        # Deal with the children.
+        newIdentities = []
+        for index in range(self.listboxChildren.GetCount()):
+            child = self.listboxChildren.GetClientData(index)
+            newIdentities.append(child.identity)
+        for identity in self.family.childrenIdentities:
+            if identity in newIdentities:
+                # Nothing to do.
+                pass
+            else:
+                print(f'Remove{identity}')
+                child = self.gedcom.individuals[identity]
+                child.parentFamilyIdentity = None
+        for identity in newIdentities:
+            if identity in self.family.childrenIdentities:
+                # Nothing to do.
+                pass
+            else:
+                print(f'Add {child.toLongString()}')
+                child = self.gedcom.individuals[identity]
+                child.parentFamilyIdentity = self.family.identity
+        self.family.childrenIdentities = newIdentities
+
         # Loop through the facts.
         print('Loop through facts')
         root = self.treeFacts.GetRootItem()
@@ -291,6 +326,12 @@ class EditFamily(wx.Dialog):
             wxfact.getFactFromTree(self.treeFacts, root, item)
             # Get the next fact.
             item, cookie = self.treeFacts.GetNextChild(root, cookie)
+
+        # Update the change record.
+        self.gedcom.isDirty = True
+        if self.family.change is None:
+            self.family.change = GedComChange()
+        self.family.change.setNow()
 
 
 
