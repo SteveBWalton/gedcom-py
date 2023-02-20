@@ -562,6 +562,8 @@ class Render(walton.toolbar.IToolbar):
                         self.html.add(f'{firstCap(individual.heShe())}')
                     self.html.add(f' <a href="app:family?id={family.identity}">')
                     self.html.add('married')
+                    for source in family.marriage.sources:
+                        self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
                 self.html.add(f'</a> <a href="app:individual?id={partner.identity}">{partner.getName()}</a>')
                 if familyIdentity.sources is not None:
                     for source in familyIdentity.sources:
@@ -809,6 +811,8 @@ class Render(walton.toolbar.IToolbar):
             self.html.add(' had a relationship')
         else:
             self.html.add(' got married')
+            for source in family.marriage.sources:
+                self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
             if family.marriage.place is not None:
                 self.html.add(f' at {family.marriage.place.toLongString()}')
                 for source in family.marriage.place.sources:

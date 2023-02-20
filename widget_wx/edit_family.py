@@ -120,8 +120,10 @@ class EditFamily(wx.Dialog):
         self.comboboxNewSource = wx.ComboBox(self.groupSources.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, choices=[])
         boxsizerNewSource.Add(self.comboboxNewSource, 0, wx.ALL | wx.ALIGN_LEFT | wx.EXPAND, 2)
         buttonAddSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_ANY, 'Add')
+        buttonAddSource.Bind(wx.EVT_BUTTON, self.onAddSource)
         boxsizerNewSource.Add(buttonAddSource, 0, wx.ALL | wx.ALIGN_LEFT, 2)
         buttonRemoveSource = wx.Button(self.groupSources.GetStaticBox(), wx.ID_ANY, 'Remove')
+        buttonRemoveSource.Bind(wx.EVT_BUTTON, self.onRemoveSource)
         boxsizerNewSource.Add(buttonRemoveSource, 0, wx.ALL | wx.ALIGN_LEFT, 2)
         self.groupSources.Add(boxsizerNewSource, 0, wx.ALL | wx.EXPAND, 2)
         self.boxsizer.Add(self.groupSources, 0, wx.ALL | wx.EXPAND, 2)
@@ -242,6 +244,28 @@ class EditFamily(wx.Dialog):
 
         # Update the layout.
         self.panel.Layout()
+
+
+
+    def onAddSource(self, event):
+        ''' Event handler for the add source button click. '''
+        # Get the new source.
+        sourceIndex = self.comboboxNewSource.GetSelection()
+        source = self.comboboxNewSource.GetClientData(sourceIndex)
+        # Add the source.
+        if self.activeSources is not None:
+            self.activeSources.append(source.identity)
+        self.listboxSources.Append(source.title, source)
+
+
+
+    def onRemoveSource(self,event):
+        ''' Event handler for the remove source button click. '''
+        # Get the source.
+        sourceIndex = self.listboxSources.GetSelection()
+        if self.activeSources is not None:
+            self.activeSources.pop(sourceIndex)
+            self.listboxSources.Delete(sourceIndex)
 
 
 
