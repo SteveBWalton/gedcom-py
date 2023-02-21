@@ -671,13 +671,19 @@ class Render(walton.toolbar.IToolbar):
                 elif fact.type == 'EDUC':
                     self.html.add(f'{firstCap(individual.heShe())} was educated at {fact.information}')
                 elif fact.type == 'NOTE':
-                    self.html.add(f'{firstCap(individual.heShe())} {fact.information}')
+                    if fact.information[0:1] >= 'A' and fact.information[0:1] <= 'Z':
+                        self.html.add(fact.toLongString())
+                    else:
+                        self.html.add(f'{firstCap(individual.heShe())} {fact.toLongString()}')
                 else:
                     # Unknown fact type.
                     self.html.add(f'{fact.type} {fact.information}')
                 for source in fact.sources:
                     self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-                self.html.addLine('. ')
+                if self.html._contents[-1:] == '.':
+                    self.html.addLine(' ')
+                else:
+                    self.html.addLine('. ')
 
         # Death details.
         if individual.death is not None:

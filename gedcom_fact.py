@@ -85,7 +85,11 @@ class GedComFact:
                     self.information.append(block[0][7:].split(': '))
                 else:
                     # Add to existing string.
-                    self.information += '\n' + block[0][7:]
+                    # self.information += '\n' + block[0][7:]
+                    # Add as a fact.
+                    if self.facts is None:
+                        self.facts = []
+                    self.facts.append(GedComFact(block))
             elif tags[1] == 'CAUS' or tags[1] == 'TYPE':
                 if self.facts is None:
                     self.facts = []
@@ -114,10 +118,14 @@ class GedComFact:
             result += '</table>'
         else:
             # Normal string information.
-            if self.type is not None:
-                result += f'{self.type} '
+            # if self.type is not None:
+            #    result += f'{self.type} '
             if self.information is not None:
-                result += f'{self.information} '
+                result += f'{self.information}'
+            if self.facts is not None:
+                for fact in self.facts:
+                    if fact.type == 'CONT':
+                        result += f' {fact.information}'
         # Return the calculated value.
         return result.strip()
 
@@ -127,7 +135,8 @@ class GedComFact:
     def toShortString(self):
         ''' Returns the GedCom fact as a short string. '''
         result = ''
-
+        if self.information is not None:
+            result += self.information
         # Return the calculated value.
         return result.strip()
 

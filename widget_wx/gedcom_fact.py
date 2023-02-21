@@ -15,6 +15,23 @@ from gedcom_fact import GedComFact
 
 
 
+_tagToItemLabel = {
+    'DATE' : 'Date',
+    'PLAC' : 'Place',
+    'ADDR' : 'Address',
+    'BIRT' : 'Birth',
+    'DEAT' : 'Death',
+    'OCCU' : 'Occupation',
+    'EDUC' : 'Education',
+    'NOTE' : 'Note',
+    'CONT' : 'Continue',
+    'MARR' : 'Marriage',
+    'DIV'  : 'Divorce',
+    '_TODO' : 'ToDo',
+}
+
+_labelToTag = dict(map(reversed, _tagToItemLabel.items()))
+
 def addFactToTree(tree, root, fact):
     ''' Adds a gedcom fact to tree under the specified node. '''
     if isinstance(fact, GedComFact):
@@ -184,56 +201,18 @@ def getNewFactSourceOptions(item = None):
 
 def tagToItemLabel(tag):
     ''' Returns the item label to use for the specified gedcom tag. '''
-    if tag == 'DATE':
-        return 'Date'
-    if tag == 'PLAC':
-        return 'Place'
-    if tag == 'ADDR':
-        return 'Address'
-    if tag == 'BIRT':
-        return 'Birth'
-    if tag == 'DEAT':
-        return 'Death'
-    if tag == 'OCCU':
-        return 'Occupation'
-    if tag == 'EDUC':
-        return 'Education'
-    if tag == 'NOTE':
-        return 'Note'
-    if tag == 'MARR':
-        return 'Marriage'
-    if tag == 'DIV':
-        return 'Divorce'
-    if tag == '_TODO':
-        return 'ToDo'
+    if tag in _tagToItemLabel:
+        return _tagToItemLabel[tag]
+    print(f'Unknown tag \'{tag}\'')
     return tag
 
 
 
 def ItemLabelToTag(itemLabel):
     ''' Returns the gedcom tag to use the for the specified item label. '''
-    if itemLabel == 'Date':
-        return 'DATE'
-    if itemLabel == 'Place':
-        return 'PLAC'
-    if itemLabel == 'Address':
-        return 'ADDR'
-    if itemLabel == 'Birth':
-        return 'BIRT'
-    if itemLabel == 'Death':
-        return 'DEAT'
-    if itemLabel == 'Occupation':
-        return 'OCCU'
-    if itemLabel == 'Education':
-        return 'EDUC'
-    if itemLabel == 'Note':
-        return 'NOTE'
-    if itemLabel == 'Marriage':
-        return 'MARR'
-    if itemLabel == 'Divorce':
-        return 'DIV'
-    if itemLabel == 'ToDo':
-        return '_TODO'
+    if itemLabel in _labelToTag:
+        return _labelToTag[itemLabel]
+    print(f'Unknown label \'{itemLabel}\'')
     return itemLabel
 
 
