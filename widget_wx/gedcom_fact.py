@@ -151,7 +151,7 @@ def editFact(tree, parentWindow):
 
 
 
-def getNewFactIndividualOptions(item = None):
+def getNewFactIndividualOptions(tree = None, item = None):
     ''' Returns the list of possible new facts for the specified individual fact item. '''
     options = []
     if item == None:
@@ -162,9 +162,29 @@ def getNewFactIndividualOptions(item = None):
         options.append('Note')
         options.append('ToDo')
     else:
-        # Special options.
-        options.append('Date')
-        options.append('Place')
+        # Find the tag.
+        itemText = tree.GetItemText(item)
+        index = itemText.index(':')
+        itemTag = itemText[0:index]
+        if itemTag == 'Date' or itemTag == 'ToDo' or itemTag == 'Continue':
+            # No tags.
+            pass
+        elif itemTag == 'Place':
+            options.append('Address')
+        elif itemTag == 'Death':
+            options.append('Date')
+            options.append('Place')
+            options.append('Cause')
+            options.append('Note')
+        elif itemTag == 'Note':
+            options.append('Continue')
+            options.append('Date')
+            options.append('Place')
+        else:
+            # Default options.
+            options.append('Date')
+            options.append('Place')
+            options.append('Note')
     return options
 
 

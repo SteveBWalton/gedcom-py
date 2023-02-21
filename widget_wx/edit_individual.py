@@ -221,7 +221,7 @@ class EditIndividual(wx.Dialog):
         if treeItem == self.treeFacts.GetRootItem():
             newFactOptions = wxfact.getNewFactIndividualOptions()
         else:
-            newFactOptions = wxfact.getNewFactIndividualOptions(treeItem)
+            newFactOptions = wxfact.getNewFactIndividualOptions(self.treeFacts, treeItem)
         self.comboboxFact.Clear()
         for option in newFactOptions:
             self.comboboxFact.Append(option)

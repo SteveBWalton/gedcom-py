@@ -1431,6 +1431,11 @@ class Render(walton.toolbar.IToolbar):
                     if census.place is not None:
                         if place.identity in census.place.toIdentityCheck():
                             facts += f'Census {census.date.theDate.year}, '
+            if individual.facts is not None:
+                for fact in individual.facts:
+                    if fact.place is not None:
+                        if place.identity in fact.place.toIdentityCheck():
+                            facts += ' '
             if facts != '':
                 self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{facts[:-2]}</td></tr>')
         self.html.addLine('</table>')
