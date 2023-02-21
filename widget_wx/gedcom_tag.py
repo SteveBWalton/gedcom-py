@@ -179,8 +179,6 @@ def getNewTagIndividualOptions(tree = None, item = None):
             options.append('Note')
         elif itemTag == 'Note':
             options.append('Continue')
-            options.append('Date')
-            options.append('Place')
         else:
             # Default options.
             options.append('Date')
@@ -215,8 +213,6 @@ def getNewTagFamilyOptions(tree = None, item = None):
             options.append('Note')
         elif itemTag == 'Note':
             options.append('Continue')
-            options.append('Date')
-            options.append('Place')
         else:
             # Default options.
             options.append('Date')
@@ -226,16 +222,31 @@ def getNewTagFamilyOptions(tree = None, item = None):
 
 
 
-def getNewTagSourceOptions(item = None):
+def getNewTagSourceOptions(tree = None, item = None):
     ''' Returns the list of possible new tags for the specified source tag item. '''
     options = []
     if item == None:
         # Root options.
         options.append('Note')
+        # Not sure about this.
         options.append('GRID')
     else:
-        # Special options.
-        pass
+        # Find the tag.
+        itemText = tree.GetItemText(item)
+        index = itemText.index(':')
+        itemTag = itemText[0:index]
+        if itemTag == 'Date' or itemTag == 'Continue':
+            # No tags.
+            pass
+        elif itemTag == 'Place':
+            options.append('Address')
+        elif itemTag == 'Note':
+            options.append('Continue')
+        else:
+            # Default options.
+            options.append('Date')
+            options.append('Place')
+            options.append('Note')
     return options
 
 

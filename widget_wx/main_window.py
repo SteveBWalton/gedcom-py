@@ -540,8 +540,8 @@ class WxMainWindow(wx.Frame):
 
         print(f'Edit {identity}')
 
-        dialog = widget_wx.edit_source.EditSource(self)
-        if dialog.editSource(self.application.gedcom, identity):
+        dialog = widget_wx.edit_source.EditSource(self, self.application.gedcom, identity)
+        if dialog.editSource():
             print(f'Update {identity}')
             self.followLocalLink(f'source?id={identity}', False)
         else:

@@ -358,6 +358,7 @@ class EditIndividual(wx.Dialog):
         while item.IsOk():
             tag = wxtag.getTagFromTree(self.treeTags, root, item)
 
+            # This is for debuging only.
             for line in tag.toGedCom():
                 print(line)
 

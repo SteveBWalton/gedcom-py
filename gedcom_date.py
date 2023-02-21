@@ -93,9 +93,7 @@ class GedComDate:
 
 
     def parseString(self, dateString = None):
-        '''
-        Update the object to the date specified in the string.
-        '''
+        ''' Update the object to the date specified in the string. '''
         if dateString == '' or dateString.upper() == 'UNKNOWN':
             self.status = GedComDateStatus.EMPTY
             return
@@ -177,7 +175,7 @@ class GedComDate:
 
         if numberOne is None:
             self.yearStatus = GedComDateStatus.UNKNOWN
-            year = 2023
+            year = datetime.date.today().year
 
             # Not sure about this.
             self.status = GedComDateStatus.EMPTY

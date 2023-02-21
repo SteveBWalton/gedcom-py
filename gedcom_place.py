@@ -79,7 +79,7 @@ class GedComPlace:
 
 
     def toLongString(self):
-        ''' Returns the GedCom place as a long string. '''
+        ''' Returns the GedCom place as a long html string. '''
         result = ''
 
         if self.place is not None:
