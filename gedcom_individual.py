@@ -12,7 +12,7 @@ import datetime
 # Application libraries.
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
-from gedcom_fact import GedComFact
+from gedcom_tag import GedComTag
 from gedcom_census import GedComCensus
 from gedcom_change import GedComChange
 
@@ -118,14 +118,14 @@ class GedComIndividual:
             self.surname = 'Individual'
             self.nameSources = []
             self.sex = IndividualSex.MALE
-            self.birth = GedComFact(['1 BIRT Y', '2 DATE ABT 30 JAN 2023'])
+            self.birth = GedComTag(['1 BIRT Y', '2 DATE ABT 30 JAN 2023'])
             self.death = None
             # Families of own marrages.
             self.familyIdentities = []
             # Family of parents marrage.
             self.parentFamilyIdentity = None
             self.todos = None
-            self.facts = None
+            self.tags = None
             self.census = None
             self.media = None
             self.change = None
@@ -199,7 +199,7 @@ class GedComIndividual:
         # Family of parents marrage.
         self.parentFamilyIdentity = None
         self.todos = None
-        self.facts = None
+        self.tags = None
         self.census = None
         self.media = None
         self.change = None
@@ -224,10 +224,10 @@ class GedComIndividual:
                 self.parseSex(block)
             elif tags[1] == 'BIRT':
                 # self.parseBirth(block)
-                self.birth = GedComFact(block)
+                self.birth = GedComTag(block)
             elif tags[1] == 'DEAT':
                 # self.parseDeath(block)
-                self.death = GedComFact(block)
+                self.death = GedComTag(block)
             elif tags[1] == 'FAMS':
                 # Family spouse.
                 self.familyIdentities.append(IdentitySources(block))
@@ -235,9 +235,9 @@ class GedComIndividual:
                 # Family child.
                 self.parentFamilyIdentity = tags[2][1:-1]
             elif tags[1] == 'OCCU' or tags[1] == 'EDUC' or tags[1] == 'NOTE':
-                if self.facts is None:
-                    self.facts = []
-                self.facts.append(GedComFact(block))
+                if self.tags is None:
+                    self.tags = []
+                self.tags.append(GedComTag(block))
             elif tags[1] == 'SOUR':
                 self.sources.append(tags[2][1:-1])
             elif tags[1] == 'OBJE':
@@ -299,9 +299,9 @@ class GedComIndividual:
             for census in self.census:
                 gedcom.extend(census.toGedCom())
         # Facts.
-        if self.facts is not None:
-            for fact in self.facts:
-                gedcom.extend(fact.toGedCom())
+        if self.tags is not None:
+            for tag in self.tags:
+                gedcom.extend(tag.toGedCom())
         # Media.
         if self.media is not None:
             for identity in self.media:

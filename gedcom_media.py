@@ -9,7 +9,7 @@ from enum import Enum
 import datetime
 
 # Application Librariess.
-from gedcom_fact import GedComFact
+from gedcom_tag import GedComTag
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
 from gedcom_change import GedComChange
@@ -106,9 +106,9 @@ class GedComMedia:
             if tags[1] == 'FILE':
                 self.parseFile(block)
             elif tags[1] == 'NOTE':
-                if self.facts is None:
-                    self.facts = []
-                self.facts.append(GedComFact(self, block))
+                if self.tags is None:
+                    self.tags = []
+                self.tags.append(GedComTag(self, block))
             elif tags[1] == 'CHAN':
                 self.change = GedComChange(block)
             elif tags[1] == '_PRIM':

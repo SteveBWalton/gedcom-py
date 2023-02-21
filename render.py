@@ -622,16 +622,16 @@ class Render(walton.toolbar.IToolbar):
                     if census.place is not None:
                         self.html.add(f'{census.place.toLongString()}')
                     self.html.add('</td><td>')
-                    if census.facts is not None:
-                        for fact in census.facts:
-                            if fact.type == 'OCCU':
-                                self.html.add(f'{fact.information}')
+                    if census.tags is not None:
+                        for tag in census.tags:
+                            if tag.type == 'OCCU':
+                                self.html.add(f'{tag.information}')
                     self.html.add('</td><td>')
-                    if census.facts is not None:
-                        for fact in census.facts:
-                            if fact.type == 'NOTE':
-                                if fact.information.startswith('Living with'):
-                                    self.html.add(f' {fact.information[11:]}')
+                    if census.tags is not None:
+                        for tag in census.tags:
+                            if tag.type == 'NOTE':
+                                if tag.information.startswith('Living with'):
+                                    self.html.add(f' {tag.information[11:]}')
                     self.html.add('</td><td style="text-align: right;">')
                     for source in census.sources:
                         self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
@@ -651,34 +651,34 @@ class Render(walton.toolbar.IToolbar):
                         self.html.add(f'{census.place.toLongString()}')
                     for source in census.sources:
                         self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
-                    if census.facts is not None:
-                        for fact in census.facts:
-                            if fact.type == 'OCCU':
-                                self.html.add(f' working as a {fact.information}')
-                            if fact.type == 'NOTE':
-                                if fact.information.startswith('Living with'):
-                                    self.html.add(f' living with {fact.information[11:]}')
+                    if census.tags is not None:
+                        for tag in census.tags:
+                            if tag.type == 'OCCU':
+                                self.html.add(f' working as a {tag.information}')
+                            if tag.type == 'NOTE':
+                                if tag.information.startswith('Living with'):
+                                    self.html.add(f' living with {tag.information[11:]}')
                     self.html.addLine('. ')
 
         # Facts.
-        if individual.facts is not None:
-            for fact in individual.facts:
-                if fact.type == 'OCCU':
+        if individual.tags is not None:
+            for tag in individual.tags:
+                if tag.type == 'OCCU':
                     self.html.add(f'{firstCap(individual.heShe())} worked as a')
-                    if fact.information[0:1] in 'AEIOU':
+                    if tag.information[0:1] in 'AEIOU':
                         self.html.add('n')
-                    self.html.add(f' {fact.information}')
-                elif fact.type == 'EDUC':
-                    self.html.add(f'{firstCap(individual.heShe())} was educated at {fact.information}')
-                elif fact.type == 'NOTE':
-                    if fact.information[0:1] >= 'A' and fact.information[0:1] <= 'Z':
-                        self.html.add(fact.toLongString())
+                    self.html.add(f' {tag.information}')
+                elif tag.type == 'EDUC':
+                    self.html.add(f'{firstCap(individual.heShe())} was educated at {tag.information}')
+                elif tag.type == 'NOTE':
+                    if tag.information[0:1] >= 'A' and tag.information[0:1] <= 'Z':
+                        self.html.add(tag.toLongString())
                     else:
-                        self.html.add(f'{firstCap(individual.heShe())} {fact.toLongString()}')
+                        self.html.add(f'{firstCap(individual.heShe())} {tag.toLongString()}')
                 else:
-                    # Unknown fact type.
-                    self.html.add(f'{fact.type} {fact.information}')
-                for source in fact.sources:
+                    # Unknown tag type.
+                    self.html.add(f'{tag.type} {tag.information}')
+                for source in tag.sources:
                     self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
                 if self.html._contents[-1:] == '.':
                     self.html.addLine(' ')
@@ -895,10 +895,10 @@ class Render(walton.toolbar.IToolbar):
         if source.title.startswith('Marriage'):
             # Marriage certificate.
             grid = None
-            if source.facts is not None:
-                for fact in source.facts:
-                    if isinstance(fact.information, list):
-                        grid = fact.information
+            if source.tags is not None:
+                for tag in source.tags:
+                    if isinstance(tag.information, list):
+                        grid = tag.information
             if grid is not None:
                 self.html.addLine('<table class="certificate" style="background-color: #ccff99; border: 1px solid black;" align="center" cellpadding="5" cellspacing="5">')
                 self.html.add('<tr><td colspan="7">')
@@ -949,10 +949,10 @@ class Render(walton.toolbar.IToolbar):
         elif source.title.startswith('Birth'):
             # Birth Certificate.
             grid = None
-            if source.facts is not None:
-                for fact in source.facts:
-                    if isinstance(fact.information, list):
-                        grid = fact.information
+            if source.tags is not None:
+                for tag in source.tags:
+                    if isinstance(tag.information, list):
+                        grid = tag.information
             if grid is not None:
                 self.html.addLine('<table class="certificate" style="background-color: mistyrose; border: 1px solid black;" align="center" cellpadding="5" cellspacing="0">')
                 self.html.add('<tr><td colspan="8">')
@@ -987,10 +987,10 @@ class Render(walton.toolbar.IToolbar):
         elif source.title.startswith('Death'):
             # Death Cerificate.
             grid = None
-            if source.facts is not None:
-                for fact in source.facts:
-                    if isinstance(fact.information, list):
-                        grid = fact.information
+            if source.tags is not None:
+                for tag in source.tags:
+                    if isinstance(tag.information, list):
+                        grid = tag.information
             if grid is not None:
                 try:
                     self.html.addLine('<table class="certificate" style="background-color: thistle; border: 1px solid black;" align=center cellpadding=5 cellspacing=0>')
@@ -1022,10 +1022,10 @@ class Render(walton.toolbar.IToolbar):
         elif source.title.startswith('Census') or source.title.startswith('1939 Register'):
             # Census.
             grid = None
-            if source.facts is not None:
-                for fact in source.facts:
-                    if isinstance(fact.information, list):
-                        grid = fact.information
+            if source.tags is not None:
+                for tag in source.tags:
+                    if isinstance(tag.information, list):
+                        grid = tag.information
             if grid is not None:
                 self.html.addLine('<table class="certificate" style="background-color: lightcyan; border: 1px solid black;" align="center" cellpadding="5" cellspacing="0">')
                 self.html.add('<tr><td class="census" style="text-align: center;" colspan="5"><span style="font-size: 20pt;">')
@@ -1114,15 +1114,15 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine(f'<p>{source.date.toLongString()}</p>')
             if source.place is not None:
                 self.html.addLine(f'<p>{source.place.toLongString()}</p>')
-            if source.facts is not None:
-                for fact in source.facts:
-                    self.html.addLine(f'<p>{fact.toLongString()}</p>')
+            if source.tags is not None:
+                for tag in source.tags:
+                    self.html.addLine(f'<p>{tag.toLongString()}</p>')
         else:
-            # Show any extra facts.
-            if source.facts is not None:
-                for fact in source.facts:
-                    if not isinstance(fact.information, list):
-                        self.html.addLine(f'<p>{fact.toLongString()}</p>')
+            # Show any extra tags.
+            if source.tags is not None:
+                for tag in source.tags:
+                    if not isinstance(tag.information, list):
+                        self.html.addLine(f'<p>{tag.toLongString()}</p>')
 
         # Show the last change.
         if source.change is not None:
@@ -1132,60 +1132,60 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('<p>Individuals</p>')
         self.html.addLine('<table class="reference">')
         for individual in self.application.gedcom.individuals.values():
-            facts = ''
+            tags = ''
             # print(f'{individual.identity} {individual.getName()}')
             if identity in individual.sources:
-                facts += ' '
+                tags += ' '
             if identity in individual.nameSources:
-                facts += 'Name, '
+                tags += 'Name, '
             if individual.birth is not None:
                 if individual.birth.date is not None:
                     if identity in individual.birth.date.sources:
-                        facts += 'Birth Date, '
+                        tags += 'Birth Date, '
                 if individual.birth.place is not None:
                     if identity in individual.birth.place.sources:
-                        facts += 'Birth Place, '
+                        tags += 'Birth Place, '
                 if identity in individual.birth.sources:
-                    facts += 'Birth, '
+                    tags += 'Birth, '
             if individual.death is not None:
                 if individual.death.date is not None:
                     if identity in individual.death.date.sources:
-                        facts += 'Death Date, '
+                        tags += 'Death Date, '
                 if individual.death.place is not None:
                     if identity in individual.death.place.sources:
-                        facts += 'Death Place, '
+                        tags += 'Death Place, '
                 if identity in individual.death.sources:
-                    facts += 'Death, '
+                    tags += 'Death, '
             if individual.census is not None:
                 for census in individual.census:
                     if census.sources is not None:
                         if identity in census.sources:
-                            facts += f'Census {census.date.theDate.year}, '
-            if facts != '':
-                self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{facts[:-2]}</td></tr>')
+                            tags += f'Census {census.date.theDate.year}, '
+            if tags != '':
+                self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{tags[:-2]}</td></tr>')
         self.html.addLine('</table>')
 
         # Show the families that reference this source.
         self.html.addLine('<p>Families</p>')
         self.html.addLine('<table class="reference">')
         for family in self.application.gedcom.families.values():
-            facts = ''
+            tags = ''
             if family.marriage is not None:
                 if family.marriage.date is not None:
                     if identity in family.marriage.date.sources:
-                        facts += 'Marriage Date, '
+                        tags += 'Marriage Date, '
                 if family.marriage.place is not None:
                     if identity in family.marriage.place.sources:
-                        facts += 'Marriage Place, '
+                        tags += 'Marriage Place, '
             if family.divorce is not None:
                 if identity in family.divorce.sources:
-                    facts += 'Divorce, '
+                    tags += 'Divorce, '
                 if family.divorce.date is not None:
                     if identity in family.divorce.date.sources:
-                        facts += 'Divorce Date, '
+                        tags += 'Divorce Date, '
 
-            if facts != '':
-                self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.getName()}</a></td><td>{facts[:-2]}</td></tr>')
+            if tags != '':
+                self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.getName()}</a></td><td>{tags[:-2]}</td></tr>')
         self.html.addLine('</table>')
 
         # Show the gedcom data for this source.
@@ -1415,42 +1415,42 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('<p>Individuals</p>')
         self.html.addLine('<table class="reference">')
         for individual in self.application.gedcom.individuals.values():
-            facts = ''
+            tags = ''
             # print(f'{individual.identity} {individual.getName()}')
 
             if individual.birth is not None:
                 if individual.birth.place is not None:
                     if place.identity in individual.birth.place.toIdentityCheck():
-                        facts += 'Birth Place, '
+                        tags += 'Birth Place, '
             if individual.death is not None:
                 if individual.death.place is not None:
                     if place.identity in individual.death.place.toIdentityCheck():
-                        facts += 'Death Place, '
+                        tags += 'Death Place, '
             if individual.census is not None:
                 for census in individual.census:
                     if census.place is not None:
                         if place.identity in census.place.toIdentityCheck():
-                            facts += f'Census {census.date.theDate.year}, '
-            if individual.facts is not None:
-                for fact in individual.facts:
-                    if fact.place is not None:
-                        if place.identity in fact.place.toIdentityCheck():
-                            facts += ' '
-            if facts != '':
-                self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{facts[:-2]}</td></tr>')
+                            tags += f'Census {census.date.theDate.year}, '
+            if individual.tags is not None:
+                for tag in individual.tags:
+                    if tag.place is not None:
+                        if place.identity in tag.place.toIdentityCheck():
+                            tags += ' '
+            if tags != '':
+                self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{tags[:-2]}</td></tr>')
         self.html.addLine('</table>')
 
         # Show the families that reference this source.
         self.html.addLine('<p>Families</p>')
         self.html.addLine('<table class="reference">')
         for family in self.application.gedcom.families.values():
-            facts = ''
+            tags = ''
             if family.marriage is not None:
                 if family.marriage.place is not None:
                     if place.identity in family.marriage.place.toIdentityCheck():
-                        facts += 'Marriage Place, '
-            if facts != '':
-                self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.getName()}</a></td><td>{facts[:-2]}</td></tr>')
+                        tags += 'Marriage Place, '
+            if tags != '':
+                self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.getName()}</a></td><td>{tags[:-2]}</td></tr>')
         self.html.addLine('</table>')
 
 

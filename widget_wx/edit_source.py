@@ -15,9 +15,9 @@ import sys
 import copy
 
 # Import my own libraries.
-import widget_wx.gedcom_fact as wxfact
+import widget_wx.gedcom_tag as wxtag
 from gedcom_source import GedComSourceType
-from gedcom_fact import GedComFact
+from gedcom_tag import GedComTag
 from gedcom_change import GedComChange
 
 
@@ -77,7 +77,7 @@ class EditSource(wx.Dialog):
         panelButtons = wx.BoxSizer(wx.HORIZONTAL)
         label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Fact')
         panelButtons.Add(label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 2)
-        self.comboboxFact = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=wxfact.getNewFactSourceOptions())
+        self.comboboxFact = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=wxtag.getNewFactSourceOptions())
         panelButtons.Add(self.comboboxFact)
         buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
         buttonAdd.Bind(wx.EVT_BUTTON, self.onAddFact)
@@ -112,9 +112,9 @@ class EditSource(wx.Dialog):
         treeItem = self.treeFacts.GetSelection()
         # Update the possible child facts.
         if treeItem == self.treeFacts.GetRootItem():
-            newFactOptions = wxfact.getNewFactSourceOptions()
+            newFactOptions = wxtag.getNewFactSourceOptions()
         else:
-            newFactOptions = wxfact.getNewFactSourceOptions(treeItem)
+            newFactOptions = wxtag.getNewFactSourceOptions(treeItem)
         self.comboboxFact.Clear()
         for option in newFactOptions:
             self.comboboxFact.Append(option)
@@ -138,7 +138,7 @@ class EditSource(wx.Dialog):
 
     def onEditFact(self, event):
         ''' Event handler for the edit fact button click. '''
-        wxfact.editFact(self.treeFacts, self)
+        wxtag.editFact(self.treeFacts, self)
 
 
 
@@ -170,14 +170,14 @@ class EditSource(wx.Dialog):
 
         # Add the facts to the one and only root.
         root = self.treeFacts.AddRoot(self.source.title)
-        #wxfact.addFactToTree(self.treeFacts, root, self.individual.birth)
+        #wxtag.addFactToTree(self.treeFacts, root, self.individual.birth)
         #if self.individual.death is not None:
-        #    wxfact.addFactToTree(self.treeFacts, root, self.individual.death)
+        #    wxtag.addFactToTree(self.treeFacts, root, self.individual.death)
         if self.source.place is not None:
-            wxfact.addFactToTree(self.treeFacts, root, self.source.place)
+            wxtag.addFactToTree(self.treeFacts, root, self.source.place)
         if self.source.facts is not None:
             for fact in self.source.facts:
-                wxfact.addFactToTree(self.treeFacts, root, fact)
+                wxtag.addFactToTree(self.treeFacts, root, fact)
         self.treeFacts.Toggle(root)
 
         # Update the layout.
@@ -202,7 +202,7 @@ class EditSource(wx.Dialog):
         root = self.treeFacts.GetRootItem()
         item, cookie = self.treeFacts.GetFirstChild(root)
         while item.IsOk():
-            fact = wxfact.getFactFromTree(self.treeFacts, root, item)
+            fact = wxtag.getFactFromTree(self.treeFacts, root, item)
             if fact is None:
                 print('Not expecting this.')
 

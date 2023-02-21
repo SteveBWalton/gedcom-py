@@ -16,11 +16,9 @@ import sys
 import copy
 
 # Import my own libraries.
-# from gedcom_fact import GedComFact
-# from gedcom_date import GedComDate
 from gedcom_individual import GedComIndividual, IdentitySources, IndividualSex
 from gedcom_source import GedComSource
-import widget_wx.gedcom_fact as wxfact
+import widget_wx.gedcom_tag as wxtag
 from gedcom_change import GedComChange
 
 
@@ -88,25 +86,25 @@ class EditFamily(wx.Dialog):
         groupDetails.Add(panelButtons)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
-        # Facts group box.
-        groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
-        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100), style = wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS)
-        self.treeFacts.Bind(wx.EVT_SET_FOCUS, self.onFocusTree)
-        self.treeFacts.Bind(wx.EVT_TREE_SEL_CHANGED, self.onTreeSelectionChange)
-        groupDetails.Add(self.treeFacts, 0, wx.ALL | wx.EXPAND, 2)
+        # Tags group box.
+        groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Tags')
+        self.treeTags = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 100), style = wx.TR_HAS_BUTTONS) # wx.TR_HIDE_ROOT
+        self.treeTags.Bind(wx.EVT_SET_FOCUS, self.onFocusTree)
+        self.treeTags.Bind(wx.EVT_TREE_SEL_CHANGED, self.onTreeSelectionChange)
+        groupDetails.Add(self.treeTags, 0, wx.ALL | wx.EXPAND, 2)
         panelButtons = wx.BoxSizer(wx.HORIZONTAL)
-        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Fact')
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Tag')
         panelButtons.Add(label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 2)
-        self.comboboxFact = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=wxfact.getNewFactFamilyOptions())
-        panelButtons.Add(self.comboboxFact)
+        self.comboboxNewTag = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=wxtag.getNewTagFamilyOptions())
+        panelButtons.Add(self.comboboxNewTag)
         buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
-        buttonAdd.Bind(wx.EVT_BUTTON, self.onAddFact)
+        buttonAdd.Bind(wx.EVT_BUTTON, self.onAddTag)
         panelButtons.Add(buttonAdd)
         buttonEdit = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Edit')
-        buttonEdit.Bind(wx.EVT_BUTTON, self.onEditFact)
+        buttonEdit.Bind(wx.EVT_BUTTON, self.onEditTag)
         panelButtons.Add(buttonEdit)
         buttonRemove = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Remove')
-        buttonRemove.Bind(wx.EVT_BUTTON, self.onRemoveFact)
+        buttonRemove.Bind(wx.EVT_BUTTON, self.onRemoveTag)
         panelButtons.Add(buttonRemove)
 
         groupDetails.Add(panelButtons)
@@ -179,32 +177,32 @@ class EditFamily(wx.Dialog):
 
 
 
-    def onAddFact(self, event):
-        ''' Event handler for the add fact button click. '''
-        # Get the fact type.
-        factType = self.comboboxFact.GetStringSelection()
+    def onAddTag(self, event):
+        ''' Event handler for the add tag button click. '''
+        # Get the tag type.
+        tagType = self.comboboxNewTag.GetStringSelection()
 
-        if factType != '':
-            # Get the parent fact.
-            treeItemId = self.treeFacts.GetSelection()
-            self.treeFacts.AppendItem(treeItemId, f'{factType}: New information')
-
-
-
-    def onEditFact(self, event):
-        ''' Event handler for the edit fact button click. '''
-        wxfact.editFact(self.treeFacts, self)
+        if tagType != '':
+            # Get the parent tag.
+            treeItem = self.treeTags.GetSelection()
+            self.treeTags.AppendItem(treeItem, f'{tagType}: New information')
 
 
 
-    def onRemoveFact(self, event):
-        ''' Event handler for the remove fact button click. '''
-        treeItem = self.treeFacts.GetSelection()
+    def onEditTag(self, event):
+        ''' Event handler for the edit tag button click. '''
+        wxtag.editTag(self.treeTags, self)
+
+
+
+    def onRemoveTag(self, event):
+        ''' Event handler for the remove tag button click. '''
+        treeItem = self.treeTags.GetSelection()
         if treeItem is None:
             return
-        if treeItem == self.treeFacts.GetRootItem():
+        if treeItem == self.treeTags.GetRootItem():
             return
-        self.treeFacts.Delete(treeItem)
+        self.treeTags.Delete(treeItem)
 
 
 
@@ -216,13 +214,13 @@ class EditFamily(wx.Dialog):
 
     def onTreeSelectionChange(self, event):
         ''' Event handler for the tree control selection changing. '''
-        treeItem = self.treeFacts.GetSelection()
+        treeItem = self.treeTags.GetSelection()
         # Label the sources.
-        treeItemText = self.treeFacts.GetItemText(treeItem)
+        treeItemText = self.treeTags.GetItemText(treeItem)
         self.groupSources.GetStaticBox().SetLabel(treeItemText)
         # Update the sources.
         self.listboxSources.Clear()
-        sources = self.treeFacts.GetItemData(treeItem)
+        sources = self.treeTags.GetItemData(treeItem)
         if sources is not None:
             self.activeSources = sources
             for sourceIdentity in sources:
@@ -232,15 +230,15 @@ class EditFamily(wx.Dialog):
             # Create a sources list.
             print('Create a sources list')
             self.activeSources = []
-            self.treeFacts.SetItemData(treeItem, self.activeSources)
-        # Update the possible child facts.
-        if treeItem == self.treeFacts.GetRootItem():
-            newFactOptions = wxfact.getNewFactFamilyOptions()
+            self.treeTags.SetItemData(treeItem, self.activeSources)
+        # Update the possible child tags.
+        if treeItem == self.treeTags.GetRootItem():
+            newTagOptions = wxtag.getNewTagFamilyOptions()
         else:
-            newFactOptions = wxfact.getNewFactFamilyOptions(treeItem)
-        self.comboboxFact.Clear()
-        for option in newFactOptions:
-            self.comboboxFact.Append(option)
+            newTagOptions = wxtag.getNewTagFamilyOptions(self.treeTags, treeItem)
+        self.comboboxNewTag.Clear()
+        for option in newTagOptions:
+            self.comboboxNewTag.Append(option)
 
         # Update the layout.
         self.panel.Layout()
@@ -324,12 +322,13 @@ class EditFamily(wx.Dialog):
             if individual.birth.date.theDate >= childStartDate and individual.birth.date.theDate <= childEndDate:
                 self.comboboxChild.Append(individual.toLongString(), individual)
 
-        # Add the facts to the one and only root.
-        root = self.treeFacts.AddRoot('Facts')
+        # Add the tags to the one and only root.
+        root = self.treeTags.AddRoot(self.family.getName())
         if self.family.marriage is not None:
-            wxfact.addFactToTree(self.treeFacts, root, self.family.marriage)
+            wxtag.addTagToTree(self.treeTags, root, self.family.marriage)
         if self.family.divorce is not None:
-            wxfact.addFactToTree(self.treeFacts, root, self.family.divorce)
+            wxtag.addTagToTree(self.treeTags, root, self.family.divorce)
+        self.treeTags.Toggle(root)
 
         self.panel.Layout()
 
@@ -396,22 +395,22 @@ class EditFamily(wx.Dialog):
                 child.parentFamilyIdentity = self.family.identity
         self.family.childrenIdentities = newIdentities
 
-        # Loop through the facts.
-        print('Loop through facts')
-        root = self.treeFacts.GetRootItem()
-        item, cookie = self.treeFacts.GetFirstChild(root)
+        # Loop through the tagss.
+        print('Loop through tags')
+        root = self.treeTags.GetRootItem()
+        item, cookie = self.treeTags.GetFirstChild(root)
         while item.IsOk():
-            fact = wxfact.getFactFromTree(self.treeFacts, root, item)
+            tag = wxtag.getTagFromTree(self.treeTags, root, item)
 
-            if fact.type == 'MARR':
-                self.family.marriage = fact
-            elif fact.type == 'DIV':
-                self.family.divorce = fact
+            if tag.type == 'MARR':
+                self.family.marriage = tag
+            elif tag.type == 'DIV':
+                self.family.divorce = tag
             else:
-                print(f'Can not deal with \'{fact.type}\'')
+                print(f'Can not deal with \'{tag.type}\'')
 
-            # Get the next fact.
-            item, cookie = self.treeFacts.GetNextChild(root, cookie)
+            # Get the next tag.
+            item, cookie = self.treeTags.GetNextChild(root, cookie)
 
         # Update the change record.
         self.gedcom.isDirty = True

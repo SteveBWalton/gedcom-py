@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to support facts in the gedcom python library.
-This module implements the :py:class:`GedComFact` class.
+Module to support tags in the gedcom python library.
+This module implements the :py:class:`GedComTag` class.
 '''
 # System Libraries.
 from enum import Enum
@@ -14,15 +14,15 @@ from gedcom_place import GedComPlace
 
 
 
-class GedComFact:
+class GedComTag:
     '''
-    Class to represent a fact in the gedcom python library.
+    Class to represent a tag in the gedcom python library.
 
-    :ivar str type: The type of fact.
-    :ivar str information: The value of the fact.
-    :ivar list(GedComSource): A list of sources for the fact.
-    :ivar GedComDate date: The date of the fact.
-    :ivar GedComPlace place: The place of the fact.
+    :ivar str type: The type of tag.
+    :ivar str information: The value of the tag.
+    :ivar list(GedComSource): A list of sources for the tag.
+    :ivar GedComDate date: The date of the tag.
+    :ivar GedComPlace place: The place of the tag.
     '''
 
     # Connection to the gedcom.
@@ -44,21 +44,21 @@ class GedComFact:
         self.type = ''
         self.information = ''
         self.sources = []
-        # The date associated with this fact.
+        # The date associated with this tag.
         self.date = None
-        # The place associated with this fact.
+        # The place associated with this tag.
         self.place = None
-        # List of sub facts of this fact.
-        self.facts = None
+        # List of sub tags of this tag.
+        self.tags = None
         if gedcomFile is None:
             return
 
         # Check that the parameter is a block of lines.
         if not isinstance(gedcomFile, list):
-            print('FACT gedcomFile is not a list.')
+            print('GedComTag gedcomFile is not a list.')
             return
 
-        # Fetch the fact data.
+        # Fetch the tag data.
         tags = gedcomFile[0].split()
         self.type = tags[1]
         self.information = gedcomFile[0][gedcomFile[0].index(tags[1]) + len(tags[1]) + 1:]
@@ -69,7 +69,7 @@ class GedComFact:
             self.information.append(line.split(': '))
 
         # Fetch the first block.
-        block, start = GedComFact.gedcom.getNextBlock(gedcomFile, 1)
+        block, start = GedComTag.gedcom.getNextBlock(gedcomFile, 1)
         while len(block) > 0:
             # Split into tags.
             tags = block[0].split()
@@ -86,26 +86,26 @@ class GedComFact:
                 else:
                     # Add to existing string.
                     # self.information += '\n' + block[0][7:]
-                    # Add as a fact.
-                    if self.facts is None:
-                        self.facts = []
-                    self.facts.append(GedComFact(block))
+                    # Add as a tag.
+                    if self.tags is None:
+                        self.tags = []
+                    self.tags.append(GedComTag(block))
             elif tags[1] == 'CAUS' or tags[1] == 'TYPE':
-                if self.facts is None:
-                    self.facts = []
-                self.facts.append(GedComFact(block))
+                if self.tags is None:
+                    self.tags = []
+                self.tags.append(GedComTag(block))
             else:
                 # Unknown.
                 print(f'FACT unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
 
             # Fetch the next block.
-            block, start = GedComFact.gedcom.getNextBlock(gedcomFile, start)
+            block, start = GedComTag.gedcom.getNextBlock(gedcomFile, start)
 
 
 
 
     def toLongString(self):
-        ''' Returns the GedCom fact as a long string. '''
+        ''' Returns the GedCom tag as a long string. '''
         result = ''
         if isinstance(self.information, list):
             # Information is a grid.
@@ -122,10 +122,10 @@ class GedComFact:
             #    result += f'{self.type} '
             if self.information is not None:
                 result += f'{self.information}'
-            if self.facts is not None:
-                for fact in self.facts:
-                    if fact.type == 'CONT':
-                        result += f' {fact.information}'
+            if self.tags is not None:
+                for tag in self.tags:
+                    if tag.type == 'CONT':
+                        result += f' {tag.information}'
         # Return the calculated value.
         return result.strip()
 
@@ -133,7 +133,7 @@ class GedComFact:
 
 
     def toShortString(self):
-        ''' Returns the GedCom fact as a short string. '''
+        ''' Returns the GedCom tag as a short string. '''
         result = ''
         if self.information is not None:
             result += self.information
@@ -175,9 +175,9 @@ class GedComFact:
                     result.append(f'{level + 2} SOUR @{source}@')
         if self.place is not None:
             result.extend(self.place.toGedCom(level + 1))
-        if self.facts is not None:
-            for fact in self.facts:
-                result.extend(fact.toGedCom(level + 1))
+        if self.tags is not None:
+            for tag in self.tags:
+                result.extend(tag.toGedCom(level + 1))
         for source in self.sources:
             result.append(f'{level + 1} SOUR @{source}@')
 

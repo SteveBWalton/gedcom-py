@@ -16,8 +16,8 @@ import sys
 import copy
 
 # Import my own libraries.
-import widget_wx.gedcom_fact as wxfact
-from gedcom_fact import GedComFact
+import widget_wx.gedcom_tag as wxtag
+from gedcom_tag import GedComTag
 from gedcom_individual import IndividualSex
 from gedcom_individual import ToDo
 from gedcom_source import GedComSource
@@ -87,25 +87,25 @@ class EditIndividual(wx.Dialog):
         groupDetails.Add(groupDetailsSizer, 0, wx.EXPAND | wx.ALL, 2)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
 
-        # Facts group box.
-        groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Facts')
-        self.treeFacts = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 150), style = wx.TR_HAS_BUTTONS | wx.TR_EDIT_LABELS)
-        self.treeFacts.Bind(wx.EVT_SET_FOCUS, self.onFocusTree)
-        self.treeFacts.Bind(wx.EVT_TREE_SEL_CHANGED, self.onTreeSelectionChange)
-        groupDetails.Add(self.treeFacts, 0, wx.ALL | wx.EXPAND, 2)
+        # Tags group box.
+        groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Tags')
+        self.treeTags = wx.TreeCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(-1, 150), style = wx.TR_HAS_BUTTONS | wx.TR_EDIT_LABELS)
+        self.treeTags.Bind(wx.EVT_SET_FOCUS, self.onFocusTree)
+        self.treeTags.Bind(wx.EVT_TREE_SEL_CHANGED, self.onTreeSelectionChange)
+        groupDetails.Add(self.treeTags, 0, wx.ALL | wx.EXPAND, 2)
         panelButtons = wx.BoxSizer(wx.HORIZONTAL)
-        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Fact')
+        label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Tag')
         panelButtons.Add(label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 2)
-        self.comboboxFact = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=wxfact.getNewFactIndividualOptions())
-        panelButtons.Add(self.comboboxFact)
+        self.comboboxNewTag = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=wxtag.getNewTagIndividualOptions())
+        panelButtons.Add(self.comboboxNewTag)
         buttonAdd = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Add')
-        buttonAdd.Bind(wx.EVT_BUTTON, self.onAddFact)
+        buttonAdd.Bind(wx.EVT_BUTTON, self.onAddTag)
         panelButtons.Add(buttonAdd)
         buttonEdit = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Edit')
-        buttonEdit.Bind(wx.EVT_BUTTON, self.onEditFact)
+        buttonEdit.Bind(wx.EVT_BUTTON, self.onEditTag)
         panelButtons.Add(buttonEdit)
         buttonRemove = wx.Button(groupDetails.GetStaticBox(), wx.ID_ANY, 'Remove')
-        buttonRemove.Bind(wx.EVT_BUTTON, self.onRemoveFact)
+        buttonRemove.Bind(wx.EVT_BUTTON, self.onRemoveTag)
         panelButtons.Add(buttonRemove)
         groupDetails.Add(panelButtons)
         self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
@@ -199,13 +199,13 @@ class EditIndividual(wx.Dialog):
 
     def onTreeSelectionChange(self, event):
         ''' Event handler for the tree control selection changing. '''
-        treeItem = self.treeFacts.GetSelection()
+        treeItem = self.treeTags.GetSelection()
         # Label the sources.
-        treeItemText = self.treeFacts.GetItemText(treeItem)
+        treeItemText = self.treeTags.GetItemText(treeItem)
         self.groupSources.GetStaticBox().SetLabel(treeItemText)
         # Update the sources.
         self.listboxSources.Clear()
-        sources = self.treeFacts.GetItemData(treeItem)
+        sources = self.treeTags.GetItemData(treeItem)
         if sources is not None:
             self.activeSources = sources
             for sourceIdentity in sources:
@@ -215,48 +215,48 @@ class EditIndividual(wx.Dialog):
             # Create a sources list.
             print('Create a sources list')
             self.activeSources = []
-            self.treeFacts.SetItemData(treeItem, self.activeSources)
+            self.treeTags.SetItemData(treeItem, self.activeSources)
 
-        # Update the possible child facts.
-        if treeItem == self.treeFacts.GetRootItem():
-            newFactOptions = wxfact.getNewFactIndividualOptions()
+        # Update the possible child tags.
+        if treeItem == self.treeTags.GetRootItem():
+            newTagOptions = wxtag.getNewTagIndividualOptions()
         else:
-            newFactOptions = wxfact.getNewFactIndividualOptions(self.treeFacts, treeItem)
-        self.comboboxFact.Clear()
-        for option in newFactOptions:
-            self.comboboxFact.Append(option)
+            newTagOptions = wxtag.getNewTagIndividualOptions(self.treeTags, treeItem)
+        self.comboboxNewTag.Clear()
+        for option in newTagOptions:
+            self.comboboxNewTag.Append(option)
 
         # Update the layout.
         self.panel.Layout()
 
 
 
-    def onAddFact(self, event):
-        ''' Event handler for the add fact button click. '''
-        # Get the fact type.
-        factType = self.comboboxFact.GetStringSelection()
+    def onAddTag(self, event):
+        ''' Event handler for the add tag button click. '''
+        # Get the tag type.
+        tagType = self.comboboxNewTag.GetStringSelection()
 
-        if factType != '':
-            # Get the parent fact.
-            treeItemId = self.treeFacts.GetSelection()
-            self.treeFacts.AppendItem(treeItemId, f'{factType}: New information')
-
-
-
-    def onEditFact(self, event):
-        ''' Event handler for the edit fact button click. '''
-        wxfact.editFact(self.treeFacts, self)
+        if tagType != '':
+            # Get the parent tag.
+            treeItemId = self.treeTags.GetSelection()
+            self.treeTags.AppendItem(treeItemId, f'{tagType}: New information')
 
 
 
-    def onRemoveFact(self, event):
-        ''' Event handler for the remove fact button click. '''
-        treeItem = self.treeFacts.GetSelection()
+    def onEditTag(self, event):
+        ''' Event handler for the edit tag button click. '''
+        wxtag.editTag(self.treeTags, self)
+
+
+
+    def onRemoveTag(self, event):
+        ''' Event handler for the remove tag button click. '''
+        treeItem = self.treeTags.GetSelection()
         if treeItem is None:
             return
-        if treeItem == self.treeFacts.GetRootItem():
+        if treeItem == self.treeTags.GetRootItem():
             return
-        self.treeFacts.Delete(treeItem)
+        self.treeTags.Delete(treeItem)
 
 
 
@@ -295,21 +295,21 @@ class EditIndividual(wx.Dialog):
         else:
             self.comboboxSex.SetSelection(1)
 
-        # Add the facts to the one and only root.
-        root = self.treeFacts.AddRoot(self.individual.getName())
-        wxfact.addFactToTree(self.treeFacts, root, self.individual.birth)
+        # Add the tags to the one and only root.
+        root = self.treeTags.AddRoot(self.individual.getName())
+        wxtag.addTagToTree(self.treeTags, root, self.individual.birth)
         if self.individual.death is not None:
-            wxfact.addFactToTree(self.treeFacts, root, self.individual.death)
-        if self.individual.facts is not None:
-            for fact in self.individual.facts:
-                wxfact.addFactToTree(self.treeFacts, root, fact)
-        # Add the ToDo to the root as if they were facts.
+            wxtag.addTagToTree(self.treeTags, root, self.individual.death)
+        if self.individual.tags is not None:
+            for tag in self.individual.tags:
+                wxtag.addTagToTree(self.treeTags, root, tag)
+        # Add the ToDo to the root as if they were tags.
         if self.individual.todos is not None:
             for todo in self.individual.todos:
-                self.treeFacts.AppendItem(root, f'ToDo: {todo.rank} {todo.description}')
-        self.treeFacts.Toggle(root)
+                self.treeTags.AppendItem(root, f'ToDo: {todo.rank} {todo.description}')
+        self.treeTags.Toggle(root)
 
-        # Initialise the non fact sources.
+        # Initialise the non tag sources.
         self.generalSources = copy.copy(self.individual.sources)
         self.nameSources = copy.copy(self.individual.nameSources)
         self.dobSources = copy.copy(self.individual.birth.date.sources)
@@ -340,7 +340,7 @@ class EditIndividual(wx.Dialog):
         if deathDate == '':
             self.individual.death = None
         else:
-            self.individual.death = GedComFact(['1 DEAT Y', f'2 DATE {deathDate}'])
+            self.individual.death = GedComTag(['1 DEAT Y', f'2 DATE {deathDate}'])
             self.individual.death.date.sources = self.dodSources
             #for source in self.dodSources:
             #    self.individual.death.date.sources.append(source)
@@ -349,41 +349,39 @@ class EditIndividual(wx.Dialog):
         else:
             self.individual.sex = IndividualSex.FEMALE
 
-        # Loop through the facts.
-        print('Loop through facts')
-        self.individual.facts = None
+        # Loop through the tags.
+        print('Loop through tags')
+        self.individual.tags = None
         self.individual.todos = None
-        root = self.treeFacts.GetRootItem()
-        item, cookie = self.treeFacts.GetFirstChild(root)
+        root = self.treeTags.GetRootItem()
+        item, cookie = self.treeTags.GetFirstChild(root)
         while item.IsOk():
-            fact = wxfact.getFactFromTree(self.treeFacts, root, item)
-            if fact is None:
-                print('Not expecting this.')
+            tag = wxtag.getTagFromTree(self.treeTags, root, item)
 
-            for line in fact.toGedCom():
+            for line in tag.toGedCom():
                 print(line)
 
-            if fact.type == 'BIRT':
-                print('Ignore birth fact')
-                if fact.place is not None:
-                    self.individual.birth.place = fact.place
+            if tag.type == 'BIRT':
+                print('Ignore birth tag')
+                if tag.place is not None:
+                    self.individual.birth.place = tag.place
                 else:
                     self.individual.birth.place = None
-            elif fact.type == 'DEAT':
-                print('Ignore death fact')
-            elif fact.type == '_TODO':
+            elif tag.type == 'DEAT':
+                print('Ignore death tag')
+            elif tag.type == '_TODO':
                 print('Ignore ToDo')
                 if self.individual.todos is None:
                     self.individual.todos = []
-                todo = ToDo(self.individual, [f'1 _TODO {fact.information}'])
+                todo = ToDo(self.individual, [f'1 _TODO {tag.information}'])
                 self.individual.todos.append(todo)
             else:
-                if self.individual.facts is None:
-                    self.individual.facts = []
-                self.individual.facts.append(fact)
+                if self.individual.tags is None:
+                    self.individual.tags = []
+                self.individual.tags.append(tag)
 
-            # Get the next fact.
-            item, cookie = self.treeFacts.GetNextChild(root, cookie)
+            # Get the next tag.
+            item, cookie = self.treeTags.GetNextChild(root, cookie)
 
         # Update the change record.
         self.gedcom.isDirty = True

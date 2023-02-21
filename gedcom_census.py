@@ -11,14 +11,14 @@ from enum import Enum
 from gedcom_source import GedComSource
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
-from gedcom_fact import GedComFact
+from gedcom_tag import GedComTag
 
 
 
 
 class GedComCensus:
     '''
-    Class to represent a fact in the gedcom python library.
+    Class to represent a census record for an individual in the gedcom python library.
 
     :ivar list(GedComSource): A list of sources for the census.
     :ivar GedComDate date: The date of the census.
@@ -43,7 +43,7 @@ class GedComCensus:
         self.sources = []
         self.date = None
         self.place = None
-        self.facts = None
+        self.tags = None
         if gedcomFile is None:
             return
 
@@ -63,9 +63,9 @@ class GedComCensus:
             elif tags[1] == 'PLAC':
                 self.place = GedComPlace(block)
             elif tags[1] == 'OCCU' or tags[1] == 'NOTE':
-                if self.facts is None:
-                    self.facts = []
-                self.facts.append(GedComFact(block))
+                if self.tags is None:
+                    self.tags = []
+                self.tags.append(GedComTag(block))
             else:
                 # Unknown.
                 print(f'CENS unrecogised tag \'{tags[1]}\'')
@@ -105,9 +105,9 @@ class GedComCensus:
             lines = self.place.toGedCom(level + 1)
             for line in lines:
                 result.append(line)
-        if self.facts is not None:
-            for fact in self.facts:
-                lines = fact.toGedCom(level + 1)
+        if self.tags is not None:
+            for tag in self.tags:
+                lines = tag.toGedCom(level + 1)
                 for line in lines:
                     result.append(line)
         if self.sources is not None:

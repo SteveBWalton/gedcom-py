@@ -24,7 +24,7 @@ from gedcom_individual import GedComIndividual
 from gedcom_family import GedComFamily
 from gedcom_source import GedComSource
 from gedcom_media import GedComMedia
-from gedcom_fact import GedComFact
+from gedcom_tag import GedComTag
 from place import Place
 
 
@@ -64,7 +64,7 @@ class GedCom:
         GedComIndividual.gedcom = self
         GedComFamily.gedcom = self
         GedComSource.gedcom = self
-        GedComFact.gedcom = self
+        GedComTag.gedcom = self
 
 
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to support gedcom facts in the wxPython library.
+Module to support gedcom tags in the wxPython library.
 '''
 
 # System libraries.
@@ -11,11 +11,11 @@ import copy
 # Application libraries.
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
-from gedcom_fact import GedComFact
+from gedcom_tag import GedComTag
 
 
 
-_tagToItemLabel = {
+_tagToLabel = {
     'DATE' : 'Date',
     'PLAC' : 'Place',
     'ADDR' : 'Address',
@@ -26,19 +26,20 @@ _tagToItemLabel = {
     'NOTE' : 'Note',
     'CONT' : 'Continue',
     'MARR' : 'Marriage',
+    'TYPE' : 'Type',
     'DIV'  : 'Divorce',
     '_TODO' : 'ToDo',
 }
 
-_labelToTag = dict(map(reversed, _tagToItemLabel.items()))
+_labelToTag = dict(map(reversed, _tagToLabel.items()))
 
-def addFactToTree(tree, root, fact):
-    ''' Adds a gedcom fact to tree under the specified node. '''
-    if isinstance(fact, GedComFact):
-        if isinstance(fact.information, list):
+def addTagToTree(tree, root, tag):
+    ''' Adds a gedcom tag to tree under the specified node. '''
+    if isinstance(tag, GedComTag):
+        if isinstance(tag.information, list):
             # Special case of NOTE GRID
             parent = None
-            for line in fact.information:
+            for line in tag.information:
                 lineAsString = ': '.join(line)
                 # Really not sure about the tags to use here.
                 if parent is None:
@@ -46,72 +47,72 @@ def addFactToTree(tree, root, fact):
                 else:
                     tree.AppendItem(parent, f'CONT: {lineAsString}')
         else:
-            # Normal fact, expect to come here.
-            parent = tree.AppendItem(root, f'{tagToItemLabel(fact.type)}: {fact.information}', data=copy.copy(fact.sources))
-            if fact.date is not None:
-                addFactToTree(tree, parent, fact.date)
-            if fact.place is not None:
-                addFactToTree(tree, parent, fact.place)
-            if fact.facts is not None:
-                for childFact in fact.facts:
-                    addFactToTree(tree, parent, childFact)
-    elif isinstance(fact, GedComDate):
-        parent = tree.AppendItem(root, f'Date: {fact.toGedCom()}', data = copy.copy(fact.sources))
-    elif isinstance(fact, GedComPlace):
-        parent = tree.AppendItem(root, f'Place: {fact.place}', data = copy.copy(fact.sources))
-        if fact.address is not None:
-            tree.AppendItem(parent, f'Address: {fact.address}')
+            # Normal tag, expect to come here.
+            parent = tree.AppendItem(root, f'{tagToLabel(tag.type)}: {tag.information}', data=copy.copy(tag.sources))
+            if tag.date is not None:
+                addTagToTree(tree, parent, tag.date)
+            if tag.place is not None:
+                addTagToTree(tree, parent, tag.place)
+            if tag.tags is not None:
+                for childFact in tag.tags:
+                    addTagToTree(tree, parent, childFact)
+    elif isinstance(tag, GedComDate):
+        parent = tree.AppendItem(root, f'Date: {tag.toGedCom()}', data = copy.copy(tag.sources))
+    elif isinstance(tag, GedComPlace):
+        parent = tree.AppendItem(root, f'Place: {tag.place}', data = copy.copy(tag.sources))
+        if tag.address is not None:
+            tree.AppendItem(parent, f'Address: {tag.address}')
     else:
         parent = tree.AppendItem(root, 'Unknown Type')
 
 
 
-def getFactFromTree(tree, root, item, parent=None):
-    ''' Get a gedcom fact from a tree control item. '''
+def getTagFromTree(tree, root, item, parent=None):
+    ''' Get a gedcom tag from a tree control item. '''
     itemTag, itemValue = getTagsFromTreeItem(tree, item)
     # print(f'{itemTag} {itemValue}')
     if parent is None:
-        print(f'GedComFact(\'{itemTag}\', \'{itemValue}\')')
-        fact = GedComFact()
-        fact.type = itemTag
-        fact.information = itemValue
-        fact.sources = getSourcesFromTreeItem(tree, item)
+        print(f'GedComTag(\'{itemTag}\', \'{itemValue}\')')
+        tag = GedComTag()
+        tag.type = itemTag
+        tag.information = itemValue
+        tag.sources = getSourcesFromTreeItem(tree, item)
     else:
         if itemTag == 'DATE':
             print(f'\tGedComDate(\'{itemTag}\', \'{itemValue}\')')
             parent.date = GedComDate(itemValue)
-            fact = parent.date
-            fact.sources = getSourcesFromTreeItem(tree, item)
+            tag = parent.date
+            tag.sources = getSourcesFromTreeItem(tree, item)
         elif itemTag == 'PLAC':
             print(f'\tGedComPlace(\'{itemTag}\', \'{itemValue}\')')
             parent.place = GedComPlace()
             parent.place.place = itemValue
-            fact = parent.place
-            fact.sources = getSourcesFromTreeItem(tree, item)
+            tag = parent.place
+            tag.sources = getSourcesFromTreeItem(tree, item)
         elif itemTag == 'ADDR':
             print('\tAdd the address to parent for now')
             parent.address = itemValue
-            fact = None
+            tag = None
         else:
-            print(f'\tGedComFact(\'{itemTag}\', \'{itemValue}\')')
-            fact = GedComFact()
-            fact.type = itemTag
-            fact.information = itemValue
-            fact.sources = getSourcesFromTreeItem(tree, item)
-            if parent.facts is None:
-                parent.facts = []
-            parent.facts.append(fact)
+            print(f'\tGedComTag(\'{itemTag}\', \'{itemValue}\')')
+            tag = GedComTag()
+            tag.type = itemTag
+            tag.information = itemValue
+            tag.sources = getSourcesFromTreeItem(tree, item)
+            if parent.tags is None:
+                parent.tags = []
+            parent.tags.append(tag)
 
-    # Add addition information to this fact.
+    # Add addition information to this tag.
     if tree.ItemHasChildren(item):
         child, cookie = tree.GetFirstChild(item)
         while child.IsOk():
-            getFactFromTree(tree, item, child, fact)
+            getTagFromTree(tree, item, child, tag)
             # Get the next child.
             child, cookie = tree.GetNextChild(item, cookie)
 
-    # Return the gedcom fact.
-    return fact
+    # Return the gedcom tag.
+    return tag
 
 
 
@@ -121,7 +122,7 @@ def getTagsFromTreeItem(tree, item):
     index = itemText.index(':')
     itemTag = itemText[0:index]
     itemValue = itemText[index+1:].strip()
-    itemTag = ItemLabelToTag(itemTag)
+    itemTag = labelToTag(itemTag)
     return itemTag, itemValue
 
 
@@ -135,8 +136,8 @@ def getSourcesFromTreeItem(tree, item):
 
 
 
-def editFact(tree, parentWindow):
-    ''' Edit the selected fact in the specified tree control. '''
+def editTag(tree, parentWindow):
+    ''' Edit the selected tag in the specified tree control. '''
     # Get the selected item.
     treeItem = tree.GetSelection()
     if treeItem == tree.GetRootItem():
@@ -144,15 +145,15 @@ def editFact(tree, parentWindow):
         return
 
     itemTag, itemValue = getTagsFromTreeItem(tree, treeItem)
-    editFactDialog = EditFact(parentWindow)
-    itemValue = editFactDialog.editFact(itemTag, itemValue)
+    editTagDialog = EditTag(parentWindow)
+    itemValue = editTagDialog.editTag(itemTag, itemValue)
     if itemValue is not None:
-        tree.SetItemText(treeItem, f'{tagToItemLabel(itemTag)}: {itemValue}')
+        tree.SetItemText(treeItem, f'{tagToLabel(itemTag)}: {itemValue}')
 
 
 
-def getNewFactIndividualOptions(tree = None, item = None):
-    ''' Returns the list of possible new facts for the specified individual fact item. '''
+def getNewTagIndividualOptions(tree = None, item = None):
+    ''' Returns the list of possible new tags for the specified individual tag item. '''
     options = []
     if item == None:
         # Root options.
@@ -189,8 +190,8 @@ def getNewFactIndividualOptions(tree = None, item = None):
 
 
 
-def getNewFactFamilyOptions(item = None):
-    ''' Returns the list of possible new facts for the specified family fact item. '''
+def getNewTagFamilyOptions(tree = None, item = None):
+    ''' Returns the list of possible new tags for the specified family tag item. '''
     options = []
     if item == None:
         # Root options.
@@ -198,15 +199,35 @@ def getNewFactFamilyOptions(item = None):
         options.append('Divorce')
         options.append('Note')
     else:
-        # Special options.
-        options.append('Date')
-        options.append('Place')
+        # Find the tag.
+        itemText = tree.GetItemText(item)
+        index = itemText.index(':')
+        itemTag = itemText[0:index]
+        if itemTag == 'Date' or itemTag == 'Continue':
+            # No tags.
+            pass
+        elif itemTag == 'Place':
+            options.append('Address')
+        elif itemTag == 'Marriage':
+            options.append('Date')
+            options.append('Place')
+            options.append('Type')
+            options.append('Note')
+        elif itemTag == 'Note':
+            options.append('Continue')
+            options.append('Date')
+            options.append('Place')
+        else:
+            # Default options.
+            options.append('Date')
+            options.append('Place')
+            options.append('Note')
     return options
 
 
 
-def getNewFactSourceOptions(item = None):
-    ''' Returns the list of possible new facts for the specified source fact item. '''
+def getNewTagSourceOptions(item = None):
+    ''' Returns the list of possible new tags for the specified source tag item. '''
     options = []
     if item == None:
         # Root options.
@@ -219,16 +240,16 @@ def getNewFactSourceOptions(item = None):
 
 
 
-def tagToItemLabel(tag):
+def tagToLabel(tag):
     ''' Returns the item label to use for the specified gedcom tag. '''
-    if tag in _tagToItemLabel:
-        return _tagToItemLabel[tag]
+    if tag in _tagToLabel:
+        return _tagToLabel[tag]
     print(f'Unknown tag \'{tag}\'')
     return tag
 
 
 
-def ItemLabelToTag(itemLabel):
+def labelToTag(itemLabel):
     ''' Returns the gedcom tag to use the for the specified item label. '''
     if itemLabel in _labelToTag:
         return _labelToTag[itemLabel]
@@ -237,8 +258,8 @@ def ItemLabelToTag(itemLabel):
 
 
 
-class EditFact(wx.Dialog):
-    ''' Class to represent the dialog to edit an individual fact in gedcom. '''
+class EditTag(wx.Dialog):
+    ''' Class to represent the dialog to edit an individual tag in gedcom. '''
 
 
 
@@ -251,7 +272,7 @@ class EditFact(wx.Dialog):
         Call :py:func:`editIndividual` or :py:func:`editNewIndividual` to actually show the dialog.
         '''
         # Initialise the base class.
-        wx.Dialog.__init__(self, parentWindow, title='Edit Fact', style = wx.RESIZE_BORDER)
+        wx.Dialog.__init__(self, parentWindow, title='Edit Tag', style = wx.RESIZE_BORDER)
 
         # Add a panel to the dialog.
         self.panel = wx.Panel(self, wx.ID_ANY)
@@ -284,9 +305,9 @@ class EditFact(wx.Dialog):
 
 
 
-    def editFact(self, factTag, factValue):
-        ''' Show the edit fact dialog and allow the user to edit the fact on the tree control. '''
-        self.textValue.SetValue(factValue)
+    def editTag(self, tagTag, tagValue):
+        ''' Show the edit tag dialog and allow the user to edit the tag on the tree control. '''
+        self.textValue.SetValue(tagValue)
         if self.ShowModal() == wx.ID_OK:
             newValue = self.textValue.GetValue()
             return newValue

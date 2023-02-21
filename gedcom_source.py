@@ -9,7 +9,7 @@ from enum import Enum
 import datetime
 
 # Application Librariess.
-from gedcom_fact import GedComFact
+from gedcom_tag import GedComTag
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
 from gedcom_change import GedComChange
@@ -56,7 +56,7 @@ class GedComSource:
             self.repository = ''
             self.date = None
             self.place = None
-            self.facts = None
+            self.tags = None
             self.change = None
             return
 
@@ -74,7 +74,7 @@ class GedComSource:
         self.repository = ''
         self.date = None
         self.place = None
-        self.facts = None
+        self.tags = None
         self.change = None
         if gedcomFile is None:
             return
@@ -98,9 +98,9 @@ class GedComSource:
             elif tags[1] == 'DATE':
                 self.date = GedComDate(block)
             elif tags[1] == 'NOTE':
-                if self.facts is None:
-                    self.facts = []
-                self.facts.append(GedComFact(block))
+                if self.tags is None:
+                    self.tags = []
+                self.tags.append(GedComTag(block))
             elif tags[1] == 'PLAC':
                 self.place = GedComPlace(block)
             elif tags[1] == 'REPO':
@@ -167,10 +167,10 @@ class GedComSource:
             gedcom.append(f'1 DATE {self.date.toGedCom()}')
         if self.place is not None:
             gedcom.extend(self.place.toGedCom())
-        # Facts.
-        if self.facts is not None:
-            for fact in self.facts:
-                gedcom.extend(fact.toGedCom())
+        # Tags.
+        if self.tags is not None:
+            for tag in self.tags:
+                gedcom.extend(tag.toGedCom())
         # Repository
         if self.repository != '':
             gedcom.append(f'1 REPO @{self.repository}@')

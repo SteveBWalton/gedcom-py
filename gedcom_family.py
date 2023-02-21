@@ -12,7 +12,7 @@ import datetime
 # Application libraries.
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
-from gedcom_fact import GedComFact
+from gedcom_tag import GedComTag
 from gedcom_change import GedComChange
 
 
@@ -89,7 +89,7 @@ class GedComFamily:
             tags = block[0].split()
             if tags[1] == 'MARR':
                 # This gives the type, date and place.
-                self.marriage = GedComFact(block)
+                self.marriage = GedComTag(block)
             elif tags[1] == 'HUSB':
                 self.husbandIdentity = tags[2][1:-1]
             elif tags[1] == 'WIFE':
@@ -97,7 +97,7 @@ class GedComFamily:
             elif tags[1] == 'CHIL':
                 self.childrenIdentities.append(tags[2][1:-1])
             elif tags[1] == 'DIV':
-                self.divorce = GedComFact(block)
+                self.divorce = GedComTag(block)
             elif tags[1] == 'SOUR':
                 self.sources.append(tags[2][1:-1])
             elif tags[1] == 'OBJE':
