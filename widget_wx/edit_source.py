@@ -217,25 +217,95 @@ class EditSource(wx.Dialog):
 
         elif self.source.type == GedComSourceType.DEATH_CERTIFICATE:
             groupDetails = wx.StaticBoxSizer(wx.VERTICAL, self.panel, 'Death Certificate')
-            groupDetailsSizer = wx.GridBagSizer(10, 10)
+            groupDetailsSizer = wx.GridBagSizer(13, 10)
 
             label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Title')
-            groupDetailsSizer.Add(label, pos = (0,0), span = (1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 2)
+            groupDetailsSizer.Add(label, pos = (0,0), span = (1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
             self.textTitle = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(400,-1))
-            groupDetailsSizer.Add(self.textTitle, pos = (0,1), span=(1,4), flag = wx.ALL | wx.ALIGN_LEFT, border = 2)
+            groupDetailsSizer.Add(self.textTitle, pos = (0,1), span=(1,4), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
 
             label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Date')
-            groupDetailsSizer.Add(label, pos=(1,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 2)
+            groupDetailsSizer.Add(label, pos=(1,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
             self.textDate = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(140,-1))
-            groupDetailsSizer.Add(self.textDate, pos=(1,1), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, border = 2)
+            groupDetailsSizer.Add(self.textDate, pos=(1,1), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, border = 1)
             label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Place')
-            groupDetailsSizer.Add(label, pos=(1,2), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 2)
+            groupDetailsSizer.Add(label, pos=(1,2), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
             self.textPlace = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(400,-1))
-            groupDetailsSizer.Add(self.textPlace, pos = (1,3), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 2)
+            groupDetailsSizer.Add(self.textPlace, pos = (1,3), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
             label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Address')
-            groupDetailsSizer.Add(label, pos=(2,2), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 2)
+            groupDetailsSizer.Add(label, pos=(2,2), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
             self.textAddress = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(400,-1))
-            groupDetailsSizer.Add(self.textAddress, pos = (2,3), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 2)
+            groupDetailsSizer.Add(self.textAddress, pos = (2,3), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Registration District')
+            groupDetailsSizer.Add(label, pos=(3,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textRegistrationDistrict = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,-1))
+            groupDetailsSizer.Add(self.textRegistrationDistrict, pos=(3,1), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'When')
+            groupDetailsSizer.Add(label, pos=(3,4), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textWhenRegistered = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(150,-1))
+            groupDetailsSizer.Add(self.textWhenRegistered, pos=(3,5), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'When')
+            groupDetailsSizer.Add(label, pos=(4,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textWhen = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(150,-1))
+            groupDetailsSizer.Add(self.textWhen, pos=(4,1), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Where')
+            groupDetailsSizer.Add(label, pos=(4,2), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textWhere = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,-1))
+            groupDetailsSizer.Add(self.textWhere, pos=(4,3), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Name')
+            groupDetailsSizer.Add(label, pos=(5,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textName = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,-1))
+            groupDetailsSizer.Add(self.textName, pos=(5,1), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Sex')
+            groupDetailsSizer.Add(label, pos=(5,4), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textSex = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(100,-1))
+            groupDetailsSizer.Add(self.textSex, pos=(5,5), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Birth Date')
+            groupDetailsSizer.Add(label, pos=(6,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textBirthWhen = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(150,-1))
+            groupDetailsSizer.Add(self.textBirthWhen, pos=(6,1), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Location')
+            groupDetailsSizer.Add(label, pos=(6,2), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textBirthWhere = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,-1))
+            groupDetailsSizer.Add(self.textBirthWhere, pos=(6,3), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Occupation')
+            groupDetailsSizer.Add(label, pos=(7,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textOccupation = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,-1))
+            groupDetailsSizer.Add(self.textOccupation, pos=(7,1), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Usual Address')
+            groupDetailsSizer.Add(label, pos=(8,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textUsualAddress = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,-1))
+            groupDetailsSizer.Add(self.textUsualAddress, pos=(8,1), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Cause')
+            groupDetailsSizer.Add(label, pos=(9,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_TOP, border = 1)
+            self.textCause = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,70), style = wx.TE_MULTILINE)
+            groupDetailsSizer.Add(self.textCause, pos=(9,1), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Informant')
+            groupDetailsSizer.Add(label, pos=(10,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textInformant = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,-1))
+            groupDetailsSizer.Add(self.textInformant, pos=(10,1), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Description')
+            groupDetailsSizer.Add(label, pos=(10,4), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textInformantDescription = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(100,-1))
+            groupDetailsSizer.Add(self.textInformantDescription, pos=(10,5), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Informant Address')
+            groupDetailsSizer.Add(label, pos=(11,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textInformantAddress = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,-1))
+            groupDetailsSizer.Add(self.textInformantAddress, pos=(11,1), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'GRO Reference')
+            groupDetailsSizer.Add(label, pos=(12,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 2)
+            self.textGroReference = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(300,-1))
+            groupDetailsSizer.Add(self.textGroReference, pos = (12,1), span=(1,3), flag = wx.ALL | wx.ALIGN_LEFT, border = 2)
 
             groupDetails.Add(groupDetailsSizer, 0, wx.EXPAND | wx.ALL, 2)
             self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
@@ -434,6 +504,26 @@ class EditSource(wx.Dialog):
                     self.textBrideFatherProfession.SetValue(grid[4][3])
 
                     self.textWitness.SetValue(grid[5][1])
+
+                elif self.source.type == GedComSourceType.DEATH_CERTIFICATE:
+                    self.textRegistrationDistrict.SetValue(grid[1][1])
+                    self.textWhen.SetValue(grid[2][1])
+                    self.textWhere.SetValue(grid[3][1])
+                    self.textName.SetValue(grid[4][1])
+                    self.textSex.SetValue(grid[4][2])
+                    self.textBirthWhen.SetValue(grid[5][1])
+                    try:
+                        self.textBirthWhere.SetValue(grid[5][2])
+                    except:
+                        pass
+                    self.textOccupation.SetValue(grid[6][1])
+                    self.textUsualAddress.SetValue(grid[7][1])
+                    self.textCause.SetValue(grid[8][1])
+                    self.textInformant.SetValue(grid[9][1])
+                    self.textInformantDescription.SetValue(grid[9][2])
+                    self.textInformantAddress.SetValue(grid[10][1])
+                    self.textGroReference.SetValue(grid[0][2])
+                    self.textWhenRegistered.SetValue(grid[11][1])
         else:
             # General source.
             self.comboboxType.SetSelection(self.source.type.value - 1)
@@ -488,7 +578,24 @@ class EditSource(wx.Dialog):
             self.source.tags = []
             self.source.tags.append(tag)
         elif self.source.type == GedComSourceType.DEATH_CERTIFICATE:
-            tag = GedComTag(['1 NOTE GRID: GRO Reference: 1979 Mar Dewsbury 4 1587', '2 CONT Registration District: Dewsbury, Yorkshire, England', '2 CONT When: 14 Jan 1979 Dewsbury General Hospital Dewsbury', '2 CONT Where: ', '2 CONT Name: Thomas Henry Walton: Male', '2 CONT Date & Place of Birth: 27 Jan 1920 Gilersome Leeds', '2 CONT Occupation: Coal Miner (Face Worker)', '2 CONT Usual Address: 44 Newlands Drive Morley Leeds', '2 CONT Cause of Death: 1a. Abdominal Carcinomatosis<br />b. Carcuioma Body of Stomach', '2 CONT Informant: Brian John Walton: Son', '2 CONT Informant Address: 6 Scatcherd Lane, Morley, Leeds', '2 CONT When Registered: 15 Jan 1979'])
+            lines = [f'1 NOTE GRID: GRO Reference: {self.textGroReference.GetValue()}', f'2 CONT Registration District: {self.textRegistrationDistrict.GetValue()}', f'2 CONT When: {self.textWhen.GetValue()}', f'2 CONT Where: {self.textWhere.GetValue()}', f'2 CONT Name: {self.textName.GetValue()}: {self.textSex.GetValue()}', f'2 CONT Date & Place of Birth: {self.textBirthWhen.GetValue()}: {self.textBirthWhere.GetValue()}', f'2 CONT Occupation: {self.textOccupation.GetValue()}', f'2 CONT Usual Address: {self.textUsualAddress.GetValue()}']
+            cause = self.textCause.GetValue()
+            print(cause)
+            causeLines = cause.split('\n')
+            print(causeLines)
+            isFirst = True
+            for causeLine in causeLines:
+                print(causeLine)
+                if isFirst:
+                    # lines.append(f'2 CONT Cause of Death: {self.textCause.GetValue()}')
+                    lines.append(f'2 CONT Cause of Death: {causeLine}')
+                    isFirst = False
+                else:
+                    lines.append(f'3 CONT {causeLine}')
+            lines.append(f'2 CONT Informant: {self.textInformant.GetValue()}: {self.textInformantDescription.GetValue()}')
+            lines.append(f'2 CONT Informant Address: {self.textInformantAddress.GetValue()}')
+            lines.append(f'2 CONT When Registered: {self.textWhenRegistered.GetValue()}')
+            tag = GedComTag(lines)
             self.source.tags = []
             self.source.tags.append(tag)
         else:

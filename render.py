@@ -995,13 +995,17 @@ class Render(walton.toolbar.IToolbar):
                 try:
                     self.html.addLine('<table class="certificate" style="background-color: thistle; border: 1px solid black;" align=center cellpadding=5 cellspacing=0>')
                     self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Registration District</span></td><td colspan=3>{grid[1][1]}</td></tr>')
-                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">When and Where</span></td><td colspan=3>{grid[2][1]}</td></tr>')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">When and Where</span></td><td colspan=3>{grid[2][1]}<br/>{grid[3][1]}</td></tr>')
                     self.html.add(f'<tr><td style="text-align: right;"><span class="death">Name</span></td><td>{grid[4][1]}</td>')
                     self.html.addLine(f'<td style="text-align: right;"><span class="death">Sex</span></td><td>{grid[4][2]}</td></tr>')
-                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Date Place of Birth</span></td><td colspan=3>{grid[5][1]}</td></tr>')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Date Place of Birth</span></td><td colspan=3>{grid[5][1]}<br/>{grid[5][2]}</td></tr>')
                     self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Occupation</span></td><td colspan=3>{grid[6][1]}</td></tr>')
                     self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Usual Address</span></td><td colspan=3>{grid[7][1]}</td></tr>')
-                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Cause of Death</span></td><td colspan=3>{grid[8][1]}</td></tr>')
+
+                    # Cause of death can be multiline.
+                    cause = grid[8][1]
+                    cause = cause.replace('\n', '<br />')
+                    self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Cause of Death</span></td><td colspan=3>{cause}</td></tr>')
                     self.html.add(f'<tr><td style="text-align: right;"><span class="death">Informant</span></td><td>{grid[9][1]}</td>')
                     self.html.addLine(f'<td style="text-align: right;"><span class="death">Informant Description</span></td><td>{grid[9][2]}</td></tr>')
                     self.html.addLine(f'<tr><td style="text-align: right;"><span class="death">Informant Address</span></td><td colspan=3>{grid[10][1]}</td></tr>')

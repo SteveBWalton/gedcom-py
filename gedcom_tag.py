@@ -82,15 +82,21 @@ class GedComTag:
             elif tags[1] == 'CONT':
                 if isinstance(self.information, list):
                     # Add to existing list.
-                    self.information.append(block[0][7:].split(': '))
+                    theFullLine = block[0][7:]
+                    # Pickup any following CONT tags as line breaks into this row.
+                    if len(block) > 1:
+                        for extra in range(1, len(block)):
+                            print(f'Extra CONT \'{block[extra][7:]}\'')
+                            theFullLine = f'{theFullLine}\n{block[extra][7:]}'
+                    # Add a row to the existing list.
+                    self.information.append(theFullLine.split(': '))
                 else:
-                    # Add to existing string.
-                    # self.information += '\n' + block[0][7:]
-                    # Add as a tag.
+                    # Add as a child tag.
                     if self.tags is None:
                         self.tags = []
                     self.tags.append(GedComTag(block))
             elif tags[1] == 'CAUS' or tags[1] == 'TYPE':
+                # Add as a child tag.
                 if self.tags is None:
                     self.tags = []
                 self.tags.append(GedComTag(block))
@@ -154,7 +160,17 @@ class GedComTag:
                     result.append(f'{level} {self.type} {line}')
                     isFirst = False
                 else:
-                    result.append(f'{level + 1} CONT {line}')
+                    if '\n' in line:
+                        isFirst = True
+                        lines = line.split('\n')
+                        for cell in lines:
+                            if isFirst:
+                                result.append(f'{level + 1} CONT {cell}')
+                                isFirst = False
+                            else:
+                                result.append(f'{level + 2} CONT {cell}')
+                    else:
+                        result.append(f'{level + 1} CONT {line}')
         elif '\n' in self.information:
             # Multi line information.
             lines = self.information.split('\n')
