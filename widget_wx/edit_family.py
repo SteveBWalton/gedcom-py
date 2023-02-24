@@ -278,6 +278,7 @@ class EditFamily(wx.Dialog):
             else:
                 wives.append(individual)
         # Sort the people.
+        # Add the people to the comboboxes.
         for individual in husbands:
             self.comboboxHusband.Append(individual.toLongString(), individual)
         for individual in wives:

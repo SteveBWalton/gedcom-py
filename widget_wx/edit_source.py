@@ -326,11 +326,107 @@ class EditSource(wx.Dialog):
             label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Place')
             groupDetailsSizer.Add(label, pos=(1,2), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 2)
             self.textPlace = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(400,-1))
-            groupDetailsSizer.Add(self.textPlace, pos = (1,3), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 2)
+            groupDetailsSizer.Add(self.textPlace, pos = (1,3), span=(1,4), flag = wx.ALL | wx.ALIGN_LEFT, border = 2)
             label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Address')
             groupDetailsSizer.Add(label, pos=(2,2), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 2)
             self.textAddress = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(400,-1))
-            groupDetailsSizer.Add(self.textAddress, pos = (2,3), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 2)
+            groupDetailsSizer.Add(self.textAddress, pos = (2,3), span=(1,4), flag = wx.ALL | wx.ALIGN_LEFT, border = 2)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Series')
+            groupDetailsSizer.Add(label, pos=(3,0), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textSeries = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(150,-1))
+            groupDetailsSizer.Add(self.textSeries, pos=(3,1), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Piece')
+            groupDetailsSizer.Add(label, pos=(3,2), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textPiece = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(150,-1))
+            groupDetailsSizer.Add(self.textPiece, pos=(3,3), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Folio')
+            groupDetailsSizer.Add(label, pos=(3,4), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textFolio = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(150,-1))
+            groupDetailsSizer.Add(self.textFolio, pos=(3,5), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Page')
+            groupDetailsSizer.Add(label, pos=(3,6), span=(1,1), flag = wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            self.textPage = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(150,-1))
+            groupDetailsSizer.Add(self.textPage, pos=(3,7), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Name')
+            groupDetailsSizer.Add(label, pos=(4,0), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Person')
+            groupDetailsSizer.Add(label, pos=(4,2), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Relation')
+            groupDetailsSizer.Add(label, pos=(4,5), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Age')
+            groupDetailsSizer.Add(label, pos=(4,4), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Occupation')
+            groupDetailsSizer.Add(label, pos=(4,6), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+            label = wx.StaticText(groupDetails.GetStaticBox(), wx.ID_ANY, 'Born Location')
+            groupDetailsSizer.Add(label, pos=(4,8), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL, border = 1)
+
+            grid = None
+            if self.source.tags is not None:
+                for tag in self.source.tags:
+                    if isinstance(tag.information, list):
+                        grid = tag.information
+
+            line = 5
+            self.textName = []
+            self.comboboxPerson = []
+            self.textAge = []
+            self.textRelation = []
+            self.textOccupation = []
+            self.textBorn = []
+
+            if grid is not None:
+                for index in range(1, len(grid)):
+                    textName = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
+                    groupDetailsSizer.Add(textName, pos=(line,0), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+                    textName.SetValue(grid[index][0])
+                    self.textName.append(textName)
+
+                    # grid[index][1] is person identity.
+                    comboboxPerson = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=[])
+                    groupDetailsSizer.Add(comboboxPerson, pos=(line,2), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+                    self.comboboxPerson.append(comboboxPerson)
+
+                    textAge = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(75,-1))
+                    groupDetailsSizer.Add(textAge, pos=(line,4), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+                    textAge.SetValue(grid[index][2])
+                    self.textAge.append(textAge)
+                    textRelation = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(150,-1))
+                    groupDetailsSizer.Add(textRelation, pos=(line,5), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+                    textRelation.SetValue(grid[index][3])
+                    self.textRelation.append(textRelation)
+                    textOccupation = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
+                    groupDetailsSizer.Add(textOccupation, pos=(line,6), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+                    textOccupation.SetValue(grid[index][4])
+                    self.textOccupation.append(textOccupation)
+                    textBorn = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
+                    groupDetailsSizer.Add(textBorn, pos=(line,8), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+                    textBorn.SetValue(grid[index][5])
+                    self.textBorn.append(textBorn)
+
+                    line += 1
+
+
+            # Add an extra row for new input.
+            textName = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
+            groupDetailsSizer.Add(textName, pos=(line,0), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            self.textName.append(textName)
+            comboboxPerson = wx.ComboBox(groupDetails.GetStaticBox(), wx.ID_ANY, style=wx.CB_READONLY, size=(250,-1), choices=[])
+            groupDetailsSizer.Add(comboboxPerson, pos=(line,2), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            self.comboboxPerson.append(comboboxPerson)
+            textAge = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(75,-1))
+            groupDetailsSizer.Add(textAge, pos=(line,4), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            self.textAge.append(textAge)
+            textRelation = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(150,-1))
+            groupDetailsSizer.Add(textRelation, pos=(line,5), span=(1,1), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            self.textRelation.append(textRelation)
+            textOccupation = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
+            groupDetailsSizer.Add(textOccupation, pos=(line,6), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            self.textOccupation.append(textOccupation)
+            textBorn = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
+            groupDetailsSizer.Add(textBorn, pos=(line,8), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
+            self.textBorn.append(textBorn)
 
             groupDetails.Add(groupDetailsSizer, 0, wx.EXPAND | wx.ALL, 2)
             self.boxsizer.Add(groupDetails, 0, wx.EXPAND | wx.ALL, 2)
@@ -524,6 +620,23 @@ class EditSource(wx.Dialog):
                     self.textInformantAddress.SetValue(grid[10][1])
                     self.textGroReference.SetValue(grid[0][2])
                     self.textWhenRegistered.SetValue(grid[11][1])
+
+                elif self.source.type == GedComSourceType.CENSUS:
+                    # Add the people to the comboboxes.
+                    individuals = self.gedcom.individuals.values()
+                    for individual in individuals:
+                        for combobox in self.comboboxPerson:
+                            combobox.Append(individual.toLongString(), individual)
+
+                    # Select the person in the person comboboxes.
+                    for personIndex in range(1, len(grid)):
+                        for index in range(len(self.comboboxPerson[personIndex - 1].Items)):
+                            individual = self.comboboxPerson[personIndex - 1].GetClientData(index)
+                            print(f'compare \'{grid[personIndex][1]}\' with \'{individual.identity}\'')
+                            if grid[personIndex][1] == individual.identity:
+                                self.comboboxPerson[personIndex - 1].SetSelection(index)
+                                break
+
         else:
             # General source.
             self.comboboxType.SetSelection(self.source.type.value - 1)
@@ -595,6 +708,21 @@ class EditSource(wx.Dialog):
             lines.append(f'2 CONT Informant: {self.textInformant.GetValue()}: {self.textInformantDescription.GetValue()}')
             lines.append(f'2 CONT Informant Address: {self.textInformantAddress.GetValue()}')
             lines.append(f'2 CONT When Registered: {self.textWhenRegistered.GetValue()}')
+            tag = GedComTag(lines)
+            self.source.tags = []
+            self.source.tags.append(tag)
+        elif self.source.type == GedComSourceType.CENSUS:
+            lines = ['1 NOTE GRID: Reference: Series: : Piece: : Folio: : Page: ']
+            for index in range(len(self.textName)):
+                name = self.textName[index].GetValue()
+                selectedPerson = self.comboboxPerson[index].GetSelection()
+                if selectedPerson == wx.NOT_FOUND:
+                    personIdentity = ''
+                else:
+                    individual = self.comboboxPerson[index].GetClientData(selectedPerson)
+                    personIdentity = individual.identity
+                if name != '':
+                    lines.append(f'2 CONT {name}: {personIdentity}: {self.textAge[index].GetValue()}: {self.textRelation[index].GetValue()}: {self.textOccupation[index].GetValue()}: {self.textBorn[index].GetValue()}')
             tag = GedComTag(lines)
             self.source.tags = []
             self.source.tags.append(tag)
