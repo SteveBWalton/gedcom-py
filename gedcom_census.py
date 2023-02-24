@@ -6,6 +6,7 @@ This module implements the :py:class:`GedComCensus` class.
 '''
 # System Libraries.
 from enum import Enum
+import datetime
 
 # Application libraries.
 from gedcom_source import GedComSource
@@ -25,11 +26,18 @@ class GedComCensus:
     :ivar GedComPlace place: The place of the census.
     '''
 
+    def byDate(item):
+        ''' Key for a list sort of census by date. '''
+        if isinstance(item, GedComCensus):
+            if item.date is None:
+                return datetime.now()
+            return item.date.theDate
+        return datetime.now()
+
+
 
     def __init__(self, individual, block = None):
-        '''
-        Class constructor for the :py:class:`GedComDate` class.
-        '''
+        ''' Class constructor for the :py:class:`GedComCensus` class. '''
         self.individual = individual
         self.parse(block)
 
@@ -102,14 +110,10 @@ class GedComCensus:
         if self.date is not None:
             result.append(f'2 DATE {self.date.toGedCom()}')
         if self.place is not None:
-            lines = self.place.toGedCom(level + 1)
-            for line in lines:
-                result.append(line)
+            result.extend(self.place.toGedCom(level + 1))
         if self.tags is not None:
             for tag in self.tags:
-                lines = tag.toGedCom(level + 1)
-                for line in lines:
-                    result.append(line)
+                result.extend(tag.toGedCom(level + 1))
         if self.sources is not None:
             for source in self.sources:
                 result.append(f'{level + 1} SOUR @{source}@')

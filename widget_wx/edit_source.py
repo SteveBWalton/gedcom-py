@@ -21,6 +21,7 @@ from gedcom_tag import GedComTag
 from gedcom_date import GedComDate
 from gedcom_place import GedComPlace
 from gedcom_change import GedComChange
+from gedcom_census import GedComCensus
 
 
 
@@ -407,7 +408,6 @@ class EditSource(wx.Dialog):
 
                     line += 1
 
-
             # Add an extra row for new input.
             textName = wx.TextCtrl(groupDetails.GetStaticBox(), wx.ID_ANY, size=(200,-1))
             groupDetailsSizer.Add(textName, pos=(line,0), span=(1,2), flag = wx.ALL | wx.ALIGN_LEFT, border = 1)
@@ -555,6 +555,7 @@ class EditSource(wx.Dialog):
                 self.textAddress.SetValue(self.source.place.address)
 
         # Type specific inputs.
+        self.originalCensusPeople = []
         numNotesToIgnore = 0
         if self.source.type != GedComSourceType.GENERAL:
             numNotesToIgnore = 1
@@ -630,12 +631,20 @@ class EditSource(wx.Dialog):
 
                     # Select the person in the person comboboxes.
                     for personIndex in range(1, len(grid)):
-                        for index in range(len(self.comboboxPerson[personIndex - 1].Items)):
-                            individual = self.comboboxPerson[personIndex - 1].GetClientData(index)
-                            print(f'compare \'{grid[personIndex][1]}\' with \'{individual.identity}\'')
-                            if grid[personIndex][1] == individual.identity:
-                                self.comboboxPerson[personIndex - 1].SetSelection(index)
-                                break
+                        if grid[personIndex][1] != '':
+                            self.originalCensusPeople.append(grid[personIndex][1])
+                            for index in range(len(self.comboboxPerson[personIndex - 1].Items)):
+                                individual = self.comboboxPerson[personIndex - 1].GetClientData(index)
+                                # print(f'compare \'{grid[personIndex][1]}\' with \'{individual.identity}\'')
+                                if grid[personIndex][1] == individual.identity:
+                                    self.comboboxPerson[personIndex - 1].SetSelection(index)
+                                    break
+
+                    # Populate the reference.
+                    self.textSeries.SetValue(grid[0][3])
+                    self.textPiece.SetValue(grid[0][5])
+                    self.textFolio.SetValue(grid[0][7])
+                    self.textPage.SetValue(grid[0][9])
 
         else:
             # General source.
@@ -712,20 +721,42 @@ class EditSource(wx.Dialog):
             self.source.tags = []
             self.source.tags.append(tag)
         elif self.source.type == GedComSourceType.CENSUS:
-            lines = ['1 NOTE GRID: Reference: Series: : Piece: : Folio: : Page: ']
+            # Remove the old cenus information from.
+            for identity in self.originalCensusPeople:
+                print(f'Remove the census record from {identity}')
+                self.removeCensus(identity)
+
+            # Update this source record.
+            addCensusPeople = []
+            livingWith = []
+            lines = [f'1 NOTE GRID: Reference: Series: {self.textSeries.GetValue()}: Piece: {self.textPiece.GetValue()}: Folio: {self.textFolio.GetValue()}: Page: {self.textPage.GetValue()}']
             for index in range(len(self.textName)):
                 name = self.textName[index].GetValue()
-                selectedPerson = self.comboboxPerson[index].GetSelection()
-                if selectedPerson == wx.NOT_FOUND:
-                    personIdentity = ''
-                else:
-                    individual = self.comboboxPerson[index].GetClientData(selectedPerson)
-                    personIdentity = individual.identity
                 if name != '':
-                    lines.append(f'2 CONT {name}: {personIdentity}: {self.textAge[index].GetValue()}: {self.textRelation[index].GetValue()}: {self.textOccupation[index].GetValue()}: {self.textBorn[index].GetValue()}')
+                    selectedPerson = self.comboboxPerson[index].GetSelection()
+                    if selectedPerson == wx.NOT_FOUND:
+                        personIdentity = ''
+                    else:
+                        individual = self.comboboxPerson[index].GetClientData(selectedPerson)
+                        personIdentity = individual.identity
+                        addCensusPeople.append((personIdentity, self.textOccupation[index].GetValue()))
+
+                    age = self.textAge[index].GetValue()
+                    lines.append(f'2 CONT {name}: {personIdentity}: {age}: {self.textRelation[index].GetValue()}: {self.textOccupation[index].GetValue()}: {self.textBorn[index].GetValue()}')
+
+                    if age != '':
+                        livingWithName = f'{name} ({age})'
+                    else:
+                        livingWithName = f'{name}'
+                    livingWith.append((personIdentity, livingWithName))
             tag = GedComTag(lines)
             self.source.tags = []
             self.source.tags.append(tag)
+
+            # Add census records to.
+            for identity in addCensusPeople:
+                print(f'Add the census record to {identity[0]}')
+                self.addCensus(identity[0], identity[1], livingWith)
         else:
             self.source.type = GedComSourceType(self.comboboxType.GetSelection() + 1)
         self.source.setTitleFromType()
@@ -773,3 +804,48 @@ class EditSource(wx.Dialog):
 
         # Return the result.
         return isResult
+
+
+
+    def addCensus(self, identity, occupation, livingWithPeople):
+        ''' Adds a census tag to the individual based on this census source. '''
+        individual = self.gedcom.individuals[identity]
+        block = []
+        block.append('1 CENS')
+        if self.source.date is not None:
+            block.append(f'2 DATE {self.source.date.toGedCom()}')
+        if self.source.place is not None:
+            block.extend(self.source.place.toGedCom(2))
+        if occupation != '':
+            block.append(f'2 OCCU {occupation}')
+        isFirst = True
+        for livingWith in livingWithPeople:
+            if livingWith[0] != individual.identity:
+                if isFirst:
+                    block.append(f'2 NOTE Living with {livingWith[1]}')
+                    isFirst = False
+                else:
+                    block.append(f'3 CONT {livingWith[1]}')
+        block.append(f'2 SOUR @{self.source.identity}@')
+        newCensus = GedComCensus(individual, block)
+        if individual.census is None:
+            individual.census = []
+        individual.census.append(newCensus)
+
+        individual.census.sort(key = GedComCensus.byDate)
+
+
+
+    def removeCensus(self, identity):
+        ''' Removes a census tags from the individual based on this census source. '''
+        individual = self.gedcom.individuals[identity]
+        if individual.census is None:
+            return
+
+        index = 0
+        while index < len(individual.census):
+            if self.source.identity in individual.census[index].sources:
+                individual.census.pop(index)
+            else:
+                index += 1
+
