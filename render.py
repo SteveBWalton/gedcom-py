@@ -1462,12 +1462,12 @@ class Render(walton.toolbar.IToolbar):
                 for tag in individual.tags:
                     if tag.place is not None:
                         if place.identity in tag.place.toIdentityCheck():
-                            tags += ' '
+                            tags += ', '
             if tags != '':
                 self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{tags[:-2]}</td></tr>')
         self.html.addLine('</table>')
 
-        # Show the families that reference this source.
+        # Show the families that reference this place.
         self.html.addLine('<p>Families</p>')
         self.html.addLine('<table class="reference">')
         for family in self.application.gedcom.families.values():
@@ -1480,4 +1480,14 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine(f'<tr><td><a href="app:family?id={family.identity}">{family.getName()}</a></td><td>{tags[:-2]}</td></tr>')
         self.html.addLine('</table>')
 
-
+        # Show the sources that reference this place.
+        self.html.addLine('<p>Source</p>')
+        self.html.addLine('<table class="reference">')
+        for source in self.application.gedcom.sources.values():
+            tags = ''
+            if source.place is not None:
+                if place.identity in source.place.toIdentityCheck():
+                    tags += ', '
+            if tags != '':
+                self.html.addLine(f'<tr><td><a href="app:source?id={source.identity}">{source.title}</a></td><td>{tags[:-2]}</td></tr>')
+        self.html.addLine('</table>')

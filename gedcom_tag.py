@@ -86,7 +86,7 @@ class GedComTag:
                     # Pickup any following CONT tags as line breaks into this row.
                     if len(block) > 1:
                         for extra in range(1, len(block)):
-                            print(f'Extra CONT \'{block[extra][7:]}\'')
+                            # print(f'Extra CONT \'{block[extra][7:]}\'')
                             theFullLine = f'{theFullLine}\n{block[extra][7:]}'
                     # Add a row to the existing list.
                     self.information.append(theFullLine.split(': '))
