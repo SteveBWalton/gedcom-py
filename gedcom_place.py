@@ -30,15 +30,13 @@ class GedComPlace:
 
 
     def __init__(self, gedcomFile = None):
-        '''
-        Class constructor for the :py:class:`GedComPlace` class.
-        '''
+        ''' Class constructor for the :py:class:`GedComPlace` class. '''
         self.parse(gedcomFile)
 
 
 
     def parse(self, gedcomFile = None):
-        ''' Update the object to the date specified in the string. '''
+        ''' Update the object to the place specified in the block. '''
         self.place = None
         self.address = None
         self.country = None
@@ -148,7 +146,7 @@ class GedComPlace:
 
 
     def toGedCom(self, level = 1):
-        ''' Return the object in GedCom format. '''
+        ''' Return the place in GedCom format. '''
         result = []
         result.append(f'{level} PLAC {self.place}')
         if self.address is not None:
