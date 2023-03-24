@@ -1365,10 +1365,10 @@ class Render(walton.toolbar.IToolbar):
                     childPlaces.append(place)
         childPlaces.sort(key=Place.byName)
         self.html.addLine('<p>Child Locations</p>')
-        self.html.addLine('<table class="reference" style="display: inline-block; vertical-align:top;">')
+        self.html.addLine('<table style="display: inline-block; vertical-align:top; border: 1px solid black;">')
         for place in childPlaces:
             if place.placeType != PlaceType.ADDRESS:
-                self.html.add(f'<tr><td><a href="app:place?id={place.identity}">{place.name}</a></td>')
+                self.html.add(f'<tr style="border-bottom: 1px solid black;"><td><a href="app:place?id={place.identity}">{place.name}</a></td>')
                 if place.placeType == PlaceType.COUNTRY:
                     self.html.add('<td>Country</td>')
                 else:
@@ -1384,10 +1384,10 @@ class Render(walton.toolbar.IToolbar):
                 self.html.addLine('</tr>')
         self.html.addLine('</table>')
 
-        self.html.addLine('<table class="reference" style="display: inline-block; vertical-align:top;">')
+        self.html.addLine('<table style="display: inline-block; vertical-align:top; border: 1px solid black;">')
         for place in childPlaces:
             if place.placeType == PlaceType.ADDRESS:
-                self.html.add(f'<tr><td><a href="app:place?id={place.identity}">{place.name}</a></td>')
+                self.html.add(f'<tr style="border-bottom: 1px solid black;"><td><a href="app:place?id={place.identity}">{place.name}</a></td>')
                 self.html.add('<td>Address</td>')
                 if place.latitude is not None:
                     self.html.add(f'<td style="text-align: center;">{place.latitude}</td>')
@@ -1447,6 +1447,7 @@ class Render(walton.toolbar.IToolbar):
             ##### self.html.add(f'src="https://www.openstreetmap.org/export/embed.html?#map=10/{place.latitude}/{place.longitude}" ')
             # self.html.add('allowfullscreen>')
             # self.html.addLine('</iframe>')
+            pass
 
         self.displayAllPlacesWithParent(place)
 
