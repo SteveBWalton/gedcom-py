@@ -1436,6 +1436,18 @@ class Render(walton.toolbar.IToolbar):
         if place.longitude is not None:
             self.html.addLine(f'<p>Longitude: {place.longitude}</p>')
 
+        # Display a map.
+        if place.latitude is not None and place.longitude is not None:
+            #
+            # <iframe> does not work.  So this is not going to work.
+            #
+
+            # self.html.add('<iframe width="800" height="450" frameborder="1" style="border: 1px solid black;" ')
+            ##### self.html.add(f'src="https://www.openstreetmap.org/#map=10/{place.latitude}/{place.longitude}" ')
+            ##### self.html.add(f'src="https://www.openstreetmap.org/export/embed.html?#map=10/{place.latitude}/{place.longitude}" ')
+            # self.html.add('allowfullscreen>')
+            # self.html.addLine('</iframe>')
+
         self.displayAllPlacesWithParent(place)
 
         # Show the people that reference this place.
