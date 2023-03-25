@@ -19,7 +19,7 @@ from gedcom_individual import GedComIndividual
 from gedcom_family import GedComFamily
 from gedcom_source import GedComSource
 from gedcom_media import GedComMedia
-
+from gedcom_tag import GedComTag
 
 
 def firstCap(text):
@@ -1475,7 +1475,7 @@ class Render(walton.toolbar.IToolbar):
                 for tag in individual.tags:
                     if tag.place is not None:
                         if place.identity in tag.place.toIdentityCheck():
-                            tags += ', '
+                            tags += f'{GedComTag.tagToLabel(tag.type)}, '
             if tags != '':
                 self.html.addLine(f'<tr><td><a href="app:individual?id={individual.identity}">{individual.getName()}</a></td><td>{tags[:-2]}</td></tr>')
         self.html.addLine('</table>')

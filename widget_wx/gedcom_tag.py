@@ -15,24 +15,6 @@ from gedcom_tag import GedComTag
 
 
 
-_tagToLabel = {
-    'DATE' : 'Date',
-    'PLAC' : 'Place',
-    'ADDR' : 'Address',
-    'BIRT' : 'Birth',
-    'DEAT' : 'Death',
-    'OCCU' : 'Occupation',
-    'EDUC' : 'Education',
-    'NOTE' : 'Note',
-    'CONT' : 'Continue',
-    'MARR' : 'Marriage',
-    'TYPE' : 'Type',
-    'DIV'  : 'Divorce',
-    '_TODO' : 'ToDo',
-}
-
-_labelToTag = dict(map(reversed, _tagToLabel.items()))
-
 def addTagToTree(tree, root, tag):
     ''' Adds a gedcom tag to tree under the specified node. '''
     if isinstance(tag, GedComTag):
@@ -48,7 +30,7 @@ def addTagToTree(tree, root, tag):
                     tree.AppendItem(parent, f'CONT: {lineAsString}')
         else:
             # Normal tag, expect to come here.
-            parent = tree.AppendItem(root, f'{tagToLabel(tag.type)}: {tag.information}', data=copy.copy(tag.sources))
+            parent = tree.AppendItem(root, f'{GedComTag.tagToLabel(tag.type)}: {tag.information}', data=copy.copy(tag.sources))
             if tag.date is not None:
                 addTagToTree(tree, parent, tag.date)
             if tag.place is not None:
@@ -122,7 +104,7 @@ def getTagsFromTreeItem(tree, item):
     index = itemText.index(':')
     itemTag = itemText[0:index]
     itemValue = itemText[index+1:].strip()
-    itemTag = labelToTag(itemTag)
+    itemTag = GedComTag.labelToTag(itemTag)
     return itemTag, itemValue
 
 
@@ -148,7 +130,7 @@ def editTag(tree, parentWindow):
     editTagDialog = EditTag(parentWindow)
     itemValue = editTagDialog.editTag(itemTag, itemValue)
     if itemValue is not None:
-        tree.SetItemText(treeItem, f'{tagToLabel(itemTag)}: {itemValue}')
+        tree.SetItemText(treeItem, f'{GedComTag.tagToLabel(itemTag)}: {itemValue}')
 
 
 
@@ -248,24 +230,6 @@ def getNewTagSourceOptions(tree = None, item = None):
             options.append('Place')
             options.append('Note')
     return options
-
-
-
-def tagToLabel(tag):
-    ''' Returns the item label to use for the specified gedcom tag. '''
-    if tag in _tagToLabel:
-        return _tagToLabel[tag]
-    print(f'Unknown tag \'{tag}\'')
-    return tag
-
-
-
-def labelToTag(itemLabel):
-    ''' Returns the gedcom tag to use the for the specified item label. '''
-    if itemLabel in _labelToTag:
-        return _labelToTag[itemLabel]
-    print(f'Unknown label \'{itemLabel}\'')
-    return itemLabel
 
 
 

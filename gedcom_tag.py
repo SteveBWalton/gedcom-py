@@ -28,6 +28,38 @@ class GedComTag:
     # Connection to the gedcom.
     gedcom = None
 
+    # The labels for GedComTags.
+    tagToLabel_ = {
+        'DATE' : 'Date',
+        'PLAC' : 'Place',
+        'ADDR' : 'Address',
+        'BIRT' : 'Birth',
+        'DEAT' : 'Death',
+        'OCCU' : 'Occupation',
+        'EDUC' : 'Education',
+        'NOTE' : 'Note',
+        'CONT' : 'Continue',
+        'MARR' : 'Marriage',
+        'TYPE' : 'Type',
+        'DIV'  : 'Divorce',
+        '_TODO' : 'ToDo',
+    }
+
+    # The gedcom tags for for labels.
+    labelToTag_ = dict(map(reversed, tagToLabel_.items()))
+
+    def tagToLabel(tagName):
+        if tagName in GedComTag.tagToLabel_:
+            return GedComTag.tagToLabel_[tagName]
+        return tagName
+
+
+
+    def labelToTag(labelName):
+        if labelName in GedComTag.labelToTag_:
+            return GedComTag.labelToTag_[labelName]
+        return labelName
+
 
 
     def __init__(self, block = None):
