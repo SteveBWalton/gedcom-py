@@ -663,16 +663,24 @@ class Render(walton.toolbar.IToolbar):
                                     self.html.add(f' living with {tag.information[11:]}')
                     self.html.addLine('. ')
 
-        # Facts.
+        # Tags.
         if individual.tags is not None:
             for tag in individual.tags:
                 if tag.type == 'OCCU':
-                    self.html.add(f'{firstCap(individual.heShe())} worked as a')
+                    if tag.date is not None:
+                        self.html.add(f'{firstCap(tag.date.toLongString())}, {individual.heShe()}')
+                    else:
+                        self.html.add(f'{firstCap(individual.heShe())}')
+                    self.html.add(' worked as a')
                     if tag.information[0:1] in 'AEIOU':
                         self.html.add('n')
                     self.html.add(f' {tag.information}')
                 elif tag.type == 'EDUC':
-                    self.html.add(f'{firstCap(individual.heShe())} was educated at {tag.information}')
+                    if tag.date is not None:
+                        self.html.add(f'{firstCap(tag.date.toLongString())}, {individual.heShe()}')
+                    else:
+                        self.html.add(f'{firstCap(individual.heShe())}')
+                    self.html.add(f' was educated at {tag.information}')
                 elif tag.type == 'NOTE':
                     if tag.information[0:1] >= 'A' and tag.information[0:1] <= 'Z':
                         self.html.add(tag.toLongString())
