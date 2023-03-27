@@ -675,12 +675,18 @@ class Render(walton.toolbar.IToolbar):
                     if tag.information[0:1] in 'AEIOU':
                         self.html.add('n')
                     self.html.add(f' {tag.information}')
+                    if tag.place is not None:
+                        self.html.add(f' in {tag.place.toLongString()}')
+
                 elif tag.type == 'EDUC':
                     if tag.date is not None:
                         self.html.add(f'{firstCap(tag.date.toLongString())}, {individual.heShe()}')
                     else:
                         self.html.add(f'{firstCap(individual.heShe())}')
                     self.html.add(f' was educated at {tag.information}')
+                    if tag.place is not None:
+                        self.html.add(f' in {tag.place.toLongString()}')
+
                 elif tag.type == 'NOTE':
                     if tag.information[0:1] >= 'A' and tag.information[0:1] <= 'Z':
                         self.html.add(tag.toLongString())
@@ -691,6 +697,8 @@ class Render(walton.toolbar.IToolbar):
                     self.html.add(f'{tag.type} {tag.information}')
                 for source in tag.sources:
                     self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
+
+                # End description with a full stop.
                 if self.html._contents[-1:] == '.':
                     self.html.addLine(' ')
                 else:
