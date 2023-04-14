@@ -654,7 +654,7 @@ class EditSource(wx.Dialog):
         root = self.treeTags.AddRoot(self.source.title)
         if self.source.tags is not None:
             for tag in self.source.tags:
-                print(tag.type)
+                # print(tag.type)
                 if tag.type == 'NOTE':
                     if numNotesToIgnore == 0:
 
@@ -673,7 +673,7 @@ class EditSource(wx.Dialog):
 
     def writeChanges(self):
         ''' Populate the individual with values from the dialog. '''
-        print('writeChanges()')
+        # print('writeChanges()')
         # Common inputs.
         self.source.title = self.textTitle.GetValue()
         theDate = self.textDate.GetValue()
@@ -762,17 +762,19 @@ class EditSource(wx.Dialog):
         self.source.setTitleFromType()
 
         # Loop through the tags.
-        print('Loop through tags')
+        # print('Loop through tags')
 
         root = self.treeTags.GetRootItem()
         item, cookie = self.treeTags.GetFirstChild(root)
         while item.IsOk():
             tag = wxtag.getTagFromTree(self.treeTags, root, item)
 
+            #print(f'tag.type = {tag.type}')
+
             # This is for debuging only.
-            if isinstance(tag, GedComTag):
-                for line in tag.toGedCom():
-                    print(line)
+            #if isinstance(tag, GedComTag):
+            #    for line in tag.toGedCom():
+            #        print(line)
 
             if self.source.tags is None:
                 self.source.tags = []

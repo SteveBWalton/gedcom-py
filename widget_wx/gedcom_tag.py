@@ -19,8 +19,6 @@ def addTagToTree(tree, root, tag):
     ''' Adds a gedcom tag to tree under the specified node. '''
     if isinstance(tag, GedComTag):
         if isinstance(tag.information, list):
-            print('Add list to tree')
-            print(f'tag.information[0][0] = {tag.information[0][0]}')
             parent = None
             if tag.information[0][0] == 'GRID':
                 # Special case of NOTE GRID
@@ -64,31 +62,31 @@ def addTagToTree(tree, root, tag):
 def getTagFromTree(tree, root, item, parent=None):
     ''' Get a gedcom tag from a tree control item. '''
     itemTag, itemValue = getTagsFromTreeItem(tree, item)
-    # print(f'{itemTag} {itemValue}')
+    # print(f'getTagFromTree() tag = {itemTag} value = {itemValue}')
     if parent is None:
-        print(f'GedComTag(\'{itemTag}\', \'{itemValue}\')')
+        # print(f'GedComTag(\'{itemTag}\', \'{itemValue}\')')
         tag = GedComTag()
         tag.type = itemTag
         tag.information = itemValue
         tag.sources = getSourcesFromTreeItem(tree, item)
     else:
         if itemTag == 'DATE':
-            print(f'\tGedComDate(\'{itemTag}\', \'{itemValue}\')')
+            # print(f'\tGedComDate(\'{itemTag}\', \'{itemValue}\')')
             parent.date = GedComDate(itemValue)
             tag = parent.date
             tag.sources = getSourcesFromTreeItem(tree, item)
         elif itemTag == 'PLAC':
-            print(f'\tGedComPlace(\'{itemTag}\', \'{itemValue}\')')
+            # print(f'\tGedComPlace(\'{itemTag}\', \'{itemValue}\')')
             parent.place = GedComPlace()
             parent.place.place = itemValue
             tag = parent.place
             tag.sources = getSourcesFromTreeItem(tree, item)
         elif itemTag == 'ADDR':
-            print('\tAdd the address to parent for now')
+            # print('\tAdd the address to parent for now')
             parent.address = itemValue
             tag = None
         else:
-            print(f'\tGedComTag(\'{itemTag}\', \'{itemValue}\')')
+            # print(f'\tGedComTag(\'{itemTag}\', \'{itemValue}\') append to parent tag.')
             tag = GedComTag()
             tag.type = itemTag
             tag.information = itemValue
@@ -104,6 +102,26 @@ def getTagFromTree(tree, root, item, parent=None):
             getTagFromTree(tree, item, child, tag)
             # Get the next child.
             child, cookie = tree.GetNextChild(item, cookie)
+
+    # if the tag is NOTE GRID: then convert the CONT tags to extra lines of information on the parent tag.
+    if isinstance(tag, GedComTag):
+        if tag.type == 'NOTE GRID:':
+            line = f'GRID: {tag.information}'
+            tag.information = []
+            tag.information.append(line.split(': '))
+            tag.type = 'NOTE'
+
+            # Loop through the child tags with the option to remove them from the list.
+            if tag.tags is not None:
+                index = 0
+                while index < len(tag.tags):
+                    if tag.tags[index].type == 'CONT':
+                        # Add this tag to the note and delete it.
+                        childTag = tag.tags.pop(index)
+                        tag.information.append(childTag.information.split(': '))
+                    else:
+                        # Move to the next tag.
+                        index += 1
 
     # Return the gedcom tag.
     return tag

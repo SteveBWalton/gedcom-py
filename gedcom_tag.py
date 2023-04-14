@@ -97,7 +97,7 @@ class GedComTag:
         tags = gedcomFile[0].split()
         self.type = tags[1]
         self.information = gedcomFile[0][gedcomFile[0].index(tags[1]) + len(tags[1]) + 1:]
-        # print(f'FACT {self.type} {self.information}')
+        # print(f'TAG {self.type} {self.information}')
         if self.information.startswith('GRID: '):
             line = self.information
             self.information = []
@@ -137,7 +137,7 @@ class GedComTag:
                 self.tags.append(GedComTag(block))
             else:
                 # Unknown.
-                print(f'FACT unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
+                print(f'TAG unrecogised tag \'{tags[1]}\' \'{block[0]}\'')
 
             # Fetch the next block.
             block, start = GedComTag.gedcom.getNextBlock(gedcomFile, start)

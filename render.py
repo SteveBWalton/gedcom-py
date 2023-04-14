@@ -603,6 +603,18 @@ class Render(walton.toolbar.IToolbar):
                 for source in family.divorce.sources:
                     self.html.add(f'<sup>{self.addLocalSource(localSources, source)}</sup>')
                 self.html.addLine('. ')
+            else:
+                # Relationship ends with a death.
+                if partner is not None and partner.death is not None and partner.death.date is not None:
+                    isShowPartnerDeath = False
+                    if individual.death is None:
+                        isShowPartnerDeath = True
+                    elif individual.death.date is None:
+                        isShowPartnerDeath = True
+                    elif individual.death.date > partner.death.date:
+                        isShowPartnerDeath = True
+                    if isShowPartnerDeath:
+                        self.html.add(f'{partner.getName()} died {partner.death.date.toLongString()}. ')
 
         # Census.
         if individual.census is not None:
