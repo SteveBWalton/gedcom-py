@@ -42,7 +42,10 @@ class GedComTag:
         'MARR' : 'Marriage',
         'TYPE' : 'Type',
         'DIV'  : 'Divorce',
+        # Non standard tags.
         '_TODO' : 'ToDo',
+        # My own tags!
+        'NOTE GRID:' : 'Grid',
     }
 
     # The gedcom tags for for labels.
@@ -147,11 +150,22 @@ class GedComTag:
         result = ''
         if isinstance(self.information, list):
             # Information is a grid.
-            result += '<table>'
+            result += '<table class="grid" align="center" cellpadding="5" cellspacing="0">'
+            isFirst = True
             for rows in self.information:
                 result += '<tr>'
+                rowCount = 0
                 for cell in rows:
-                    result += f'<td style="white-space: nowrap;">\'{cell}\'</td>'
+                    if isFirst:
+                        # This is expected to be 'GRID'.
+                        isFirst = False
+                    else:
+                        if cell == '.':
+                            # This represents NULL for an empty cell.
+                            result += f'<td></td>'
+                        else:
+                            result += f'<td class="gridcell{rowCount % 2}" style="white-space: nowrap;">{cell}</td>'
+                        rowCount += 1
                 result += '</tr>'
             result += '</table>'
         else:

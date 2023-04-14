@@ -21,6 +21,7 @@ table.certificate td { padding: 10px; }
 table.reference td { font-size: 8pt; background-color: white; padding: 2px; border: 1px solid black; }
 table.centretext td { text-align: center; }
 table.righttext td { text-align: right; }
+table.grid { background-color: white; border: 1px solid black;}
 
 table.columns { margin: 0px; padding: 0px; border: 0px solid black; }
 td.columns { vertical-align: top; } /* table.columns td had side effects into tables inside columns. */
@@ -36,9 +37,11 @@ img.flag { padding: 0px; border: 0px; margin: 0px; vertical-align: top; border: 
 svg { padding: 0px; border: 0px; margin: 0px; vertical-align: middle; }
 
 .age {  }
-.census {font-family: 'Times New Roman'; font-size: 8pt; color: darkcyan; margin-top: 3pt; margin-bottom: 3pt}
-.marriage {font-family: 'Times New Roman'; font-size: 8pt; color: seagreen; margin-top: 3pt; margin-bottom: 3pt}
-.birth {font-family: 'Times New Roman'; font-size: 8pt; color: orangered; margin-top: 3pt; margin-bottom: 3pt}
-.death {font-family: 'Times New Roman'; font-size: 8pt; color: purple; margin-top: 3pt; margin-bottom: 3pt}
+.census { font-family: 'Times New Roman'; font-size: 8pt; color: darkcyan; margin-top: 3pt; margin-bottom: 3pt }
+.marriage { font-family: 'Times New Roman'; font-size: 8pt; color: seagreen; margin-top: 3pt; margin-bottom: 3pt }
+.birth { font-family: 'Times New Roman'; font-size: 8pt; color: orangered; margin-top: 3pt; margin-bottom: 3pt }
+.death { font-family: 'Times New Roman'; font-size: 8pt; color: purple; margin-top: 3pt; margin-bottom: 3pt }
+.gridcell0 { font-family: 'Times New Roman'; font-size: 8pt; color: grey; text-align: right; padding: 5px; margin-top: 3pt; margin-bottom: 3pt}
+.gridcell1 { padding: 5px; margin-top: 3pt; margin-bottom: 3pt}
 
 

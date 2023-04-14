@@ -58,8 +58,8 @@ class Application(walton.application.IApplication):
         # The actions that the application can handle.
         # This will be overwritten by the active main window.
         self.actions = {}
-        # Remove this in due course.
-        self.debug = True
+        # Set to true to enable debugging output.
+        self.debug = False
 
         # The Configuration object for the formula one database.
         # This is the application settings and options.

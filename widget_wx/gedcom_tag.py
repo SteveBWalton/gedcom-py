@@ -19,15 +19,27 @@ def addTagToTree(tree, root, tag):
     ''' Adds a gedcom tag to tree under the specified node. '''
     if isinstance(tag, GedComTag):
         if isinstance(tag.information, list):
-            # Special case of NOTE GRID
+            print('Add list to tree')
+            print(f'tag.information[0][0] = {tag.information[0][0]}')
             parent = None
-            for line in tag.information:
-                lineAsString = ': '.join(line)
-                # Really not sure about the tags to use here.
-                if parent is None:
-                    parent = tree.AppendItem(root, f'NOTE {lineAsString}')
-                else:
-                    tree.AppendItem(parent, f'CONT: {lineAsString}')
+            if tag.information[0][0] == 'GRID':
+                # Special case of NOTE GRID
+                for line in tag.information:
+                    lineAsString = ': '.join(line)
+                    if parent is None:
+                        # Skip the 'GRID: ' characters.
+                        parent = tree.AppendItem(root, f'Grid: {lineAsString[6:]}')
+                    else:
+                        tree.AppendItem(parent, f'Continue: {lineAsString}')
+            else:
+                # Not really expecting to come here!
+                for line in tag.information:
+                    lineAsString = ': '.join(line)
+                    # Really not sure about the tags to use here.
+                    if parent is None:
+                        parent = tree.AppendItem(root, f'NOTE {lineAsString}')
+                    else:
+                        tree.AppendItem(parent, f'CONT: {lineAsString}')
         else:
             # Normal tag, expect to come here.
             parent = tree.AppendItem(root, f'{GedComTag.tagToLabel(tag.type)}: {tag.information}', data=copy.copy(tag.sources))
@@ -211,7 +223,7 @@ def getNewTagSourceOptions(tree = None, item = None):
         # Root options.
         options.append('Note')
         # Not sure about this.
-        options.append('GRID')
+        options.append('Grid')
     else:
         # Find the tag.
         itemText = tree.GetItemText(item)
@@ -222,7 +234,7 @@ def getNewTagSourceOptions(tree = None, item = None):
             pass
         elif itemTag == 'Place':
             options.append('Address')
-        elif itemTag == 'Note':
+        elif itemTag == 'Note' or itemTag == 'Grid':
             options.append('Continue')
         else:
             # Default options.
