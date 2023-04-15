@@ -737,14 +737,18 @@ class Render(walton.toolbar.IToolbar):
                 father = self.application.gedcom.individuals[parentFamily.husbandIdentity]
                 self.html.add(f'{firstCap(individual.hisHer())} father was <a href="app:individual?person={father.identity}">{father.getName()}</a>')
                 if father.death is not None and father.death.date is not None:
-                    self.html.add(f' who died {father.death.date.toLongString()} when {individual.firstName} was {individual.getAge(father.death.date)} old')
+                    self.html.add(f' who died {father.death.date.toLongString()}')
+                    if individual.death is None or individual.death.date is None or individual.death.date > father.death.date:
+                        self.html.add(f' when {individual.firstName} was {individual.getAge(father.death.date)} old')
                 self.html.addLine('.')
             mother = None
             if parentFamily.wifeIdentity is not None:
                 mother = self.application.gedcom.individuals[parentFamily.wifeIdentity]
                 self.html.add(f'{firstCap(individual.hisHer())} mother was <a href="app:individual?person={mother.identity}">{mother.getName()}</a>')
                 if mother.death is not None and mother.death.date is not None:
-                    self.html.add(f' who died {mother.death.date.toLongString()} when {individual.firstName} was {individual.getAge(mother.death.date)} old')
+                    self.html.add(f' who died {mother.death.date.toLongString()}')
+                    if individual.death is None or individual.death.date is None or individual.death.date > mother.death.date:
+                        self.html.add(f' when {individual.firstName} was {individual.getAge(mother.death.date)} old')
                 self.html.addLine('.')
 
             #if father is not None and mother is not None:
