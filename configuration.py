@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Module to support the configuration options for the Formula One Results Database program.
+Module to support the configuration options for the gedcom-py project.
 This implements the :py:class:`Configuration` class.
 '''
 
@@ -17,10 +17,10 @@ import walton.xml
 
 class Configuration:
     '''
-    Class to represent the configuration options for the gedcom program.
+    Class to represent the configuration options for the gedcom project.
     Originally this used xml.dom.minidom directly but now using my own :py:class:`~walton.xml.XmlDocument` class.
 
-    :ivar string DIRECTORY: The home directory for this user and the formula results database.
+    :ivar string DIRECTORY: The home directory for this user and the gedcom program.
     :ivar string FILENAME: The filename of the configuration file for this user.
     :ivar walton.xml.XmlDocument xmlDocument: The :py:class:`~walton.xml.XmlDocument` object that persists the configuration options.
     :ivar string databaseFilename: The filename of the formula one results database.
@@ -59,13 +59,18 @@ class Configuration:
         # The XmlDocument object that persits the configuration options.
         self.xmlDocument = walton.xml.XmlDocument(self.FILENAME, 'gedcom')
 
-        # Initialise the options.
+        # Initialise the standard options.
         self.textSize = 10
         self.colourScheme = 'grey'
         self.fontName = 'Liberation Sans'
         self.verticalSpace = 1
         self.horizontalSpace = 2
         self.isDivider = False
+
+        # Initialise the project specific options.
+        self.treeFontSize = 8 # 7
+        self.treeTitleFontSize = 10 # 8
+        # Add options for the size of boxes and the spacing.
 
         # Read the options.
         self.readOptions()

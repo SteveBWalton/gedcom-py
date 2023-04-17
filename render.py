@@ -317,22 +317,22 @@ class Render(walton.toolbar.IToolbar):
         self.html.addLine('</a>')
 
         # Draw the name.
-        self.html.addLine(f'<text font-size="8pt" text-anchor="middle" x="{x+75}" y="{y+12}">{individual.getName()}</text>')
+        self.html.addLine(f'<text font-size="{self.application.configuration.treeTitleFontSize}pt" text-anchor="middle" x="{x+75}" y="{y+12}">{individual.getName()}</text>')
 
         # Draw the information.
         if individual.birth.date is not None:
-            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birth.date.toShortString()}</text>')
+            self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birth.date.toShortString()}</text>')
         if individual.birth.place is not None:
-            self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birth.place.toShortString()}</text>')
+            self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birth.place.toShortString()}</text>')
         if individual.death is not None:
             if individual.death.date is not None:
-                self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.death.date.toShortString()} ({individual.getYears(individual.death.date)})</text>')
+                self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.death.date.toShortString()} ({individual.getYears(individual.death.date)})</text>')
             else:
-                self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">d. Yes</text>')
+                self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+45}">d. Yes</text>')
         elif individual.birth.date is not None:
             years = individual.getYears()
             if years <= 100:
-                self.html.addLine(f'<text font-size="7pt" text-anchor="left" x="{x+10}" y="{y+45}">age {years}</text>')
+                self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+45}">age {years}</text>')
 
 
 
