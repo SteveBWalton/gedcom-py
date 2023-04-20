@@ -267,6 +267,25 @@ def main():
     argParse.add_argument('-u', '--uninstall', help='Uninstall the program.', action='store_true')
     args = argParse.parse_args()
 
+    if args.install:
+        # Install the program.
+
+        # Global installation.
+        walton.install.makeCommandPrompt('gedcom', False, __file__)
+        walton.install.makeMenuCategory('waltons', 'Waltons', 'Waltons', True)
+        walton.install.makeDesktopFile('walton.gedcom', False, 'Gedcom viewer', __file__, f'{os.path.dirname(__file__)}/formulaone.ico', 'A gedcom file viewer.', 'GNOME;GTK;Waltons;')
+        sys.exit(0)
+
+        # Add an alias to remove warning messages.
+        walton.install.addBashAlias('gedcom')
+
+    if args.uninstall:
+        # Remove the program.
+        # Global files.
+        walton.install.removeCommandPrompt('gedcom', False)
+        walton.install.removeDesktopFile('walton.gedcom', False)
+        sys.exit(0)
+
     # Welcome message.
     print(f'{walton.ansi.LIGHT_YELLOW}Gedcom Viewer{walton.ansi.RESET_ALL} by Steve Walton © 2022-2023')
     print(f'Python Version {sys.version_info.major}·{sys.version_info.minor}·{sys.version_info.micro} (expecting 3).')

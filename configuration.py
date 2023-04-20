@@ -68,8 +68,13 @@ class Configuration:
         self.isDivider = False
 
         # Initialise the project specific options.
-        self.treeFontSize = 8 # 7
-        self.treeTitleFontSize = 10 # 8
+        self.treeFontSize = 9 # 7
+        self.treeTitleFontSize = 12 # 8
+        self.treePersonWidth = 200 # 150
+        self.treePersonHeight = 60 # 50
+        self.treeSpaceX = 30 # 20
+        self.treeSpaceY = 50 # 20
+        self.treeLineSpace = 12 # 10
         # Add options for the size of boxes and the spacing.
 
         # Read the options.

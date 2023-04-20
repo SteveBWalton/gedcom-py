@@ -1,14 +1,15 @@
-# The following files will be ignored by git
+# The following files will be ignored by git.
 
-# Subfolders to ignore
+# Subfolders to ignore.
 _build/
 doxygen/
 Styles/
 walton/
 docs/
 
-# File Types to ignore
+# File Types to ignore.
 *pyc
 
-# Files to ignore
+# Files to ignore.
+widget_wx/tree.ico
 

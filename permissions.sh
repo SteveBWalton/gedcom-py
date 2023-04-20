@@ -31,6 +31,10 @@ if [ ! -e "walton/ansi.py" ] ; then
     ln -s ../../../Library/py3/ansi.py walton/ansi.py
 fi
 
+if [ ! -e "widget_wx/tree.ico" ] ; then
+    ln -s ../../../../Graphics/Icons/tree_01.ico widget_wx/tree.ico
+fi
+
 
 # Make a docs folder for the documentation.
 if [ ! -d "docs" ] ; then

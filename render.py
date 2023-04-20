@@ -311,28 +311,35 @@ class Render(walton.toolbar.IToolbar):
         # Draw the container.
         self.html.addLine(f'<a href="app:individual?person={individual.identity}">')
         if individual.isMale():
-            self.html.addLine(f'<rect x="{x}" y="{y}" width="150" height="50" fill="lightskyblue"/>')
+            self.html.addLine(f'<rect x="{x}" y="{y}" width="{self.application.configuration.treePersonWidth}" height="{self.application.configuration.treePersonHeight}" fill="lightskyblue"/>')
         else:
-            self.html.addLine(f'<rect x="{x}" y="{y}" width="150" height="50" rx="15" fill="lightpink" />')
+            self.html.addLine(f'<rect x="{x}" y="{y}" width="{self.application.configuration.treePersonWidth}" height="{self.application.configuration.treePersonHeight}" rx="15" fill="lightpink" />')
         self.html.addLine('</a>')
 
         # Draw the name.
-        self.html.addLine(f'<text font-size="{self.application.configuration.treeTitleFontSize}pt" text-anchor="middle" x="{x+75}" y="{y+12}">{individual.getName()}</text>')
+        y += 4 + self.application.configuration.treeTitleFontSize
+        self.html.addLine(f'<text font-size="{self.application.configuration.treeTitleFontSize}pt" text-anchor="middle" x="{x + self.application.configuration.treePersonWidth // 2}" y="{y}">{individual.getName()}</text>')
+        y += 2
 
         # Draw the information.
         if individual.birth.date is not None:
-            self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+25}">b. {individual.birth.date.toShortString()}</text>')
+            y += self.application.configuration.treeLineSpace
+            self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y}">b. {individual.birth.date.toShortString()}</text>')
         if individual.birth.place is not None:
-            self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+35}">b. {individual.birth.place.toShortString()}</text>')
+            y += self.application.configuration.treeLineSpace
+            self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y}">b. {individual.birth.place.toShortString()}</text>')
         if individual.death is not None:
             if individual.death.date is not None:
-                self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+45}">d. {individual.death.date.toShortString()} ({individual.getYears(individual.death.date)})</text>')
+                y += self.application.configuration.treeLineSpace
+                self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y}">d. {individual.death.date.toShortString()} ({individual.getYears(individual.death.date)})</text>')
             else:
-                self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+45}">d. Yes</text>')
+                y += self.application.configuration.treeLineSpace
+                self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y}">d. Yes</text>')
         elif individual.birth.date is not None:
             years = individual.getYears()
             if years <= 100:
-                self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y+45}">age {years}</text>')
+                y += self.application.configuration.treeLineSpace
+                self.html.addLine(f'<text font-size="{self.application.configuration.treeFontSize}pt" text-anchor="left" x="{x+10}" y="{y}">age {years}</text>')
 
 
 
@@ -341,27 +348,29 @@ class Render(walton.toolbar.IToolbar):
         # Find the family.
         family = self.application.gedcom.families[identity]
 
-        width = 345
+        width = (self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX) * 2 - self.application.configuration.treeSpaceX // 2
         if len(family.childrenIdentities) > 2:
-            width = 5 + 170 * len(family.childrenIdentities)
+            width = (self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX) * len(family.childrenIdentities) - self.application.configuration.treeSpaceX // 2
+
+        height = self.application.configuration.treePersonHeight * 2 + self.application.configuration.treeSpaceY + self.application.configuration.treeSpaceY // 2
 
         # Draw the people.
-        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 130px; background-color: white;" viewBox="0 0 {width} 130" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: {height}px; background-color: white;" viewBox="0 0 {width} {height}" xmlns="http://www.w3.org/2000/svg" version="1.1">')
 
-        x = 5
-        y = 5
+        x = self.application.configuration.treeSpaceX // 4
+        y = self.application.configuration.treeSpaceY // 4
         if family.husbandIdentity is not None:
             self.drawIndividual(family.husbandIdentity, x, y)
-            x += 170
+            x += self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX
         if family.wifeIdentity is not None:
             self.drawIndividual(family.wifeIdentity, x, y)
-            x += 170
+            x += self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX
 
-        x = 5
-        y += 70
+        x = self.application.configuration.treeSpaceX // 4
+        y += self.application.configuration.treePersonHeight + self.application.configuration.treeSpaceY
         for childIdentity in family.childrenIdentities:
             self.drawIndividual(childIdentity, x, y)
-            x += 170
+            x += self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX
 
         # Close the diagram.
         self.html.addLine('</svg>')
@@ -442,20 +451,21 @@ class Render(walton.toolbar.IToolbar):
                 else:
                     rows[1].append((parentFamily.wifeIdentity, 1))
         width = 0
+        height = (self.application.configuration.treePersonHeight + self.application.configuration.treeSpaceY) * 4 - self.application.configuration.treeSpaceY // 2
         # Decide the required width.
         for columns in rows:
-            requiredWidth = len(columns) * 170 - 10
+            requiredWidth = len(columns) * (self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX) - self.application.configuration.treeSpaceX // 2
             if requiredWidth > width:
                 width = requiredWidth
 
         # Draw the people.
-        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: 270px; background-color: white;" viewBox="0 0 {width} 270" xmlns="http://www.w3.org/2000/svg" version="1.1">')
+        self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; width: {width}px; height: {height}px; background-color: white;" viewBox="0 0 {width} {height}" xmlns="http://www.w3.org/2000/svg" version="1.1">')
         # self.html.addLine(f'<svg style="vertical-align: top; border: 1px solid black; background-color: white;" xmlns="http://www.w3.org/2000/svg" version="1.1">')
-        y = 5
+        y = self.application.configuration.treeSpaceY // 4
         previousJoinPoints = []
         for columns in rows:
             familyJoinPoints = []
-            x = 5
+            x = self.application.configuration.treeSpaceX // 4
             for cell in columns:
                 # print(f'individual = {cell[0]}, type = {cell[1]}')
                 self.drawIndividual(cell[0], x, y)
@@ -464,28 +474,28 @@ class Render(walton.toolbar.IToolbar):
                     # Family.
                     partner = self.application.gedcom.individuals[cell[0]]
                     if partner.isMale():
-                        familyJoinPoints.append(x+160)
-                        self.html.addLine(f'<line x1="{x+150}" y1="{y+20}" x2="{x+170}" y2="{y+20}" stroke="black" />')
-                        self.html.addLine(f'<line x1="{x+150}" y1="{y+25}" x2="{x+170}" y2="{y+25}" stroke="black" />')
+                        familyJoinPoints.append(x + self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX // 2)
+                        self.html.addLine(f'<line x1="{x + self.application.configuration.treePersonWidth}" y1="{y + self.application.configuration.treePersonHeight // 2 - 4}" x2="{x + self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX}" y2="{y + self.application.configuration.treePersonHeight // 2 - 4}" stroke="black" />')
+                        self.html.addLine(f'<line x1="{x + self.application.configuration.treePersonWidth}" y1="{y + self.application.configuration.treePersonHeight // 2}" x2="{x + self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX}" y2="{y + self.application.configuration.treePersonHeight // 2}" stroke="black" />')
                     else:
-                        familyJoinPoints.append(x-10)
-                        self.html.addLine(f'<line x1="{x}" y1="{y+20}" x2="{x-20}" y2="{y+20}" stroke="black" />')
-                        self.html.addLine(f'<line x1="{x}" y1="{y+25}" x2="{x-20}" y2="{y+25}" stroke="black" />')
+                        familyJoinPoints.append(x - self.application.configuration.treeSpaceX / 2)
+                        self.html.addLine(f'<line x1="{x}" y1="{y + self.application.configuration.treePersonHeight // 2 - 4}" x2="{x - self.application.configuration.treeSpaceX}" y2="{y + self.application.configuration.treePersonHeight // 2 - 4}" stroke="black" />')
+                        self.html.addLine(f'<line x1="{x}" y1="{y + self.application.configuration.treePersonHeight // 2}" x2="{x - self.application.configuration.treeSpaceX}" y2="{y + self.application.configuration.treePersonHeight // 2}" stroke="black" />')
 
                 if cell[1] // 10 > 0:
                     # Child of family one above.
                     joinPoint = (cell[1] // 10) - 1
-                    joinHeight = y - 10
+                    joinHeight = y - self.application.configuration.treeSpaceY // 2
                     if joinPoint == 1:
-                        joinHeight = y - 15
+                        joinHeight -= 5
                     # print(f'joinPoint = {joinPoint}, joinHeight = {joinHeight}')
-                    self.html.addLine(f'<line x1="{x+75}" y1="{y}" x2="{x+75}" y2="{joinHeight}" stroke="black" />')
+                    self.html.addLine(f'<line x1="{x + self.application.configuration.treePersonWidth // 2}" y1="{y}" x2="{x + self.application.configuration.treePersonWidth // 2}" y2="{joinHeight}" stroke="black" />')
 
                     if len(previousJoinPoints) > joinPoint:
-                        self.html.addLine(f'<line x1="{x+75}" y1="{joinHeight}" x2="{previousJoinPoints[joinPoint]}" y2="{joinHeight}" stroke="black" />')
-                        self.html.addLine(f'<line x1="{previousJoinPoints[joinPoint]}" y1="{joinHeight}" x2="{previousJoinPoints[joinPoint]}" y2="{y-45}" stroke="black" />')
-                x += 170
-            y += 70
+                        self.html.addLine(f'<line x1="{x + self.application.configuration.treePersonWidth // 2}" y1="{joinHeight}" x2="{previousJoinPoints[joinPoint]}" y2="{joinHeight}" stroke="black" />')
+                        self.html.addLine(f'<line x1="{previousJoinPoints[joinPoint]}" y1="{joinHeight}" x2="{previousJoinPoints[joinPoint]}" y2="{y - self.application.configuration.treePersonHeight // 2 - self.application.configuration.treeSpaceY}" stroke="black" />')
+                x += self.application.configuration.treePersonWidth + self.application.configuration.treeSpaceX
+            y += self.application.configuration.treePersonHeight + self.application.configuration.treeSpaceY
             previousJoinPoints = familyJoinPoints
             # print(f'previousJoinPoints = {previousJoinPoints}')
 
