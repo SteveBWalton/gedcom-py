@@ -51,7 +51,10 @@ class GedComTag:
     # The gedcom tags for for labels.
     labelToTag_ = dict(map(reversed, tagToLabel_.items()))
 
+
+
     def tagToLabel(tagName):
+        ''' Returns the human readable label from the specified Gedcom Tag. '''
         if tagName in GedComTag.tagToLabel_:
             return GedComTag.tagToLabel_[tagName]
         return tagName
@@ -59,6 +62,7 @@ class GedComTag:
 
 
     def labelToTag(labelName):
+        ''' Returns the GedCom tag from the specified human readable label. '''
         if labelName in GedComTag.labelToTag_:
             return GedComTag.labelToTag_[labelName]
         return labelName
