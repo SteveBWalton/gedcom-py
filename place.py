@@ -43,8 +43,8 @@ class Place:
                 thePlace.latitude = float(latitude)
             if longitude is not None and thePlace.longitude is None:
                 # print(f'\'{placeName}\' add longitude.')
-                longitude = longitude.replace('W', '')
-                longitude = longitude.replace('E', '-')
+                longitude = longitude.replace('W', '-')
+                longitude = longitude.replace('E', '')
                 thePlace.longitude = float(longitude)
             return thePlace
         # print(f'\'{placeName}\' does not exist.  Creating now.')
