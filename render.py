@@ -1484,7 +1484,8 @@ class Render(walton.toolbar.IToolbar):
             # <iframe> does not work.  So this is not going to work.
             #
 
-            self.html.add('<iframe width="800" height="450" frameborder="1" style="border: 1px solid black;" ')
+            self.html.add('<p>iframe does not work, so this is not going to work!</p>')
+            self.html.add('<iframe width="600" height="250" frameborder="1" style="border: 1px solid black;" ')
             self.html.add(f'src="https://www.openstreetmap.org/#map=11/{place.latitude}/{place.longitude}" ')
             ##### self.html.add(f'src="https://www.openstreetmap.org/export/embed.html?#map=10/{place.latitude}/{place.longitude}" ')
             self.html.add('allowfullscreen>')
